@@ -31,4 +31,8 @@ public interface ManaCost {
 
 		return union;
 	}
+
+	default boolean varies() {
+		return symbols().stream().anyMatch(ManaSymbol::varies);
+	}
 }

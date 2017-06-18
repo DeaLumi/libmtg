@@ -64,9 +64,9 @@ public enum BasicManaSymbol implements ManaSymbol {
 	GENERIC_MILLION ("{1000000}", 1000000),
 	GENERIC_INFINITE ("{\u221e}", Integer.MAX_VALUE),
 
-	GENERIC_X ("{X}", 0),
-	GENERIC_Y ("{Y}", 0),
-	GENERIC_Z ("{Z}", 0),
+	GENERIC_X ("{X}", true),
+	GENERIC_Y ("{Y}", true),
+	GENERIC_Z ("{Z}", true),
 
 	TAP ("{T}", 0),
 	UNTAP ("{Q}", 0)
@@ -112,16 +112,33 @@ public enum BasicManaSymbol implements ManaSymbol {
 	private final String unparsing;
 	private final Set<Color> colors;
 	private final int convertedCost;
+	private final boolean varies;
 
 	BasicManaSymbol(String unparsing, int convertedCost) {
 		this.unparsing = unparsing;
 		this.convertedCost = convertedCost;
+		this.varies = false;
+		this.colors = Collections.unmodifiableSet(EnumSet.noneOf(Color.class));
+	}
+
+	BasicManaSymbol(String unparsing, boolean varies) {
+		this.unparsing = unparsing;
+		this.convertedCost = 0;
+		this.varies = varies;
 		this.colors = Collections.unmodifiableSet(EnumSet.noneOf(Color.class));
 	}
 
 	BasicManaSymbol(String unparsing, int convertedCost, Color firstColor, Color... otherColors) {
 		this.unparsing = unparsing;
 		this.convertedCost = convertedCost;
+		this.varies = false;
+		this.colors = Collections.unmodifiableSet(EnumSet.of(firstColor, otherColors));
+	}
+
+	BasicManaSymbol(String unparsing, boolean varies, Color firstColor, Color... otherColors) {
+		this.unparsing = unparsing;
+		this.convertedCost = 0;
+		this.varies = varies;
 		this.colors = Collections.unmodifiableSet(EnumSet.of(firstColor, otherColors));
 	}
 
@@ -133,6 +150,11 @@ public enum BasicManaSymbol implements ManaSymbol {
 	@Override
 	public int convertedCost() {
 		return convertedCost;
+	}
+
+	@Override
+	public boolean varies() {
+		return varies;
 	}
 
 	@Override

@@ -8,5 +8,7 @@ import java.util.Collection;
 public interface ManaSymbol {
 	int convertedCost();
 
+	boolean varies();
+
 	Collection<Color> colors();
 }
