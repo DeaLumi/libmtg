@@ -57,6 +57,8 @@ public class MtgJsonCardSource implements CardSource {
 			private String number;
 			private String id;
 			private String imageName;
+			private int[] variations;
+			private int multiverseid;
 
 			public Card() {
 				this.cardSet = new WriteOnce<>();
@@ -73,6 +75,8 @@ public class MtgJsonCardSource implements CardSource {
 				this.number = null;
 				this.id = null;
 				this.imageName = null;
+				this.variations = null;
+				this.multiverseid = 0;
 			}
 
 			@Override
@@ -83,22 +87,6 @@ public class MtgJsonCardSource implements CardSource {
 			@Override
 			public BasicManaCost manaCost() {
 				return manaCost;
-			}
-
-			@Override
-			public URL illustration() {
-				try {
-					File f = new File(new File(String.format("s%s", cardSet.value().code())), String.format("%s.xlhq.jpg", this.imageName));
-					System.err.println(f.getAbsolutePath());
-
-					if (!f.exists()) {
-						f = new File("Back.xlhq.jpg");
-					}
-
-					return f.toURI().toURL();
-				} catch (MalformedURLException mue) {
-					throw new Error(mue);
-				}
 			}
 
 			@Override
@@ -154,6 +142,27 @@ public class MtgJsonCardSource implements CardSource {
 			@Override
 			public org.whitefoxy.lib.mtg.data.CardSet set() {
 				return cardSet.value();
+			}
+
+			@Override
+			public int variation() {
+				if (this.variations == null || this.variations.length == 0) {
+					return 0;
+				}
+
+				Arrays.sort(this.variations);
+
+				if (this.multiverseid < this.variations[0]) {
+					return 1;
+				}
+
+				for (int i = 0; i < this.variations.length; ++i) {
+					if (this.multiverseid > this.variations[i]) {
+						return i + 2;
+					}
+				}
+
+				throw new IllegalStateException("How did we get here?");
 			}
 
 			@Override

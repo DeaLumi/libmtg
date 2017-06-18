@@ -22,8 +22,6 @@ public interface Card {
 
 	ManaCost manaCost();
 
-	/* CardImage */ URL illustration();
-
 	Set<Color> color();
 
 	Set<Color> colorIdentity();
@@ -43,6 +41,8 @@ public interface Card {
 	String loyalty();
 
 	String collectorNumber();
+
+	int variation();
 
 	default UUID id() {
 		return UUID.nameUUIDFromBytes(String.format("%s%s%s", set().code(), name(), collectorNumber()).getBytes());
