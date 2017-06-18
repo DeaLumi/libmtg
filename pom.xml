@@ -21,8 +21,8 @@
             <version>LATEST</version>
         </dependency>
         <dependency>
-            <groupId>com.google.auto.service</groupId>
-            <artifactId>auto-service</artifactId>
+            <groupId>emi.lib.service</groupId>
+            <artifactId>service</artifactId>
             <version>LATEST</version>
             <scope>compile</scope>
         </dependency>
