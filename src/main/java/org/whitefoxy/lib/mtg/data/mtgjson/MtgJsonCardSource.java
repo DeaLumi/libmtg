@@ -22,6 +22,18 @@ import java.util.*;
  */
 @AutoService(CardSource.class)
 public class MtgJsonCardSource implements CardSource {
+	private static TypeAdapter<Color> colorTypeAdapter = new TypeAdapter<Color>() {
+		@Override
+		public void write(JsonWriter out, Color value) throws IOException {
+			out.value(value.name);
+		}
+
+		@Override
+		public Color read(JsonReader in) throws IOException {
+			return Color.fromString(in.nextString());
+		}
+	};
+
 	public static class WriteOnce<T> {
 		private T value;
 
@@ -86,22 +98,34 @@ public class MtgJsonCardSource implements CardSource {
 
 			@Override
 			public BasicManaCost manaCost() {
+				if (this.manaCost == null) {
+					this.manaCost = new BasicManaCost("");
+				}
+
 				return manaCost;
 			}
 
 			@Override
 			public Set<Color> color() {
+				if (this.colors == null) {
+					this.colors = Collections.emptySet();
+				}
+
 				return colors;
 			}
 
 			@Override
 			public Set<Color> colorIdentity() {
+				if (this.colors == null) {
+					this.colors = Collections.emptySet();
+				}
+
 				return colors; // TODO: fix this!
 			}
 
 			@Override
 			public CardRarity rarity() {
-				return CardRarity.valueOf(rarity);
+				return CardRarity.forString(rarity);
 			}
 
 			@Override
@@ -279,6 +303,7 @@ public class MtgJsonCardSource implements CardSource {
 
 	public MtgJsonCardSource() throws IOException {
 		this.gson = new GsonBuilder()
+				.registerTypeAdapter(Color.class, colorTypeAdapter)
 				.registerTypeHierarchyAdapter(CardTypeLine.class, cardTypeLineAdapter)
 				.registerTypeHierarchyAdapter(ManaCost.class, manaCostAdapter)
 				.create();
