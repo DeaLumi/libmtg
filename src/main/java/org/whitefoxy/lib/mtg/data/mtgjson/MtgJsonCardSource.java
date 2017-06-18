@@ -1,18 +1,18 @@
 package org.whitefoxy.lib.mtg.data.mtgjson;
 
-import com.google.auto.service.AutoService;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import emi.lib.Service;
 import org.whitefoxy.lib.mtg.card.Card;
 import org.whitefoxy.lib.mtg.characteristic.*;
 import org.whitefoxy.lib.mtg.characteristic.impl.BasicCardTypeLine;
 import org.whitefoxy.lib.mtg.characteristic.impl.BasicManaCost;
-import org.whitefoxy.lib.mtg.data.CardSet;
 import org.whitefoxy.lib.mtg.data.CardSource;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -20,7 +20,8 @@ import java.util.*;
 /**
  * Created by Emi on 5/7/2017.
  */
-@AutoService(CardSource.class)
+@Service.Provider(CardSource.class)
+@Service.Property.String(name="name", value="mtgjson.com")
 public class MtgJsonCardSource implements CardSource {
 	private static TypeAdapter<Color> colorTypeAdapter = new TypeAdapter<Color>() {
 		@Override
