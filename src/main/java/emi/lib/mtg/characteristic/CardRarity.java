@@ -1,4 +1,4 @@
-package org.whitefoxy.lib.mtg.characteristic;
+package emi.lib.mtg.characteristic;
 
 import java.util.NoSuchElementException;
 

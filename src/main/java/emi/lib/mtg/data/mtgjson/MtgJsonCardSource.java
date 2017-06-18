@@ -1,4 +1,4 @@
-package org.whitefoxy.lib.mtg.data.mtgjson;
+package emi.lib.mtg.data.mtgjson;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -6,11 +6,11 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import emi.lib.Service;
-import org.whitefoxy.lib.mtg.card.Card;
-import org.whitefoxy.lib.mtg.characteristic.*;
-import org.whitefoxy.lib.mtg.characteristic.impl.BasicCardTypeLine;
-import org.whitefoxy.lib.mtg.characteristic.impl.BasicManaCost;
-import org.whitefoxy.lib.mtg.data.CardSource;
+import emi.lib.mtg.card.Card;
+import emi.lib.mtg.characteristic.*;
+import emi.lib.mtg.characteristic.impl.BasicCardTypeLine;
+import emi.lib.mtg.characteristic.impl.BasicManaCost;
+import emi.lib.mtg.data.CardSource;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -53,8 +53,8 @@ public class MtgJsonCardSource implements CardSource {
 		}
 	}
 
-	public static class CardSet implements org.whitefoxy.lib.mtg.data.CardSet {
-		public static class Card implements org.whitefoxy.lib.mtg.card.Card {
+	public static class CardSet implements emi.lib.mtg.data.CardSet {
+		public static class Card implements emi.lib.mtg.card.Card {
 
 			private WriteOnce<CardSet> cardSet;
 			private String name;
@@ -165,7 +165,7 @@ public class MtgJsonCardSource implements CardSource {
 			}
 
 			@Override
-			public org.whitefoxy.lib.mtg.data.CardSet set() {
+			public emi.lib.mtg.data.CardSet set() {
 				return cardSet.value();
 			}
 
@@ -369,10 +369,10 @@ public class MtgJsonCardSource implements CardSource {
 	public static void main(String[] args) throws Exception {
 		CardSource source = new MtgJsonCardSource();
 
-		for (org.whitefoxy.lib.mtg.data.CardSet set : source.sets()) {
+		for (emi.lib.mtg.data.CardSet set : source.sets()) {
 			System.out.println("Set " + set.name() + " (" + set.code() + "; " + set.cards().size() + " cards):");
 
-			for (org.whitefoxy.lib.mtg.card.Card card : set.cards()) {
+			for (Card card : set.cards()) {
 				System.out.println(" " + card.name() + " (" + (card.manaCost() != null ? card.manaCost().toString() : "<no mana cost>") + ")");
 			}
 		}

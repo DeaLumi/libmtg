@@ -1,6 +1,6 @@
-package org.whitefoxy.lib.mtg.characteristic;
+package emi.lib.mtg.characteristic;
 
-import org.whitefoxy.lib.mtg.characteristic.impl.BasicManaSymbol;
+import emi.lib.mtg.characteristic.impl.BasicManaSymbol;
 
 import java.util.Collection;
 import java.util.HashSet;

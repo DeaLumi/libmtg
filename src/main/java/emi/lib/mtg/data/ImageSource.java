@@ -1,7 +1,7 @@
-package org.whitefoxy.lib.mtg.data;
+package emi.lib.mtg.data;
 
 import emi.lib.Service;
-import org.whitefoxy.lib.mtg.card.Card;
+import emi.lib.mtg.card.Card;
 
 import java.net.URL;
 

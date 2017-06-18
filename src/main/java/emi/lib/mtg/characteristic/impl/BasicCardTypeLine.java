@@ -1,8 +1,8 @@
-package org.whitefoxy.lib.mtg.characteristic.impl;
+package emi.lib.mtg.characteristic.impl;
 
-import org.whitefoxy.lib.mtg.characteristic.CardType;
-import org.whitefoxy.lib.mtg.characteristic.CardTypeLine;
-import org.whitefoxy.lib.mtg.characteristic.Supertype;
+import emi.lib.mtg.characteristic.CardType;
+import emi.lib.mtg.characteristic.CardTypeLine;
+import emi.lib.mtg.characteristic.Supertype;
 
 import java.util.*;
 import java.util.stream.Collectors;

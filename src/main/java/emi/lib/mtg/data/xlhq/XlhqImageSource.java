@@ -1,8 +1,8 @@
-package org.whitefoxy.lib.mtg.data.xlhq;
+package emi.lib.mtg.data.xlhq;
 
 import emi.lib.Service;
-import org.whitefoxy.lib.mtg.card.Card;
-import org.whitefoxy.lib.mtg.data.ImageSource;
+import emi.lib.mtg.card.Card;
+import emi.lib.mtg.data.ImageSource;
 
 import java.io.File;
 import java.net.MalformedURLException;

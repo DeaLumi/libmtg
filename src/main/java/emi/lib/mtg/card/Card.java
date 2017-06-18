@@ -1,13 +1,11 @@
-package org.whitefoxy.lib.mtg.card;
+package emi.lib.mtg.card;
 
-import org.whitefoxy.lib.mtg.characteristic.CardTypeLine;
-import org.whitefoxy.lib.mtg.characteristic.Color;
-import org.whitefoxy.lib.mtg.characteristic.ManaCost;
-import org.whitefoxy.lib.mtg.characteristic.CardRarity;
-import org.whitefoxy.lib.mtg.data.CardSet;
+import emi.lib.mtg.characteristic.CardRarity;
+import emi.lib.mtg.characteristic.CardTypeLine;
+import emi.lib.mtg.characteristic.Color;
+import emi.lib.mtg.characteristic.ManaCost;
+import emi.lib.mtg.data.CardSet;
 
-import java.net.URL;
-import java.security.MessageDigest;
 import java.util.Set;
 import java.util.UUID;
 

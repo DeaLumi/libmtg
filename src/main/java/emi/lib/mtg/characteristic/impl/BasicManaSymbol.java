@@ -1,7 +1,7 @@
-package org.whitefoxy.lib.mtg.characteristic.impl;
+package emi.lib.mtg.characteristic.impl;
 
-import org.whitefoxy.lib.mtg.characteristic.Color;
-import org.whitefoxy.lib.mtg.characteristic.ManaSymbol;
+import emi.lib.mtg.characteristic.Color;
+import emi.lib.mtg.characteristic.ManaSymbol;
 
 import java.util.*;
 import java.util.regex.Matcher;
