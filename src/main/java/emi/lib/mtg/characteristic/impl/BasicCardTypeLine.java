@@ -40,7 +40,7 @@ public class BasicCardTypeLine implements CardTypeLine {
 			}
 		}
 
-		Set<String> subtypes = Arrays.stream(typeLine.substring(Math.max(0, split)).split(" ")).collect(Collectors.toSet());
+		Set<String> subtypes = split >= 0 ? Arrays.stream(typeLine.substring(Math.max(0, split + 1)).split(" ")).map(String::trim).collect(Collectors.toSet()) : new HashSet<>();
 
 		return new BasicCardTypeLine(supertypes, cardTypes, subtypes);
 	}
@@ -68,5 +68,19 @@ public class BasicCardTypeLine implements CardTypeLine {
 	@Override
 	public Set<String> subtypes() {
 		return subtypes;
+	}
+
+	@Override
+	public String toString() {
+		if (!subtypes.isEmpty()) {
+			return String.format("%s %s — %s",
+					this.supertypes.stream().map(Supertype::name).collect(Collectors.joining(" ")),
+					this.cardTypes.stream().map(CardType::name).collect(Collectors.joining(" ")),
+					this.subtypes.stream().collect(Collectors.joining(" ")));
+		} else {
+			return String.format("%s %s",
+					this.supertypes.stream().map(Supertype::name).collect(Collectors.joining(" ")),
+					this.cardTypes.stream().map(CardType::name).collect(Collectors.joining(" ")));
+		}
 	}
 }
