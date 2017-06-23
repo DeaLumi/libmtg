@@ -94,6 +94,10 @@ public class MtgJsonCardSource implements CardSource {
 
 			@Override
 			public String name() {
+				if (this.name == null) {
+					this.name = "";
+				}
+
 				return name;
 			}
 
@@ -131,36 +135,64 @@ public class MtgJsonCardSource implements CardSource {
 
 			@Override
 			public CardTypeLine type() {
+				if (this.type == null) {
+					this.type = BasicCardTypeLine.parse("");
+				}
+
 				return type;
 			}
 
 			@Override
 			public String text() {
+				if (this.text == null) {
+					this.text = "";
+				}
+
 				return text;
 			}
 
 			@Override
 			public String flavor() {
+				if (this.flavor == null) {
+					this.flavor = "";
+				}
+
 				return flavor;
 			}
 
 			@Override
 			public String power() {
+				if (this.power == null) {
+					this.power = "";
+				}
+
 				return power;
 			}
 
 			@Override
 			public String toughness() {
+				if (this.toughness == null) {
+					this.toughness = "";
+				}
+
 				return toughness;
 			}
 
 			@Override
 			public String loyalty() {
+				if (this.loyalty == null) {
+					this.loyalty = "";
+				}
+
 				return loyalty;
 			}
 
 			@Override
 			public String collectorNumber() {
+				if (this.number == null) {
+					this.number = "";
+				}
+
 				return number;
 			}
 
@@ -202,21 +234,33 @@ public class MtgJsonCardSource implements CardSource {
 			this.cards = null;
 		}
 
-		public final String name, code;
-		public final Set<Card> cards;
+		public String name, code;
+		public Set<Card> cards;
 
 		@Override
 		public String name() {
+			if (this.name == null) {
+				this.name = "";
+			}
+
 			return name;
 		}
 
 		@Override
 		public String code() {
+			if (this.code == null) {
+				this.code = "";
+			}
+
 			return code;
 		}
 
 		@Override
 		public Collection<Card> cards() {
+			if (this.cards == null) {
+				this.cards = Collections.emptySet();
+			}
+
 			return cards;
 		}
 
