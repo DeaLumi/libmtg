@@ -14,13 +14,21 @@ import java.net.URL;
 @Service.Provider(ImageSource.class)
 @Service.Property.String(name="name", value="XLHQ")
 public class XlhqImageSource implements ImageSource {
+	private static final File PARENT_FILE = new File(new File("images"), "xlhq");
+
+	static {
+		if (!PARENT_FILE.exists() && !PARENT_FILE.mkdirs()) {
+			throw new Error("Couldn't create parent directory for XLHQ images...");
+		}
+	}
+
 	@Override
 	public URL find(Card card) {
 		if (card == null) {
 			return null;
 		}
 
-		File f = new File(new File(String.format("s%s", card.set().code())), String.format("%s%s.xlhq.jpg", card.name(), card.variation() == 0 ? "" : Integer.toString(card.variation())));
+		File f = new File(new File(PARENT_FILE, String.format("s%s", card.set().code())), String.format("%s%s.xlhq.jpg", card.name(), card.variation() == 0 ? "" : Integer.toString(card.variation())));
 
 		if (!f.exists()) {
 			return null;

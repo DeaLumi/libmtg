@@ -69,7 +69,6 @@ public class MtgJsonCardSource implements CardSource {
 			private String loyalty;
 			private String number;
 			private String id;
-			private String imageName;
 			private int[] variations;
 			private int multiverseid;
 
@@ -87,7 +86,6 @@ public class MtgJsonCardSource implements CardSource {
 				this.loyalty = null;
 				this.number = null;
 				this.id = null;
-				this.imageName = null;
 				this.variations = null;
 				this.multiverseid = 0;
 			}
