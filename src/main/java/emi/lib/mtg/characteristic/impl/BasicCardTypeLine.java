@@ -40,7 +40,7 @@ public class BasicCardTypeLine implements CardTypeLine {
 			}
 		}
 
-		Set<String> subtypes = split >= 0 ? Arrays.stream(typeLine.substring(Math.max(0, split + 1)).split(" ")).map(String::trim).collect(Collectors.toSet()) : new HashSet<>();
+		Set<String> subtypes = split >= 0 ? Arrays.stream(typeLine.substring(split + 2).split(" +")).map(String::trim).collect(Collectors.toSet()) : new HashSet<>();
 
 		return new BasicCardTypeLine(supertypes, cardTypes, subtypes);
 	}
@@ -72,15 +72,24 @@ public class BasicCardTypeLine implements CardTypeLine {
 
 	@Override
 	public String toString() {
-		if (!subtypes.isEmpty()) {
-			return String.format("%s %s — %s",
-					this.supertypes.stream().map(Supertype::name).collect(Collectors.joining(" ")),
-					this.cardTypes.stream().map(CardType::name).collect(Collectors.joining(" ")),
-					this.subtypes.stream().collect(Collectors.joining(" ")));
+		String fmtString;
+		if (!supertypes.isEmpty()) {
+			if (!subtypes.isEmpty()) {
+				fmtString = "%1$s %2$s — %3$s";
+			} else {
+				fmtString = "%1$s %2$s";
+			}
 		} else {
-			return String.format("%s %s",
-					this.supertypes.stream().map(Supertype::name).collect(Collectors.joining(" ")),
-					this.cardTypes.stream().map(CardType::name).collect(Collectors.joining(" ")));
+			if (!subtypes.isEmpty()) {
+				fmtString = "%2$s — %3$s";
+			} else {
+				fmtString = "%2$s";
+			}
 		}
+
+		return String.format(fmtString,
+				this.supertypes.stream().map(Supertype::name).collect(Collectors.joining(" ")),
+				this.cardTypes.stream().map(CardType::name).collect(Collectors.joining(" ")),
+				this.subtypes.stream().collect(Collectors.joining(" ")));
 	}
 }
