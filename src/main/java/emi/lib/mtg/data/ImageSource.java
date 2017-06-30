@@ -3,6 +3,8 @@ package emi.lib.mtg.data;
 import emi.lib.Service;
 import emi.lib.mtg.card.Card;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
 /**
@@ -10,7 +12,16 @@ import java.net.URL;
  */
 @Service
 @Service.Property.String(name="name")
+@Service.Property.Number(name="priority", required=false, value=0.5)
 @FunctionalInterface
 public interface ImageSource {
-	URL find(Card card);
+	InputStream open(Card card) throws IOException;
+
+	default InputStream openSafely(Card card) {
+		try {
+			return open(card);
+		} catch (IOException ioe) {
+			return null;
+		}
+	}
 }

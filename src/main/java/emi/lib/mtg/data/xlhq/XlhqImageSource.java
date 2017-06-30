@@ -5,6 +5,9 @@ import emi.lib.mtg.card.Card;
 import emi.lib.mtg.data.ImageSource;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -13,6 +16,7 @@ import java.net.URL;
  */
 @Service.Provider(ImageSource.class)
 @Service.Property.String(name="name", value="XLHQ")
+@Service.Property.Number(name="priority", value=1.0)
 public class XlhqImageSource implements ImageSource {
 	private static final File PARENT_FILE = new File(new File("images"), "xlhq");
 
@@ -22,23 +26,26 @@ public class XlhqImageSource implements ImageSource {
 		}
 	}
 
+	private File file(Card card) {
+		File setDir = new File(PARENT_FILE, String.format("s%s", card.set().code()));
+
+		File cardFile;
+		if (card.variation() == 0) {
+			cardFile = new File(setDir, String.format("%s.xlhq.jpg", card.name()));
+		} else {
+			cardFile = new File(setDir, String.format("%s%d.xlhq.jpg", card.name(), card.variation()));
+		}
+
+		return cardFile;
+	}
+
 	@Override
-	public URL find(Card card) {
+	public InputStream open(Card card) throws IOException {
 		if (card == null) {
 			return null;
 		}
 
-		File f = new File(new File(PARENT_FILE, String.format("s%s", card.set().code())), String.format("%s%s.xlhq.jpg", card.name(), card.variation() == 0 ? "" : Integer.toString(card.variation())));
-
-		if (!f.exists()) {
-			return null;
-		}
-
-		try {
-			return f.toURI().toURL();
-		} catch (MalformedURLException e) {
-			assert false : "This shouldn't really be possible. The file exists...";
-			return null;
-		}
+		File f = file(card);
+		return f.exists() ? new FileInputStream(f) : null;
 	}
 }
