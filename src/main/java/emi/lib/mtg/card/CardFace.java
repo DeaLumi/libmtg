@@ -121,9 +121,4 @@ public interface CardFace {
 	 */
 	String loyalty();
 
-	/**
-	 * @return The collector number of this card face. Can be an empty string if the card face wasn't assigned a number.
-	 */
-	String collectorNumber();
-
 }

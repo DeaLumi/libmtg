@@ -55,7 +55,7 @@ public class MtgJsonCardSource implements CardSource {
 	}
 
 	public static class CardSet implements emi.lib.mtg.data.CardSet {
-		public static class Card implements emi.lib.mtg.card.Card, emi.lib.mtg.card.CardFace {
+		public static class Card implements emi.lib.mtg.card.Card, emi.lib.mtg.card.CardFaceExtended {
 			private WriteOnce<CardSet> cardSet;
 			private String name;
 			private BasicManaCost manaCost;
@@ -201,6 +201,11 @@ public class MtgJsonCardSource implements CardSource {
 			}
 
 			@Override
+			public int multiverseId() {
+				return this.multiverseid;
+			}
+
+			@Override
 			public String collectorNumber() {
 				if (this.number == null) {
 					this.number = "";
@@ -217,18 +222,18 @@ public class MtgJsonCardSource implements CardSource {
 			@Override
 			public int variation() {
 				if (this.variations == null || this.variations.length == 0) {
-					return 0;
+					return -1;
 				}
 
 				Arrays.sort(this.variations);
 
 				if (this.multiverseid < this.variations[0]) {
-					return 1;
+					return 0;
 				}
 
 				for (int i = 0; i < this.variations.length; ++i) {
 					if (this.multiverseid > this.variations[i]) {
-						return i + 2;
+						return i + 1;
 					}
 				}
 

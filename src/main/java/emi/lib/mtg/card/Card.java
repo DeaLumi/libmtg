@@ -77,7 +77,7 @@ public interface Card {
 	CardFace face(CardFace.Kind kind);
 
 	/**
-	 * @return The variation of this card.
+	 * @return The variation of this card, 1-indexed, or -1 if this card has no variations.
 	 */
 	int variation();
 

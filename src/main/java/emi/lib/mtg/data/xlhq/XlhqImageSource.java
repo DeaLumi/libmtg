@@ -32,7 +32,7 @@ public class XlhqImageSource implements ImageSource {
 		if (face.card().variation() == 0) {
 			cardFile = new File(setDir, String.format("%s.xlhq.jpg", face.name()));
 		} else {
-			cardFile = new File(setDir, String.format("%s%d.xlhq.jpg", face.name(), face.card().variation()));
+			cardFile = new File(setDir, String.format("%s%d.xlhq.jpg", face.name(), face.card().variation() + 1));
 		}
 
 		return cardFile;
