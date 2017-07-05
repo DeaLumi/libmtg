@@ -1,6 +1,7 @@
 package emi.lib.mtg.data;
 
 import emi.lib.Service;
+import emi.lib.mtg.card.Card;
 import emi.lib.mtg.card.CardFace;
 
 import java.io.IOException;
@@ -14,11 +15,15 @@ import java.io.InputStream;
 @Service.Property.Number(name="priority", required=false, value=0.5)
 @FunctionalInterface
 public interface ImageSource {
-	InputStream open(CardFace cardFace) throws IOException;
+	default InputStream open(Card card) throws IOException {
+		return open(card, CardFace.Kind.Front);
+	}
 
-	default InputStream openSafely(CardFace cardFace) {
+	InputStream open(Card card, CardFace.Kind face) throws IOException;
+
+	default InputStream openSafely(Card card) {
 		try {
-			return open(cardFace);
+			return open(card);
 		} catch (IOException ioe) {
 			return null;
 		}
