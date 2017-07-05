@@ -6,6 +6,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import emi.lib.Service;
+import emi.lib.mtg.card.Card;
 import emi.lib.mtg.card.CardFace;
 import emi.lib.mtg.characteristic.*;
 import emi.lib.mtg.characteristic.impl.BasicCardTypeLine;
@@ -54,8 +55,7 @@ public class MtgJsonCardSource implements CardSource {
 	}
 
 	public static class CardSet implements emi.lib.mtg.data.CardSet {
-		public static class CardFace implements emi.lib.mtg.card.CardFace {
-
+		public static class Card implements emi.lib.mtg.card.Card, emi.lib.mtg.card.CardFace {
 			private WriteOnce<CardSet> cardSet;
 			private String name;
 			private BasicManaCost manaCost;
@@ -72,7 +72,7 @@ public class MtgJsonCardSource implements CardSource {
 			private int[] variations;
 			private int multiverseid;
 
-			public CardFace() {
+			public Card() {
 				this.cardSet = new WriteOnce<>();
 				this.name = null;
 				this.manaCost = null;
@@ -88,6 +88,11 @@ public class MtgJsonCardSource implements CardSource {
 				this.id = null;
 				this.variations = null;
 				this.multiverseid = 0;
+			}
+
+			@Override
+			public Kind kind() {
+				return Kind.Front;
 			}
 
 			@Override
@@ -129,6 +134,11 @@ public class MtgJsonCardSource implements CardSource {
 			@Override
 			public CardRarity rarity() {
 				return CardRarity.forString(rarity);
+			}
+
+			@Override
+			public CardFace face(Kind kind) {
+				return this;
 			}
 
 			@Override
@@ -233,7 +243,7 @@ public class MtgJsonCardSource implements CardSource {
 		}
 
 		public String name, code;
-		public Set<CardFace> cards;
+		public Set<Card> cards;
 
 		@Override
 		public String name() {
@@ -254,7 +264,7 @@ public class MtgJsonCardSource implements CardSource {
 		}
 
 		@Override
-		public Collection<CardFace> cards() {
+		public Collection<Card> cards() {
 			if (this.cards == null) {
 				this.cards = Collections.emptySet();
 			}
@@ -263,8 +273,8 @@ public class MtgJsonCardSource implements CardSource {
 		}
 
 		protected void linkCards() {
-			for (CardFace card : cards()) {
-				card.cardSet.value(this);
+			for (Card card : cards()) {
+				card.cardSet.value(this); // TODO: FIXME
 			}
 		}
 	}
@@ -332,7 +342,7 @@ public class MtgJsonCardSource implements CardSource {
 
 	private final Gson gson;
 	private final Map<String, CardSet> sets;
-	private final Map<UUID, CardFace> cards;
+	private final Map<UUID, Card> cards;
 
 	private void downloadFile(URL remote, String local) throws IOException {
 		try (InputStream download = remote.openStream(); OutputStream writeOut = new FileOutputStream(local)) {
@@ -386,7 +396,7 @@ public class MtgJsonCardSource implements CardSource {
 					CardSet set = this.gson.fromJson(jreader, CardSet.class);
 					this.sets.put(setKey, set);
 
-					for (CardFace c : set.cards()) {
+					for (Card c : set.cards()) {
 						cards.put(c.id(), c);
 					}
 				}
@@ -404,7 +414,7 @@ public class MtgJsonCardSource implements CardSource {
 	}
 
 	@Override
-	public CardFace get(UUID id) {
+	public Card get(UUID id) {
 		return cards.get(id);
 	}
 
@@ -414,18 +424,20 @@ public class MtgJsonCardSource implements CardSource {
 		for (emi.lib.mtg.data.CardSet set : source.sets()) {
 			System.out.println("Set " + set.name() + " (" + set.code() + "; " + set.cards().size() + " cards):");
 
-			for (CardFace cardFace : set.cards()) {
-				System.out.println(" " + cardFace.name() + " (" + (cardFace.manaCost() != null ? cardFace.manaCost().toString() : "<no mana cost>") + ")");
+			for (Card card : set.cards()) {
+				System.out.println(" " + card.name() + " (" + (card.front().manaCost() != null ? card.front().manaCost().toString() : "<no mana cost>") + ")");
 			}
 		}
 
 		System.out.println("Total " + source.sets().stream().mapToInt(s -> s.cards().size()).sum() + " cards.");
-		System.out.println("Highest CMC: " + source.sets().stream().flatMapToInt(s -> s.cards().stream().mapToInt(c -> c.manaCost() != null ? c.manaCost().convertedCost() : 0)).summaryStatistics().getMax());
+		System.out.println("Highest CMC: " + source.sets().stream().flatMapToInt(s -> s.cards().stream().mapToInt(c -> c.front().manaCost() != null ? c.front().manaCost().convertedCost() : 0)).summaryStatistics().getMax());
 
 		System.out.print('[');
 		for (int i = 0; i <= 16; ++i) {
 			final int finalI = i;
-			long count = source.cards().stream().filter(c -> (c.manaCost() != null ? c.manaCost().convertedCost() : 0) == finalI).count();
+			long count = source.sets().stream()
+					.flatMap(s -> s.cards().stream())
+					.filter(c -> (c.front().manaCost() != null ? c.front().manaCost().convertedCost() : 0) == finalI).count();
 			System.out.print(count);
 			System.out.print(',');
 		}

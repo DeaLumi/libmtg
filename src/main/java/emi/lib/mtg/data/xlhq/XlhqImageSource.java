@@ -1,6 +1,7 @@
 package emi.lib.mtg.data.xlhq;
 
 import emi.lib.Service;
+import emi.lib.mtg.card.Card;
 import emi.lib.mtg.card.CardFace;
 import emi.lib.mtg.data.ImageSource;
 
@@ -24,26 +25,26 @@ public class XlhqImageSource implements ImageSource {
 		}
 	}
 
-	private File file(CardFace cardFace) {
-		File setDir = new File(PARENT_FILE, String.format("s%s", cardFace.set().code()));
+	private File file(Card card, CardFace.Kind face) {
+		File setDir = new File(PARENT_FILE, String.format("s%s", card.set().code()));
 
 		File cardFile;
-		if (cardFace.variation() == 0) {
-			cardFile = new File(setDir, String.format("%s.xlhq.jpg", cardFace.name()));
+		if (card.variation() == 0) {
+			cardFile = new File(setDir, String.format("%s.xlhq.jpg", face.name()));
 		} else {
-			cardFile = new File(setDir, String.format("%s%d.xlhq.jpg", cardFace.name(), cardFace.variation()));
+			cardFile = new File(setDir, String.format("%s%d.xlhq.jpg", face.name(), card.variation()));
 		}
 
 		return cardFile;
 	}
 
 	@Override
-	public InputStream open(CardFace cardFace) throws IOException {
-		if (cardFace == null) {
+	public InputStream open(Card card, CardFace.Kind face) throws IOException {
+		if (card == null) {
 			return null;
 		}
 
-		File f = file(cardFace);
+		File f = file(card, face);
 		return f.exists() ? new FileInputStream(f) : null;
 	}
 }
