@@ -25,26 +25,26 @@ public class XlhqImageSource implements ImageSource {
 		}
 	}
 
-	private File file(Card card, CardFace.Kind face) {
-		File setDir = new File(PARENT_FILE, String.format("s%s", card.set().code()));
+	private File file(CardFace face) {
+		File setDir = new File(PARENT_FILE, String.format("s%s", face.card().set().code()));
 
 		File cardFile;
-		if (card.variation() == 0) {
+		if (face.card().variation() == 0) {
 			cardFile = new File(setDir, String.format("%s.xlhq.jpg", face.name()));
 		} else {
-			cardFile = new File(setDir, String.format("%s%d.xlhq.jpg", face.name(), card.variation()));
+			cardFile = new File(setDir, String.format("%s%d.xlhq.jpg", face.name(), face.card().variation()));
 		}
 
 		return cardFile;
 	}
 
 	@Override
-	public InputStream open(Card card, CardFace.Kind face) throws IOException {
-		if (card == null) {
+	public InputStream open(CardFace face) throws IOException {
+		if (face == null) {
 			return null;
 		}
 
-		File f = file(card, face);
+		File f = file(face);
 		return f.exists() ? new FileInputStream(f) : null;
 	}
 }

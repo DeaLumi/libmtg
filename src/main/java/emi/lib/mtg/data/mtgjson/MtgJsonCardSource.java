@@ -91,6 +91,11 @@ public class MtgJsonCardSource implements CardSource {
 			}
 
 			@Override
+			public Card card() {
+				return this;
+			}
+
+			@Override
 			public Kind kind() {
 				return Kind.Front;
 			}

@@ -58,6 +58,11 @@ public interface CardFace {
 	}
 
 	/**
+	 * @return The card of which this is a face.
+	 */
+	Card card();
+
+	/**
 	 * @return The kind of card face this is.
 	 */
 	Kind kind();
