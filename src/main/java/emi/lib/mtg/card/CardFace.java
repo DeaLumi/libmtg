@@ -42,12 +42,12 @@ public interface CardFace {
 		Right,
 
 		/**
-		 * The primary half of Amonkhet splits & the upright part of Kamigawa flip cards
+		 * The primary half of Amonkhet splits and the upright part of Kamigawa flip cards
 		 */
 		Top,
 
 		/**
-		 * The 'aftermath' half of Amonkhet splits & the flipped (upside-down) half of Kamigawa flip cards
+		 * The 'aftermath' half of Amonkhet splits and the flipped (upside-down) half of Kamigawa flip cards
 		 */
 		Bottom,
 
