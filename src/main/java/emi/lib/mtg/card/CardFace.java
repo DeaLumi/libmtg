@@ -12,7 +12,7 @@ import java.util.UUID;
 /**
  * Created by Emi on 3/18/2016.
  */
-public interface Card {
+public interface CardFace {
 
 	CardSet set();
 

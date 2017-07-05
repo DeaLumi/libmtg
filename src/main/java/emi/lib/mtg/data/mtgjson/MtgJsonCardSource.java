@@ -6,7 +6,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import emi.lib.Service;
-import emi.lib.mtg.card.Card;
+import emi.lib.mtg.card.CardFace;
 import emi.lib.mtg.characteristic.*;
 import emi.lib.mtg.characteristic.impl.BasicCardTypeLine;
 import emi.lib.mtg.characteristic.impl.BasicManaCost;
@@ -54,7 +54,7 @@ public class MtgJsonCardSource implements CardSource {
 	}
 
 	public static class CardSet implements emi.lib.mtg.data.CardSet {
-		public static class Card implements emi.lib.mtg.card.Card {
+		public static class CardFace implements emi.lib.mtg.card.CardFace {
 
 			private WriteOnce<CardSet> cardSet;
 			private String name;
@@ -72,7 +72,7 @@ public class MtgJsonCardSource implements CardSource {
 			private int[] variations;
 			private int multiverseid;
 
-			public Card() {
+			public CardFace() {
 				this.cardSet = new WriteOnce<>();
 				this.name = null;
 				this.manaCost = null;
@@ -233,7 +233,7 @@ public class MtgJsonCardSource implements CardSource {
 		}
 
 		public String name, code;
-		public Set<Card> cards;
+		public Set<CardFace> cards;
 
 		@Override
 		public String name() {
@@ -254,7 +254,7 @@ public class MtgJsonCardSource implements CardSource {
 		}
 
 		@Override
-		public Collection<Card> cards() {
+		public Collection<CardFace> cards() {
 			if (this.cards == null) {
 				this.cards = Collections.emptySet();
 			}
@@ -263,7 +263,7 @@ public class MtgJsonCardSource implements CardSource {
 		}
 
 		protected void linkCards() {
-			for (Card card : cards()) {
+			for (CardFace card : cards()) {
 				card.cardSet.value(this);
 			}
 		}
@@ -332,7 +332,7 @@ public class MtgJsonCardSource implements CardSource {
 
 	private final Gson gson;
 	private final Map<String, CardSet> sets;
-	private final Map<UUID, Card> cards;
+	private final Map<UUID, CardFace> cards;
 
 	private void downloadFile(URL remote, String local) throws IOException {
 		try (InputStream download = remote.openStream(); OutputStream writeOut = new FileOutputStream(local)) {
@@ -386,7 +386,7 @@ public class MtgJsonCardSource implements CardSource {
 					CardSet set = this.gson.fromJson(jreader, CardSet.class);
 					this.sets.put(setKey, set);
 
-					for (Card c : set.cards()) {
+					for (CardFace c : set.cards()) {
 						cards.put(c.id(), c);
 					}
 				}
@@ -404,7 +404,7 @@ public class MtgJsonCardSource implements CardSource {
 	}
 
 	@Override
-	public Card get(UUID id) {
+	public CardFace get(UUID id) {
 		return cards.get(id);
 	}
 
@@ -414,8 +414,8 @@ public class MtgJsonCardSource implements CardSource {
 		for (emi.lib.mtg.data.CardSet set : source.sets()) {
 			System.out.println("Set " + set.name() + " (" + set.code() + "; " + set.cards().size() + " cards):");
 
-			for (Card card : set.cards()) {
-				System.out.println(" " + card.name() + " (" + (card.manaCost() != null ? card.manaCost().toString() : "<no mana cost>") + ")");
+			for (CardFace cardFace : set.cards()) {
+				System.out.println(" " + cardFace.name() + " (" + (cardFace.manaCost() != null ? cardFace.manaCost().toString() : "<no mana cost>") + ")");
 			}
 		}
 

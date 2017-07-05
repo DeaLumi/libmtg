@@ -1,7 +1,7 @@
 package emi.lib.mtg.data;
 
 import emi.lib.Service;
-import emi.lib.mtg.card.Card;
+import emi.lib.mtg.card.CardFace;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 public interface CardSource {
 	Collection<? extends CardSet> sets();
 
-	Card get(UUID id);
+	CardFace get(UUID id);
 
-	default Collection<Card> cards() {
+	default Collection<CardFace> cards() {
 		return sets().stream().flatMap(cs -> cs.cards().stream()).collect(Collectors.toSet());
 	}
 }

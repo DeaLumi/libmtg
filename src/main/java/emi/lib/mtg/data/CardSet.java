@@ -1,6 +1,6 @@
 package emi.lib.mtg.data;
 
-import emi.lib.mtg.card.Card;
+import emi.lib.mtg.card.CardFace;
 
 import java.util.Collection;
 
@@ -12,5 +12,5 @@ public interface CardSet {
 
 	String code();
 
-	Collection<? extends Card> cards();
+	Collection<? extends CardFace> cards();
 }
