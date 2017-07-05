@@ -3,6 +3,7 @@ package emi.lib.mtg.data.xlhq;
 import emi.lib.Service;
 import emi.lib.mtg.card.Card;
 import emi.lib.mtg.card.CardFace;
+import emi.lib.mtg.data.DiskBackedImageSource;
 import emi.lib.mtg.data.ImageSource;
 
 import java.io.File;
@@ -16,16 +17,14 @@ import java.io.InputStream;
 @Service.Provider(ImageSource.class)
 @Service.Property.String(name="name", value="XLHQ")
 @Service.Property.Number(name="priority", value=1.0)
-public class XlhqImageSource implements ImageSource {
-	private static final File PARENT_FILE = new File(new File("images"), "xlhq");
-
-	static {
-		if (!PARENT_FILE.exists() && !PARENT_FILE.mkdirs()) {
-			throw new Error("Couldn't create parent directory for XLHQ images...");
-		}
+public class XlhqImageSource extends DiskBackedImageSource {
+	@Override
+	protected String name() {
+		return "xlhq";
 	}
 
-	private File file(CardFace face) {
+	@Override
+	protected File file(CardFace face) {
 		File setDir = new File(PARENT_FILE, String.format("s%s", face.card().set().code()));
 
 		File cardFile;
@@ -39,7 +38,7 @@ public class XlhqImageSource implements ImageSource {
 	}
 
 	@Override
-	public InputStream open(CardFace face) throws IOException {
+	protected InputStream openInternal(CardFace face) throws IOException {
 		if (face == null) {
 			return null;
 		}
