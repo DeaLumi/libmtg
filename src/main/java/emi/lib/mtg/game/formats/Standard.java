@@ -10,6 +10,7 @@ import emi.lib.mtg.game.Zone;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 @Service.Provider(Format.class)
 @Service.Property.String(name="name", value="Standard")
@@ -34,51 +35,41 @@ public class Standard implements Format {
 	public Set<String> validate(Deck deck) {
 		Set<String> messages = new HashSet<>();
 
+		for (Zone zone : Zone.values()) {
+			if (deckZones().contains(zone)) {
+				if (!deck.cards().containsKey(zone)) {
+					messages.add(TOO_FEW_CARDS);
+				}
+			} else {
+				if (deck.cards().containsKey(zone) && !deck.cards().get(zone).isEmpty()) {
+					messages.add(ILLEGAL_ZONES);
+				}
+			}
+		}
+
 		List<Card> lib = deck.cards().get(Zone.Library);
 		if (lib == null) {
 			lib = Collections.emptyList();
-			messages.add(TOO_FEW_CARDS);
-
-			if (deck.cards().size() != 0) {
-				messages.add(ILLEGAL_ZONES);
-			}
-		} else if (deck.cards().size() != 1) {
-			messages.add(ILLEGAL_ZONES);
 		}
 
 		if (deck.sideboard().size() > 15) {
 			messages.add(SIDEBOARD_TOO_LARGE);
 		}
 
-		List<Card> cards = deck.cards().get(Zone.Library);
-
-		if (cards.size() < 60) {
+		if (lib.size() < 60) {
 			messages.add(TOO_FEW_CARDS);
 		}
 
 		Map<String, AtomicInteger> histogram = new HashMap<>();
 
-		for (Card c : cards) {
-			if (c.front().type().supertypes().contains(Supertype.Basic) && c.front().type().cardTypes().contains(CardType.Land)) {
-				continue;
-			}
+		Iterator<Card> iter = Stream.concat(lib.stream(), deck.sideboard().stream())
+				.filter(c -> !c.front().type().supertypes().contains(Supertype.Basic) && !c.front().type().cardTypes().contains(CardType.Land))
+				.iterator();
 
-			if (histogram.computeIfAbsent(c.name(), k -> new AtomicInteger(0)).incrementAndGet() > 4) {
+		while (iter.hasNext()) {
+			if (histogram.computeIfAbsent(iter.next().name(), k -> new AtomicInteger(0)).incrementAndGet() > 4) {
 				messages.add(TOO_MANY_COPIES);
 				break;
-			}
-		}
-
-		if (!messages.contains(TOO_MANY_COPIES)) {
-			for (Card c : deck.sideboard()) {
-				if (c.front().type().supertypes().contains(Supertype.Basic) && c.front().type().cardTypes().contains(CardType.Land)) {
-					continue;
-				}
-
-				if (histogram.computeIfAbsent(c.name(), k -> new AtomicInteger(0)).incrementAndGet() > 4) {
-					messages.add(TOO_MANY_COPIES);
-					break;
-				}
 			}
 		}
 
