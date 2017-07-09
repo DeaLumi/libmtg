@@ -32,6 +32,11 @@ public interface CardFace {
 		Transformed,
 
 		/**
+		 * The upside-down half of a Kamigawa flip card.
+		 */
+		Flipped,
+
+		/**
 		 * The left half of a split card
 		 */
 		Left,
@@ -40,16 +45,6 @@ public interface CardFace {
 		 * The right half of a split card
 		 */
 		Right,
-
-		/**
-		 * The primary half of Amonkhet splits and the upright part of Kamigawa flip cards
-		 */
-		Top,
-
-		/**
-		 * The 'aftermath' half of Amonkhet splits and the flipped (upside-down) half of Kamigawa flip cards
-		 */
-		Bottom,
 
 		/**
 		 * Any other card role.
