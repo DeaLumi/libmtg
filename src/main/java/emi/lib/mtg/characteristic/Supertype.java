@@ -9,6 +9,5 @@ public enum Supertype {
 	Snow,
 	World,
 	Elite,
-	Ongoing,
-	Token; // This isn't technically accurate.
+	Ongoing; // This isn't technically accurate.
 }

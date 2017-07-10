@@ -19,9 +19,12 @@ public enum CardType {
 	Conspiracy,
 	Phenomenon,
 
-	/**
-	 * These aren't technically accurate, and need to be removed once I'm done fucking around with Scryfall.
+	/*
+	 * Types after this are non-official types; they're used in 'silly' sets like Unhinged.
 	 */
-	Emblem,
-	Card;
+
+	Eaturecray,
+	Enchant,
+	Summon,
+	Player;
 }

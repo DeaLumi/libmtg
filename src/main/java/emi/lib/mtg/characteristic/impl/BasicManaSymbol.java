@@ -68,11 +68,17 @@ public enum BasicManaSymbol implements ManaSymbol {
 	GENERIC_Y ("{Y}", true),
 	GENERIC_Z ("{Z}", true),
 
+	HALF_WHITE("{HW}", 0.5, Color.WHITE),
+	HALF_BLUE("{HU}", 0.5, Color.BLUE),
+	HALF_BLACK("{HB}", 0.5, Color.BLACK),
+	HALF_RED("{HR}", 0.5, Color.RED),
+	HALF_GREEN("{HG}", 0.5, Color.GREEN),
+
 	TAP ("{T}", 0),
 	UNTAP ("{Q}", 0)
 	;
 
-	public static final Pattern SYMBOL = Pattern.compile("\\{(?:[WUBRG]|W/[UB]|U/[BR]|B/[RG]|R/[GW]|G/[WU]|2/[WUBRG]|(?:[WUBRG]/)?P|S|C|[0-9]+|\u221e|[XYZ]|[TQ])\\}");
+	public static final Pattern SYMBOL_PATTERN = Pattern.compile("\\{(?:[WUBRG]|W/[UB]|U/[BR]|B/[RG]|R/[GW]|G/[WU]|2/[WUBRG]|(?:[WUBRG]/)?P|S|C|[0-9]+|\u221e|[XYZ]|[TQ]|H[WUBRG])\\}");
 
 	public static Collection<BasicManaSymbol> parse(String manaCost) {
 		Matcher m = SYMBOL.matcher(manaCost);
@@ -111,10 +117,10 @@ public enum BasicManaSymbol implements ManaSymbol {
 
 	private final String unparsing;
 	private final Set<Color> colors;
-	private final int convertedCost;
+	private final double convertedCost;
 	private final boolean varies;
 
-	BasicManaSymbol(String unparsing, int convertedCost) {
+	BasicManaSymbol(String unparsing, double convertedCost) {
 		this.unparsing = unparsing;
 		this.convertedCost = convertedCost;
 		this.varies = false;
@@ -128,7 +134,7 @@ public enum BasicManaSymbol implements ManaSymbol {
 		this.colors = Collections.unmodifiableSet(EnumSet.noneOf(Color.class));
 	}
 
-	BasicManaSymbol(String unparsing, int convertedCost, Color firstColor, Color... otherColors) {
+	BasicManaSymbol(String unparsing, double convertedCost, Color firstColor, Color... otherColors) {
 		this.unparsing = unparsing;
 		this.convertedCost = convertedCost;
 		this.varies = false;
@@ -148,7 +154,7 @@ public enum BasicManaSymbol implements ManaSymbol {
 	}
 
 	@Override
-	public int convertedCost() {
+	public double convertedCost() {
 		return convertedCost;
 	}
 
