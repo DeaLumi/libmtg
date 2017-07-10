@@ -112,7 +112,7 @@ public class MtgJsonCardSource implements CardSource {
 			@Override
 			public BasicManaCost manaCost() {
 				if (this.manaCost == null) {
-					this.manaCost = new BasicManaCost("");
+					this.manaCost = new BasicManaCost(Collections.emptyList());
 				}
 
 				return manaCost;
@@ -332,7 +332,7 @@ public class MtgJsonCardSource implements CardSource {
 
 		@Override
 		public ManaCost read(JsonReader in) throws IOException {
-			return new BasicManaCost(in.nextString());
+			return BasicManaCost.parse(in.nextString());
 		}
 	};
 

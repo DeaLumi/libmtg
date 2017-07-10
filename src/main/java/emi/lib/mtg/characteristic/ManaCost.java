@@ -10,7 +10,7 @@ import java.util.Set;
  * Created by Emi on 5/6/2016.
  */
 public interface ManaCost {
-	Collection<BasicManaSymbol> symbols();
+	Collection<? extends ManaSymbol> symbols();
 
 	default int convertedCost() {
 		int count = 0;

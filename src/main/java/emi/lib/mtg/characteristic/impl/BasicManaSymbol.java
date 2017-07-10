@@ -80,24 +80,6 @@ public enum BasicManaSymbol implements ManaSymbol {
 
 	public static final Pattern SYMBOL_PATTERN = Pattern.compile("\\{(?:[WUBRG]|W/[UB]|U/[BR]|B/[RG]|R/[GW]|G/[WU]|2/[WUBRG]|(?:[WUBRG]/)?P|S|C|[0-9]+|\u221e|[XYZ]|[TQ]|H[WUBRG])\\}");
 
-	public static Collection<BasicManaSymbol> parse(String manaCost) {
-		Matcher m = SYMBOL.matcher(manaCost);
-
-		List<BasicManaSymbol> list = new ArrayList<>();
-
-		int lastEnd = 0;
-		while (m.find()) {
-			list.add(BasicManaSymbol.fromString(m.group()));
-			lastEnd = m.end();
-		}
-
-		if (lastEnd != manaCost.length()) {
-			throw new IllegalArgumentException(String.format("%s is not a valid mana cost (%d != %d)...", manaCost, lastEnd, manaCost.length()));
-		}
-
-		return list;
-	}
-
 	public static BasicManaSymbol fromString(String unparsing) {
 		if (!reverse.containsKey(unparsing)) {
 			for (BasicManaSymbol symbol : BasicManaSymbol.values()) {
