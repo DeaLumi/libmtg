@@ -1,6 +1,7 @@
 package emi.lib.mtg.card;
 
 import emi.lib.mtg.characteristic.*;
+import emi.lib.mtg.characteristic.impl.BasicManaCost;
 import emi.lib.mtg.data.CardSet;
 
 import java.util.*;
@@ -60,6 +61,17 @@ public interface Card {
 	 * @return This card's rarity. Must never be null.
 	 */
 	CardRarity rarity();
+
+	/**
+	 * @return The card's combined mana cost.
+	 */
+	default ManaCost manaCost() {
+		return new BasicManaCost(Arrays.stream(CardFace.Kind.values())
+				.map(this::face)
+				.filter(Objects::nonNull)
+				.flatMap(cf -> cf.manaCost().symbols().stream())
+				.collect(Collectors.toList()));
+	}
 
 	/**
 	 * A convenience function to obtain the front face of this card. All cards have at least a front face.

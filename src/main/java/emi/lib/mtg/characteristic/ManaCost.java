@@ -12,8 +12,8 @@ import java.util.Set;
 public interface ManaCost {
 	Collection<? extends ManaSymbol> symbols();
 
-	default int convertedCost() {
-		int count = 0;
+	default double convertedCost() {
+		double count = 0;
 
 		for(ManaSymbol symbol : symbols()) {
 			count += symbol.convertedCost();

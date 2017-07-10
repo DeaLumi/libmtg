@@ -440,7 +440,7 @@ public class MtgJsonCardSource implements CardSource {
 		}
 
 		System.out.println("Total " + source.sets().stream().mapToInt(s -> s.cards().size()).sum() + " cards.");
-		System.out.println("Highest CMC: " + source.sets().stream().flatMapToInt(s -> s.cards().stream().mapToInt(c -> c.front().manaCost() != null ? c.front().manaCost().convertedCost() : 0)).summaryStatistics().getMax());
+		System.out.println("Highest CMC: " + source.sets().stream().flatMapToDouble(s -> s.cards().stream().mapToDouble(c -> c.front().manaCost() != null ? c.front().manaCost().convertedCost() : 0)).summaryStatistics().getMax());
 
 		System.out.print('[');
 		for (int i = 0; i <= 16; ++i) {
