@@ -12,7 +12,7 @@ public interface Deck {
 
 	String description();
 
-	Map<Zone, List<Card>> cards();
+	Map<Zone, List<? extends Card>> cards();
 
-	List<Card> sideboard();
+	List<? extends Card> sideboard();
 }

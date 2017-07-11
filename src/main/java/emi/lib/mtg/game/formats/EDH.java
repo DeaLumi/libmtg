@@ -47,8 +47,8 @@ public class EDH implements Format {
 			}
 		}
 
-		List<Card> cmd = deck.cards().get(Zone.Command);
-		List<Card> lib = deck.cards().get(Zone.Library);
+		List<? extends Card> cmd = deck.cards().get(Zone.Command);
+		List<? extends Card> lib = deck.cards().get(Zone.Library);
 
 		if (cmd == null) {
 			cmd = Collections.emptyList();

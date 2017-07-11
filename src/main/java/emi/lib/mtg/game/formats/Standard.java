@@ -47,7 +47,7 @@ public class Standard implements Format {
 			}
 		}
 
-		List<Card> lib = deck.cards().get(Zone.Library);
+		List<? extends Card> lib = deck.cards().get(Zone.Library);
 		if (lib == null) {
 			lib = Collections.emptyList();
 		}
