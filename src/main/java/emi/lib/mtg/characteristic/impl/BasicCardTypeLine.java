@@ -14,14 +14,14 @@ public class BasicCardTypeLine implements CardTypeLine {
 
 	public static BasicCardTypeLine parse(String typeLine) {
 		typeLine = typeLine.trim();
-		int split = typeLine.indexOf('—');
+		int split = typeLine.indexOf('\u2014');
 
 		final String[] upperTypes;
 
 		if (split >= 0) {
-			upperTypes = typeLine.substring(0, split).split(" ");
+			upperTypes = typeLine.substring(0, split).split(" +");
 		} else {
-			upperTypes = typeLine.split(" ");
+			upperTypes = typeLine.split(" +");
 		}
 
 		Set<Supertype> supertypes = EnumSet.noneOf(Supertype.class);
@@ -34,8 +34,16 @@ public class BasicCardTypeLine implements CardTypeLine {
 				try {
 					cardTypes.add(CardType.valueOf(s));
 				} catch (IllegalArgumentException iae2) {
-					System.err.println(typeLine);
-					iae2.printStackTrace();
+					synchronized (System.err) {
+						System.err.println(typeLine);
+						for (int i = 0; i < typeLine.length(); ++i) {
+							System.err.print(String.format("0x%x ", typeLine.codePointAt(i)));
+						}
+						System.err.println();
+						System.err.println("Split: " + split);
+						iae2.printStackTrace();
+						System.err.flush();
+					}
 				}
 			}
 		}
