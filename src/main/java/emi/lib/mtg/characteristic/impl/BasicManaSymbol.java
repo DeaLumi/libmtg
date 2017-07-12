@@ -4,12 +4,10 @@ import emi.lib.mtg.characteristic.Color;
 import emi.lib.mtg.characteristic.ManaSymbol;
 
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-/**
- * Created by Emi on 5/6/2016.
- */
+@SuppressWarnings("unused")
 public enum BasicManaSymbol implements ManaSymbol {
 	WHITE ("{W}", 1, Color.WHITE),
 	BLUE ("{U}", 1, Color.BLUE),
@@ -80,22 +78,20 @@ public enum BasicManaSymbol implements ManaSymbol {
 
 	public static final Pattern SYMBOL_PATTERN = Pattern.compile("\\{(?:[WUBRG]|W/[UB]|U/[BR]|B/[RG]|R/[GW]|G/[WU]|2/[WUBRG]|(?:[WUBRG]/)?P|S|C|[0-9]+|\u221e|[XYZ]|[TQ]|H[WUBRG])\\}");
 
+	private final static Map<String, BasicManaSymbol> reverse = reverseMap();
+
+	private static Map<String, BasicManaSymbol> reverseMap() {
+		return Collections.unmodifiableMap(Arrays.stream(BasicManaSymbol.values())
+			.collect(Collectors.toMap(s -> s.unparsing, s -> s)));
+	}
+
 	public static BasicManaSymbol fromString(String unparsing) {
 		if (!reverse.containsKey(unparsing)) {
-			for (BasicManaSymbol symbol : BasicManaSymbol.values()) {
-				if (symbol.toString().equals(unparsing)) {
-					reverse.put(symbol.toString(), symbol);
-					return symbol;
-				}
-			}
-
 			throw new IllegalArgumentException(String.format("%s is not a valid mana symbol...", unparsing));
 		}
 
 		return reverse.get(unparsing);
 	}
-
-	private final static Map<String, BasicManaSymbol> reverse = new HashMap<>();
 
 	private final String unparsing;
 	private final Set<Color> colors;
