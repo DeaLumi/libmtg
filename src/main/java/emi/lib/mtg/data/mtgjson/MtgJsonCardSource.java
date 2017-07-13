@@ -147,6 +147,11 @@ public class MtgJsonCardSource implements CardSource {
 			}
 
 			@Override
+			public Collection<CardFace> faces() {
+				return Collections.singleton(this);
+			}
+
+			@Override
 			public CardTypeLine type() {
 				if (this.type == null) {
 					this.type = BasicCardTypeLine.parse("");

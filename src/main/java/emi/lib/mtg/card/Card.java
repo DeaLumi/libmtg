@@ -26,9 +26,7 @@ public interface Card {
 	 * concatenated with two forward slashes (i.e. "Fire // Ice"). Must never be null.
 	 */
 	default String name() {
-		return Arrays.stream(CardFace.Kind.values())
-				.map(this::face)
-				.filter(Objects::nonNull)
+		return faces().stream()
 				.map(CardFace::name)
 				.collect(Collectors.joining(" // "));
 	}
@@ -38,9 +36,7 @@ public interface Card {
 	 * never be null.
 	 */
 	default Set<Color> color() {
-		return Arrays.stream(CardFace.Kind.values())
-				.map(this::face)
-				.filter(Objects::nonNull)
+		return faces().stream()
 				.map(CardFace::color)
 				.collect(() -> EnumSet.noneOf(Color.class), Set::addAll, Set::addAll);
 	}
@@ -50,9 +46,7 @@ public interface Card {
 	 * color identities. Must never be null.
 	 */
 	default Set<Color> colorIdentity() {
-		return Arrays.stream(CardFace.Kind.values())
-				.map(this::face)
-				.filter(Objects::nonNull)
+		return faces().stream()
 				.map(CardFace::colorIdentity)
 				.collect(() -> EnumSet.noneOf(Color.class), Set::addAll, Set::addAll);
 	}
@@ -66,11 +60,26 @@ public interface Card {
 	 * @return The card's combined mana cost.
 	 */
 	default ManaCost manaCost() {
-		return new BasicManaCost(Arrays.stream(CardFace.Kind.values())
-				.map(this::face)
-				.filter(Objects::nonNull)
+		return new BasicManaCost(faces().stream()
 				.flatMap(cf -> cf.manaCost().symbols().stream())
 				.collect(Collectors.toList()));
+	}
+
+	/**
+	 * Return all faces of this card.
+	 * @return All faces of this card.
+	 */
+	Collection<? extends CardFace> faces();
+
+	/**
+	 * @param kind The kind of card face to get.
+	 * @return The face of that kind, or null if this card has no face of that kind.
+	 */
+	default CardFace face(CardFace.Kind kind) {
+		return faces().stream()
+				.filter(cf -> kind.equals(cf.kind()))
+				.findAny()
+				.orElse(null);
 	}
 
 	/**
@@ -81,12 +90,6 @@ public interface Card {
 	default CardFace front() {
 		return face(CardFace.Kind.Front);
 	}
-
-	/**
-	 * @param kind The kind of card face to get.
-	 * @return The face of that kind, or null if this card has no face of that kind.
-	 */
-	CardFace face(CardFace.Kind kind);
 
 	/**
 	 * @return The variation of this card, 1-indexed, or -1 if this card has no variations.
