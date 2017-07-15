@@ -6,9 +6,6 @@ import emi.lib.mtg.game.Zone;
 import java.util.Collections;
 import java.util.Set;
 
-/**
- * Created by stuyvenberg on 7/13/17.
- */
 public abstract class TraditionalFormat extends AbstractFormat {
 	@Override
 	public Set<Zone> deckZones() {
