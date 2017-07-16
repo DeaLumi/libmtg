@@ -10,6 +10,11 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractFormat implements Format {
+	@Override
+	public String toString() {
+		return name();
+	}
+
 	protected abstract int minCards(Zone zone);
 
 	protected abstract int maxCards(Zone zone);
