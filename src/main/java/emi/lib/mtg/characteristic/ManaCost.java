@@ -6,9 +6,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by Emi on 5/6/2016.
- */
 public interface ManaCost {
 	Collection<? extends ManaSymbol> symbols();
 
@@ -22,11 +19,11 @@ public interface ManaCost {
 		return count;
 	}
 
-	default Collection<Color> colors() {
+	default Collection<Color> color() {
 		Set<Color> union = new HashSet<>();
 
 		for (ManaSymbol symbol : symbols()) {
-			union.addAll(symbol.colors());
+			union.addAll(symbol.color());
 		}
 
 		return union;

@@ -142,7 +142,7 @@ public enum BasicManaSymbol implements ManaSymbol {
 	}
 
 	@Override
-	public Set<Color> colors() {
+	public Set<Color> color() {
 		return colors;
 	}
 }

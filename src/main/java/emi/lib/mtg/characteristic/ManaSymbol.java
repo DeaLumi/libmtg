@@ -10,5 +10,5 @@ public interface ManaSymbol {
 
 	boolean varies();
 
-	Collection<Color> colors();
+	Collection<Color> color();
 }
