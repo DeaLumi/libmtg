@@ -143,6 +143,19 @@ public interface Card {
 		}
 
 		/**
+		 * Derived characteristic. Union of mana cost color and color indicator and colors of mana
+		 * symbols in rules text and characteristic-defining abilities (uuughh).
+		 * @return This card's color identity. An empty set if the card is colorless.
+		 */
+		default Set<Color> colorIdentity() {
+			EnumSet<Color> color = EnumSet.copyOf(color());
+			ManaSymbol.symbolsIn(rules()).stream()
+					.flatMap(s -> s.color().stream())
+					.forEach(color::add);
+			return color;
+		}
+
+		/**
 		 * Derived characteristic. The nearest number representation of the card's power.
 		 * For cards with no power, this is NaN. Otherwise, this is the card's power,
 		 * taking any characteristic-defining abilities to be 0.
