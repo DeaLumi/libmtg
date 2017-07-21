@@ -134,6 +134,10 @@ public interface Card {
 
 		/**
 		 * Derived characteristic. Union of the color indicator and mana cost color.
+		 *
+		 * N.B. Sources SHOULD override this! Consider Ghostflame and Devoid cards. We can't be arsed to
+		 * search through the text for characteristic-defining abilities here!
+		 *
 		 * @return This card's effective color. An empty set if the card is colorless.
 		 */
 		default Set<Color> color() {
@@ -310,12 +314,22 @@ public interface Card {
 
 	/**
 	 * Returns the full, combined mana cost of all faces of this card, formed by adding all mana symbols
-	 * of each face's mana cost togther. Note that this does not reduce generic symbols.
+	 * of each face's mana cost together. Note that this does not reduce generic symbols.
 	 * @return The complete mana cost of this card.
 	 */
 	default ManaCost fullManaCost() {
 		return new BasicManaCost(this.faces().stream()
 				.flatMap(f -> f.manaCost().symbols().stream())
 				.collect(Collectors.toList()));
+	}
+
+	/**
+	 * Returns the color identity of this card. This is the union of all faces' color identities.
+	 * @return The color identity of this card.
+	 */
+	default Set<Color> colorIdentity() {
+		return this.faces().stream()
+				.flatMap(f -> f.colorIdentity().stream())
+				.collect(() -> EnumSet.noneOf(Color.class), Set::add, Set::addAll);
 	}
 }
