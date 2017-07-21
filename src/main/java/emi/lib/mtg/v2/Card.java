@@ -137,8 +137,8 @@ public interface Card {
 		 * @return This card's effective color. An empty set if the card is colorless.
 		 */
 		default Set<Color> color() {
-			EnumSet<Color> color = EnumSet.copyOf(colorIndicator());
-			color.addAll(manaCost().color());
+			EnumSet<Color> color = EnumSet.copyOf(this.colorIndicator());
+			color.addAll(this.manaCost().color());
 			return color;
 		}
 
@@ -148,8 +148,8 @@ public interface Card {
 		 * @return This card's color identity. An empty set if the card is colorless.
 		 */
 		default Set<Color> colorIdentity() {
-			EnumSet<Color> color = EnumSet.copyOf(color());
-			ManaSymbol.symbolsIn(rules()).stream()
+			EnumSet<Color> color = EnumSet.copyOf(this.color());
+			ManaSymbol.symbolsIn(this.rules()).stream()
 					.flatMap(s -> s.color().stream())
 					.forEach(color::add);
 			return color;
@@ -162,7 +162,7 @@ public interface Card {
 		 * @return Nearest number representation of the card's power.
 		 */
 		default double convertedPower() {
-			return convertedValue(power());
+			return convertedValue(this.power());
 		}
 
 		/**
@@ -172,7 +172,7 @@ public interface Card {
 		 * @return Nearest number representation of the card's toughness.
 		 */
 		default double convertedToughness() {
-			return convertedValue(toughness());
+			return convertedValue(this.toughness());
 		}
 
 		/**
@@ -182,7 +182,7 @@ public interface Card {
 		 * @return Nearest number representation of the card's loyalty.
 		 */
 		default double convertedLoyalty() {
-			return convertedValue(loyalty());
+			return convertedValue(this.loyalty());
 		}
 	}
 
