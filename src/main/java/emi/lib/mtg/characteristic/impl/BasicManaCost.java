@@ -1,7 +1,7 @@
 package emi.lib.mtg.characteristic.impl;
 
-import emi.lib.mtg.characteristic.ManaCost;
 import emi.lib.mtg.characteristic.ManaSymbol;
+import emi.lib.mtg.characteristic.ManaCost;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,14 +14,14 @@ import java.util.stream.Collectors;
  * Created by Emi on 5/19/2017.
  */
 public class BasicManaCost implements ManaCost {
-	private static List<BasicManaSymbol> parseSymbols(String manaCost) {
-		Matcher m = BasicManaSymbol.SYMBOL_PATTERN.matcher(manaCost);
+	private static List<ManaSymbol> parseSymbols(String manaCost) {
+		Matcher m = ManaSymbol.SYMBOL_PATTERN.matcher(manaCost);
 
-		List<BasicManaSymbol> list = new ArrayList<>();
+		List<ManaSymbol> list = new ArrayList<>();
 
 		int lastEnd = 0;
 		while (m.find()) {
-			list.add(BasicManaSymbol.fromString(m.group()));
+			list.add(ManaSymbol.fromString(m.group()));
 			lastEnd = m.end();
 		}
 
