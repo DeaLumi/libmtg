@@ -1,5 +1,6 @@
 package emi.lib.mtg.v2.impl;
 
+import emi.lib.mtg.characteristic.CardRarity;
 import emi.lib.mtg.v2.Card;
 import emi.lib.mtg.v2.Set;
 
@@ -9,6 +10,7 @@ import java.util.UUID;
 public class BasicPrinting implements Card.Printing {
 	private Card card;
 	private Set set;
+	private CardRarity rarity;
 	private Integer multiverseId;
 	private int variation;
 	private String collectorNumber;
@@ -18,6 +20,7 @@ public class BasicPrinting implements Card.Printing {
 	public BasicPrinting() {
 		this.card = null;
 		this.set = null;
+		this.rarity = CardRarity.Common;
 		this.multiverseId = null;
 		this.variation = 1;
 		this.collectorNumber = null;
@@ -42,6 +45,16 @@ public class BasicPrinting implements Card.Printing {
 
 	public BasicPrinting set(Set set) {
 		this.set = set;
+		return this;
+	}
+
+	@Override
+	public CardRarity rarity() {
+		return this.rarity;
+	}
+
+	public BasicPrinting rarity(CardRarity rarity) {
+		this.rarity = rarity;
 		return this;
 	}
 

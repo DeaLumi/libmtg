@@ -181,6 +181,11 @@ public interface Card {
 		emi.lib.mtg.v2.Set set();
 
 		/**
+		 * @return The rarity of this printing.
+		 */
+		CardRarity rarity();
+
+		/**
 		 * @return The multiverseId of this printing. Null if the card has no multiverseid.
 		 */
 		Integer multiverseId();
