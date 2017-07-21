@@ -42,11 +42,6 @@ public class BasicManaCost implements ManaCost {
 		this.symbols = symbols;
 	}
 
-	@Deprecated
-	public BasicManaCost(String cost) {
-		this.symbols = Collections.unmodifiableList(parseSymbols(cost));
-	}
-
 	@Override
 	public Collection<? extends ManaSymbol> symbols() {
 		return symbols;

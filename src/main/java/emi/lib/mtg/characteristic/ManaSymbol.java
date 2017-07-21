@@ -1,6 +1,7 @@
 package emi.lib.mtg.characteristic;
 
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -94,6 +95,18 @@ public enum ManaSymbol {
 		}
 
 		return reverse.get(unparsing);
+	}
+
+	public static List<ManaSymbol> symbolsIn(String text) {
+		List<ManaSymbol> tmp = new ArrayList<>();
+
+		Matcher m = SYMBOL_PATTERN.matcher(text);
+
+		while (m.find()) {
+			tmp.add(ManaSymbol.fromString(m.group()));
+		}
+
+		return tmp;
 	}
 
 	private final String unparsing;
