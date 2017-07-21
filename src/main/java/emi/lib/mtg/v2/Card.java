@@ -2,6 +2,7 @@ package emi.lib.mtg.v2;
 
 import emi.lib.mtg.characteristic.*;
 
+import java.util.EnumSet;
 import java.util.UUID;
 import java.util.Set;
 
@@ -22,13 +23,9 @@ public interface Card {
 
 		ManaCost manaCost();
 
-		Void illustration(); // TODO: Define illustration.
-
 		Set<Color> colorIndicator();
 
 		CardTypeLine type();
-
-		Void expansionSymbol(); // TODO: Define expansion symbol
 
 		String rules();
 
@@ -42,14 +39,17 @@ public interface Card {
 
 		String lifeModifier();
 
-		String illustrationCredit(); // TODO: Do we care?
-
-		String legalText(); // TODO: Do we care?
-
-		String collectorNumber(); // TODO: Do we ca-- I mean, uh, is this a part of Card, or Face?
-
 		// TODO: Derived characteristics (net color, CMC, etc) here
 
+		default Set<Color> color() {
+			EnumSet<Color> color = EnumSet.copyOf(colorIndicator());
+			color.addAll(manaCost().colors());
+			return color;
+		}
+
+		default Double convertedManaCost() {
+			return manaCost().convertedCost();
+		}
 	}
 
 	interface Printing {
