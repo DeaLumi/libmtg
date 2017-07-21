@@ -5,6 +5,7 @@ import emi.lib.mtg.v2.Set;
 
 import java.util.HashSet;
 
+@SuppressWarnings("unused")
 public class BasicSet implements Set {
 	private String name;
 	private String code;

@@ -8,6 +8,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * A Magic: the Gathering card. Collects all of a card's playable and fluff characteristics with each unique
+ * printing of a card known to the providing data source.
+ */
 @SuppressWarnings("unused")
 public interface Card {
 	/**
@@ -209,6 +213,9 @@ public interface Card {
 		Integer mtgoCatalogId();
 
 		/**
+		 * N.B. for implementors: This ID must be unique across all printings of all cards, and ideally unique across
+		 * all data sources.
+		 *
 		 * @return A unique ID that can be used to refer to this printing. Must not be null. This is used to reliably
 		 * refer to *this* printing of *this* card.
 		 */
@@ -233,6 +240,13 @@ public interface Card {
 	 * @return The set of this card's printings.
 	 */
 	Set<? extends Printing> printings();
+
+	/**
+	 * Retrieves a particular printing.
+	 * @param id The ID of the printing to get.
+	 * @return The printing with that ID, or null if this card has no such printing.
+	 */
+	Printing printing(UUID id);
 
 	/**
 	 * Tries to calculate the best name of this card. For most cards including transform and

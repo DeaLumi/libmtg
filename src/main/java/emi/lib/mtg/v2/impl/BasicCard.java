@@ -1,6 +1,7 @@
 package emi.lib.mtg.v2.impl;
 
 import com.google.common.collect.EnumHashBiMap;
+import com.google.common.collect.HashBiMap;
 import emi.lib.mtg.characteristic.CardTypeLine;
 import emi.lib.mtg.characteristic.Color;
 import emi.lib.mtg.characteristic.ManaCost;
@@ -189,13 +190,11 @@ public class BasicCard implements Card {
 	}
 
 	private EnumHashBiMap<Face.Kind, Card.Face> faces;
-	private Set<Card.Printing> printings;
-	private UUID id;
+	private HashBiMap<UUID, Card.Printing> printings;
 
 	public BasicCard() {
 		this.faces = EnumHashBiMap.create(Face.Kind.class);
-		this.printings = new HashSet<>();
-		this.id = UUID.randomUUID();
+		this.printings = HashBiMap.create();
 	}
 
 	@Override
@@ -215,6 +214,11 @@ public class BasicCard implements Card {
 
 	@Override
 	public Set<Card.Printing> printings() {
-		return this.printings;
+		return this.printings.values();
+	}
+
+	@Override
+	public Printing printing(UUID id) {
+		return this.printings.get(id);
 	}
 }
