@@ -1,9 +1,12 @@
 package emi.lib.mtg.v2;
 
 import emi.lib.mtg.characteristic.*;
+import emi.lib.mtg.characteristic.impl.BasicManaCost;
 
 import java.util.*;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public interface Card {
@@ -230,4 +233,62 @@ public interface Card {
 	 * @return The set of this card's printings.
 	 */
 	Set<? extends Printing> printings();
+
+	/**
+	 * Tries to calculate the best name of this card. For most cards including transform and
+	 * Kamigawa flip cards, this is the name of the front/upright face. For split cards, this
+	 * is the name of the left and right halves concatenated with " // ".
+	 * @return The most presentable name of this card.
+	 */
+	default String name() {
+		if (this.faces().size() <= 2 && this.face(Face.Kind.Front) != null) {
+			return this.face(Face.Kind.Front).name();
+		} else if (this.faces().size() == 2 && this.face(Face.Kind.Left) != null && this.face(Face.Kind.Right) != null) {
+			return String.format("%s // %s", this.face(Face.Kind.Left).name(), this.face(Face.Kind.Right).name());
+		} else {
+			return this.fullName();
+		}
+	}
+
+	/**
+	 * Returns the unabridged name of this card, formed by concatenating the names of its
+	 * faces with " // " (i.e. Fire // Ice) in the order of face kinds.
+	 * @return The complete name of this card.
+	 */
+	default String fullName() {
+		return this.faces().stream()
+				.sorted(Comparator.comparingInt(f -> f.kind().ordinal()))
+				.map(Face::name)
+				.collect(Collectors.joining(" // "));
+	}
+
+	/**
+	 * Tries to determine the best mana cost of this card. For most cards including transform and
+	 * Kamigawa flip cards, this is the mana cost of the front/upright face. For split cards, this
+	 * is the combined mana cost of the left and right halves (as though it were fused).
+	 * @return The most presentable mana cost of this card.
+	 */
+	default ManaCost manaCost() {
+		if (this.faces().size() <= 2 && this.face(Face.Kind.Front) != null) {
+			return this.face(Face.Kind.Front).manaCost();
+		} else if (this.faces().size() == 2 && this.face(Face.Kind.Left) != null && this.face(Face.Kind.Right) != null) {
+			return new BasicManaCost(Stream.concat(
+							this.face(Face.Kind.Left).manaCost().symbols().stream(),
+							this.face(Face.Kind.Right).manaCost().symbols().stream())
+					.collect(Collectors.toList()));
+		} else {
+			return this.fullManaCost();
+		}
+	}
+
+	/**
+	 * Returns the full, combined mana cost of all faces of this card, formed by adding all mana symbols
+	 * of each face's mana cost togther. Note that this does not reduce generic symbols.
+	 * @return The complete mana cost of this card.
+	 */
+	default ManaCost fullManaCost() {
+		return new BasicManaCost(this.faces().stream()
+				.flatMap(f -> f.manaCost().symbols().stream())
+				.collect(Collectors.toList()));
+	}
 }
