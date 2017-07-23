@@ -1,20 +1,23 @@
 package emi.lib.mtg.v2.impl;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import emi.lib.mtg.v2.Card;
 import emi.lib.mtg.v2.Set;
 
 import java.util.HashSet;
+import java.util.UUID;
 
 @SuppressWarnings("unused")
 public class BasicSet implements Set {
 	private String name;
 	private String code;
-	private java.util.Set<? extends Card.Printing> printings;
+	private BiMap<UUID, ? extends Card.Printing> printings;
 
 	public BasicSet() {
 		this.name = "";
 		this.code = "";
-		this.printings = new HashSet<>();
+		this.printings = HashBiMap.create();
 	}
 
 	@Override
@@ -39,6 +42,11 @@ public class BasicSet implements Set {
 
 	@Override
 	public java.util.Set<? extends Card.Printing> printings() {
-		return this.printings;
+		return this.printings.values();
+	}
+
+	@Override
+	public Card.Printing printing(UUID id) {
+		return this.printings.get(id);
 	}
 }
