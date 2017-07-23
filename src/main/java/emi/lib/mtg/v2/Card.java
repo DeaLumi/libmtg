@@ -26,7 +26,7 @@ public interface Card {
 		 * @return The nearest number representation of the given value.
 		 */
 		static double convertedValue(String value) {
-			if (value.isEmpty()) {
+			if (value == null || value.isEmpty()) {
 				return Double.NaN;
 			}
 
