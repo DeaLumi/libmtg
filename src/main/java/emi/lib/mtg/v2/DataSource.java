@@ -23,6 +23,11 @@ public interface DataSource {
 	Card card(String name);
 
 	/**
+	 * @return Set of all card printings known to this data source.
+	 */
+	java.util.Set<? extends Card.Printing> printings();
+
+	/**
 	 * Finds a card printing by UUID.
 	 * @param id ID of the card printing to find.
 	 * @return Card printing with that ID, or null if no such printing is known.
