@@ -17,7 +17,7 @@ public interface ManaCost {
 		return count;
 	}
 
-	default Collection<Color> color() {
+	default Set<Color> color() {
 		Set<Color> union = new HashSet<>();
 
 		for (ManaSymbol symbol : symbols()) {
