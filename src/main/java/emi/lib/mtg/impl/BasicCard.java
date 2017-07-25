@@ -1,4 +1,4 @@
-package emi.lib.mtg.v2.impl;
+package emi.lib.mtg.impl;
 
 import com.google.common.collect.EnumHashBiMap;
 import com.google.common.collect.HashBiMap;
@@ -7,7 +7,7 @@ import emi.lib.mtg.characteristic.Color;
 import emi.lib.mtg.characteristic.ManaCost;
 import emi.lib.mtg.characteristic.impl.BasicCardTypeLine;
 import emi.lib.mtg.characteristic.impl.BasicManaCost;
-import emi.lib.mtg.v2.Card;
+import emi.lib.mtg.Card;
 
 import java.util.*;
 

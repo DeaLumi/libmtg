@@ -1,6 +1,6 @@
 package emi.lib.mtg.game;
 
-import emi.lib.mtg.card.Card;
+import emi.lib.mtg.Card;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +24,7 @@ public interface Deck {
 
 	String description();
 
-	Map<Zone, ? extends List<? extends Card>> cards();
+	Map<Zone, ? extends List<? extends Card.Printing>> cards();
 
-	List<? extends Card> sideboard();
+	List<? extends Card.Printing> sideboard();
 }

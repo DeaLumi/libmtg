@@ -1,4 +1,4 @@
-package emi.lib.mtg.game.formats;
+package emi.lib.mtg.game.impl.formats;
 
 import emi.lib.mtg.game.Deck;
 import emi.lib.mtg.game.Zone;

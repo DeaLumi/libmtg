@@ -1,4 +1,4 @@
-package emi.lib.mtg.v2;
+package emi.lib.mtg;
 
 import emi.lib.mtg.characteristic.*;
 import emi.lib.mtg.characteristic.impl.BasicManaCost;
@@ -202,7 +202,7 @@ public interface Card {
 		/**
 		 * @return The set in which this printing was printed.
 		 */
-		emi.lib.mtg.v2.Set set();
+		emi.lib.mtg.Set set();
 
 		/**
 		 * @return The rarity of this printing.

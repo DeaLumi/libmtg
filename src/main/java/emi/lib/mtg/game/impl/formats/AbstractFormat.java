@@ -1,12 +1,13 @@
-package emi.lib.mtg.game.formats;
+package emi.lib.mtg.game.impl.formats;
 
-import emi.lib.mtg.card.Card;
+import emi.lib.mtg.*;
 import emi.lib.mtg.characteristic.Supertype;
 import emi.lib.mtg.game.Deck;
 import emi.lib.mtg.game.Format;
 import emi.lib.mtg.game.Zone;
 
 import java.util.*;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractFormat implements Format {
@@ -29,6 +30,19 @@ public abstract class AbstractFormat implements Format {
 
 	protected abstract int maxCardCopies();
 
+	protected boolean setIsLegal(emi.lib.mtg.Set set) {
+		return true;
+	}
+
+	protected boolean cardIsBanned(Card card) {
+		return false;
+	}
+
+	@Override
+	public boolean cardIsLegal(Card card) {
+		return !cardIsBanned(card) && card.printings().stream().anyMatch(pr -> setIsLegal(pr.set()));
+	}
+
 	protected abstract Set<String> furtherValidation(Deck deck);
 
 	@Override
@@ -42,7 +56,7 @@ public abstract class AbstractFormat implements Format {
 			int min = minCards(zone);
 			int max = maxCards(zone);
 
-			List<? extends Card> cardsInZone = deck.cards().get(zone);
+			List<? extends Card.Printing> cardsInZone = deck.cards().get(zone);
 			if (cardsInZone == null) {
 				cardsInZone = Collections.emptyList();
 			}
@@ -57,13 +71,13 @@ public abstract class AbstractFormat implements Format {
 
 			nCards += cardsInZone.size();
 
-			for (Card card : cardsInZone) {
-				if (card.faces().stream().allMatch(f -> f.type().supertypes().contains(Supertype.Basic))) {
+			for (Card.Printing printing : cardsInZone) {
+				if (printing.card().faces().stream().allMatch(f -> f.type().supertypes().contains(Supertype.Basic))) {
 					continue;
 				}
 
-				if (histogram.computeIfAbsent(card.name(), c -> new AtomicInteger(0)).incrementAndGet() > maxCardCopies()) {
-					messages.add(String.format("There must be no more than %d copies of %s.", maxCardCopies(), card.name()));
+				if (histogram.computeIfAbsent(printing.card().name(), c -> new AtomicInteger(0)).incrementAndGet() > maxCardCopies()) {
+					messages.add(String.format("There must be no more than %d copies of %s.", maxCardCopies(), printing.card().name()));
 				}
 			}
 		}
@@ -77,13 +91,13 @@ public abstract class AbstractFormat implements Format {
 			messages.add(String.format("Sideboard must contain no more than %d cards.", maxSideboard()));
 		}
 
-		for (Card card : deck.sideboard()) {
-			if (card.faces().stream().allMatch(f -> f.type().supertypes().contains(Supertype.Basic))) {
+		for (Card.Printing printing : deck.sideboard()) {
+			if (printing.card().faces().stream().allMatch(f -> f.type().supertypes().contains(Supertype.Basic))) {
 				continue;
 			}
 
-			if (histogram.computeIfAbsent(card.name(), c -> new AtomicInteger(0)).incrementAndGet() > maxCardCopies()) {
-				messages.add(String.format("There must be no more than %d copies of %s.", maxCardCopies(), card.name()));
+			if (histogram.computeIfAbsent(printing.card().name(), c -> new AtomicInteger(0)).incrementAndGet() > maxCardCopies()) {
+				messages.add(String.format("There must be no more than %d copies of %s.", maxCardCopies(), printing.card().name()));
 			}
 		}
 

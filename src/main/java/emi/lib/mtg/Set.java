@@ -1,4 +1,4 @@
-package emi.lib.mtg.v2;
+package emi.lib.mtg;
 
 import java.util.UUID;
 

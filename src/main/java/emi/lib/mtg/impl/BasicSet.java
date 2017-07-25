@@ -1,11 +1,10 @@
-package emi.lib.mtg.v2.impl;
+package emi.lib.mtg.impl;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import emi.lib.mtg.v2.Card;
-import emi.lib.mtg.v2.Set;
+import emi.lib.mtg.Card;
+import emi.lib.mtg.Set;
 
-import java.util.HashSet;
 import java.util.UUID;
 
 @SuppressWarnings("unused")
