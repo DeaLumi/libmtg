@@ -13,7 +13,10 @@ import java.io.InputStream;
 
 /**
  * Created by Emi on 6/16/2017.
+ *
+ * @deprecated Use emi.lib.mtg.v2.impl.XlhqImageSource instead.
  */
+@Deprecated
 @Service.Provider(ImageSource.class)
 @Service.Property.String(name="name", value="XLHQ")
 @Service.Property.Number(name="priority", value=1.0)

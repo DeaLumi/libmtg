@@ -13,7 +13,10 @@ import java.util.stream.Collectors;
  * Note that this is distinct from the concept of a Magic card on Gatherer; on Gatherer, Fire is a different card from
  * Ice. Here, they are the left and right faces of the same card. On the other hand, Storm Crow in Eighth Edition is, in
  * this library, a different card from Storm Crow in Tenth Edition.
+ *
+ * @deprecated Use emi.lib.mtg.v2.Card instead
  */
+@Deprecated
 public interface Card {
 
 	/**

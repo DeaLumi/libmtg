@@ -8,6 +8,7 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.Optional;
 
+@Deprecated
 public abstract class DiskBackedImageSource implements ImageSource {
 	protected static final File PARENT_FILE = new File("images");
 

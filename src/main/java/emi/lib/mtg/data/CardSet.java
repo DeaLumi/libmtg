@@ -6,7 +6,10 @@ import java.util.Collection;
 
 /**
  * Represents a set of Magic: the Gathering cards.
+ *
+ * @deprecated Use emi.lib.mtg.v2.Set instead.
  */
+@Deprecated
 public interface CardSet {
 	/**
 	 * Returns the name of this card set, in English.

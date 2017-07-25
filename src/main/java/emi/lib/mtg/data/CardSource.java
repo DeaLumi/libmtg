@@ -9,7 +9,10 @@ import java.util.stream.Collectors;
 
 /**
  * A source of information on cards in Magic: the Gathering.
+ *
+ * @deprecated Use emi.lib.mtg.v2.DataSource instead.
  */
+@Deprecated
 @Service
 @Service.Property.String(name="name")
 public interface CardSource {

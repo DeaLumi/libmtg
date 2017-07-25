@@ -12,7 +12,10 @@ import java.util.UUID;
 /**
  * Represents a face of a card. Most cards have only one face, and only one card (Who // What // When // Where // Why)
  * has more than two faces. A face of a card has a set of characteristics as dictated by the comprehensive rules.
+ *
+ * @deprecated Use emi.lib.mtg.v2.Card.Face instead
  */
+@Deprecated
 public interface CardFace {
 
 	/**

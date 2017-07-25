@@ -20,7 +20,10 @@ import java.util.*;
 
 /**
  * Created by Emi on 5/7/2017.
+ *
+ * @deprecated Use ScryfallDataSource instead.
  */
+@Deprecated
 @Service.Provider(CardSource.class)
 @Service.Property.String(name="name", value="mtgjson.com")
 public class MtgJsonCardSource implements CardSource {

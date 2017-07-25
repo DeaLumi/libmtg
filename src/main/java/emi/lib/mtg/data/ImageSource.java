@@ -9,7 +9,10 @@ import java.io.InputStream;
 
 /**
  * Represents a way for a program to obtain an image of a given card/card face.
+ *
+ * @deprecated Use emi.lib.mtg.v2.ImageSource instead.
  */
+@Deprecated
 @Service
 @Service.Property.String(name="name")
 @Service.Property.Number(name="priority", required=false, value=0.5)
