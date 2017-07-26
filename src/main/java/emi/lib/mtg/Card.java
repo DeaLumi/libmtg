@@ -19,6 +19,26 @@ public interface Card {
 	 */
 	interface Face {
 		/**
+		 * The printed (i.e. not-gameplay-relevant) characteristics of this face. These vary with printing.
+		 */
+		interface Printing {
+			/**
+			 * @return The face associated with this face printing.
+			 */
+			Face face();
+
+			/**
+			 * @return The printing associated with this face printing.
+			 */
+			Card.Printing printing();
+
+			/**
+			 * @return The flavor text printed on this face in this printing.
+			 */
+			String flavor();
+		}
+
+		/**
 		 * Utility function to 'convert' a string value to its nearest number representation.
 		 * If the value is an empty string, Double.NaN is returned. Otherwise, the value is
 		 * evaluated as though any characteristic-defining abilities gave 0.
@@ -73,14 +93,26 @@ public interface Card {
 		}
 
 		/**
+		 * @return The kind of card face this is (i.e. when its characteristics overwrite the card's). Never null.
+		 */
+		Kind kind();
+
+		/**
 		 * @return The card of which this face is a face.
 		 */
 		Card card();
 
 		/**
-		 * @return The kind of card face this is (i.e. when its characteristics overwrite the card's). Never null.
+		 * @return The set of all printings of this card face.
 		 */
-		Kind kind();
+		Set<? extends Printing> printings();
+
+		/**
+		 * Retrieves a particular printing of this face.
+		 * @param cardPrinting The card printing that includes the face printing to get.
+		 * @return The face printing of the given card printing.
+		 */
+		Printing printing(Card.Printing cardPrinting);
 
 		/**
 		 * @return The name of this card face. An empty string if the card has no name.
@@ -198,6 +230,18 @@ public interface Card {
 		 * @return The card of which this printing is a printing.
 		 */
 		Card card();
+
+		/**
+		 * @return The set of printed face for this card printing.
+		 */
+		Set<? extends Card.Face.Printing> faces();
+
+		/**
+		 * Retrieves a particular card face printing by face kind.
+		 * @param kind The kind of face of which to get the printed version.
+		 * @return The printed version of that face kind.
+		 */
+		Card.Face.Printing face(Face.Kind kind);
 
 		/**
 		 * @return The set in which this printing was printed.

@@ -1,5 +1,6 @@
 package emi.lib.mtg.impl;
 
+import com.google.common.collect.EnumHashBiMap;
 import emi.lib.mtg.characteristic.CardRarity;
 import emi.lib.mtg.Card;
 import emi.lib.mtg.Set;
@@ -8,6 +9,7 @@ import java.util.UUID;
 
 @SuppressWarnings("unused")
 public class BasicPrinting implements Card.Printing {
+	private EnumHashBiMap<Card.Face.Kind, Card.Face.Printing> printedFaces;
 	private Card card;
 	private Set set;
 	private CardRarity rarity;
@@ -18,6 +20,7 @@ public class BasicPrinting implements Card.Printing {
 	private UUID id;
 
 	public BasicPrinting() {
+		this.printedFaces = EnumHashBiMap.create(Card.Face.Kind.class);
 		this.card = null;
 		this.set = null;
 		this.rarity = CardRarity.Common;
@@ -26,6 +29,21 @@ public class BasicPrinting implements Card.Printing {
 		this.collectorNumber = null;
 		this.mtgoCatalogId = null;
 		this.id = UUID.randomUUID();
+	}
+
+	@Override
+	public java.util.Set<? extends Card.Face.Printing> faces() {
+		return printedFaces.values();
+	}
+
+	@Override
+	public Card.Face.Printing face(Card.Face.Kind kind) {
+		return printedFaces.get(kind);
+	}
+
+	public BasicPrinting face(Card.Face.Printing printing) {
+		printedFaces.put(printing.face().kind(), printing);
+		return this;
 	}
 
 	@Override

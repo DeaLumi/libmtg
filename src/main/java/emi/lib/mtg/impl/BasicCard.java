@@ -10,10 +10,41 @@ import emi.lib.mtg.characteristic.impl.BasicManaCost;
 import emi.lib.mtg.Card;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class BasicCard implements Card {
 	public class Face implements Card.Face {
+		public class Printing implements Card.Face.Printing {
+			private Card.Printing printing;
+			private String flavor;
+
+			public Printing(Card.Printing printing) {
+				this.printing = printing;
+				this.flavor = "";
+			}
+
+			@Override
+			public Card.Face face() {
+				return Face.this;
+			}
+
+			@Override
+			public Card.Printing printing() {
+				return printing;
+			}
+
+			@Override
+			public String flavor() {
+				return flavor;
+			}
+
+			public Printing flavor(String flavor) {
+				this.flavor = flavor;
+				return this;
+			}
+		}
+
 		private Kind kind;
 		private String name;
 		private ManaCost manaCost;
@@ -26,8 +57,8 @@ public class BasicCard implements Card {
 		private String handModifier;
 		private String lifeModifier;
 
-		public Face() {
-			this.kind = Kind.Front;
+		public Face(Kind kind) {
+			this.kind = kind;
 			this.name = "";
 			this.manaCost = BasicManaCost.parse("");
 			this.colorIndicator = EnumSet.noneOf(Color.class);
@@ -46,13 +77,18 @@ public class BasicCard implements Card {
 		}
 
 		@Override
-		public Kind kind() {
-			return this.kind;
+		public Set<? extends Card.Face.Printing> printings() {
+			return card().printings().stream().flatMap(pr -> pr.faces().stream()).collect(Collectors.toSet());
 		}
 
-		public Face kind(Kind kind) {
-			this.kind = kind;
-			return this;
+		@Override
+		public Card.Face.Printing printing(Card.Printing cardPrinting) {
+			return cardPrinting.face(kind());
+		}
+
+		@Override
+		public Kind kind() {
+			return this.kind;
 		}
 
 		@Override
@@ -207,8 +243,8 @@ public class BasicCard implements Card {
 		return this.faces.get(kind);
 	}
 
-	public BasicCard face(Face.Kind kind, Card.Face face) {
-		this.faces.put(kind, face);
+	public BasicCard face(Card.Face face) {
+		this.faces.put(face.kind(), face);
 		return this;
 	}
 
