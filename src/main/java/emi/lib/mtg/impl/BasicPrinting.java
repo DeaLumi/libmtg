@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @SuppressWarnings("unused")
 public class BasicPrinting implements Card.Printing {
-	private EnumHashBiMap<Card.Face.Kind, Card.Face.Printing> printedFaces;
+	private EnumHashBiMap<Card.Face.Kind, Face> printedFaces;
 	private Card card;
 	private Set set;
 	private CardRarity rarity;
@@ -32,16 +32,16 @@ public class BasicPrinting implements Card.Printing {
 	}
 
 	@Override
-	public java.util.Set<? extends Card.Face.Printing> faces() {
+	public java.util.Set<? extends Face> faces() {
 		return printedFaces.values();
 	}
 
 	@Override
-	public Card.Face.Printing face(Card.Face.Kind kind) {
+	public Face face(Card.Face.Kind kind) {
 		return printedFaces.get(kind);
 	}
 
-	public BasicPrinting face(Card.Face.Printing printing) {
+	public BasicPrinting face(Face printing) {
 		printedFaces.put(printing.face().kind(), printing);
 		return this;
 	}

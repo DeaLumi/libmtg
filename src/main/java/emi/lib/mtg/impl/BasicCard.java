@@ -14,37 +14,7 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class BasicCard implements Card {
-	public class Face implements Card.Face {
-		public class Printing implements Card.Face.Printing {
-			private Card.Printing printing;
-			private String flavor;
-
-			public Printing(Card.Printing printing) {
-				this.printing = printing;
-				this.flavor = "";
-			}
-
-			@Override
-			public Card.Face face() {
-				return Face.this;
-			}
-
-			@Override
-			public Card.Printing printing() {
-				return printing;
-			}
-
-			@Override
-			public String flavor() {
-				return flavor;
-			}
-
-			public Printing flavor(String flavor) {
-				this.flavor = flavor;
-				return this;
-			}
-		}
-
+	public static class Face implements Card.Face {
 		private Kind kind;
 		private String name;
 		private ManaCost manaCost;
@@ -69,21 +39,6 @@ public class BasicCard implements Card {
 			this.loyalty = "";
 			this.handModifier = "";
 			this.lifeModifier = "";
-		}
-
-		@Override
-		public Card card() {
-			return BasicCard.this;
-		}
-
-		@Override
-		public Set<? extends Card.Face.Printing> printings() {
-			return card().printings().stream().flatMap(pr -> pr.faces().stream()).collect(Collectors.toSet());
-		}
-
-		@Override
-		public Card.Face.Printing printing(Card.Printing cardPrinting) {
-			return cardPrinting.face(kind());
 		}
 
 		@Override
