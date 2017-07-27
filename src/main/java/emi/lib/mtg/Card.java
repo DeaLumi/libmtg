@@ -193,6 +193,12 @@ public interface Card {
 		 * The printed (i.e. not-gameplay-relevant) characteristics of this face. These vary with printing.
 		 */
 		interface Face {
+
+			/**
+			 * @return The printing associated with this face printing.
+			 */
+			Printing printing();
+
 			/**
 			 * @return The face associated with this face printing.
 			 */

@@ -9,6 +9,37 @@ import java.util.UUID;
 
 @SuppressWarnings("unused")
 public class BasicPrinting implements Card.Printing {
+	public class Face implements Card.Printing.Face {
+
+		private final Card.Face face;
+		private String flavor;
+
+		public Face(Card.Face face) {
+			this.face = face;
+			this.flavor = "";
+		}
+
+		@Override
+		public Card.Printing printing() {
+			return BasicPrinting.this;
+		}
+
+		@Override
+		public Card.Face face() {
+			return this.face;
+		}
+
+		@Override
+		public String flavor() {
+			return this.flavor;
+		}
+
+		public Face flavor(String flavor) {
+			this.flavor = flavor;
+			return this;
+		}
+	}
+
 	private EnumHashBiMap<Card.Face.Kind, Face> printedFaces;
 	private Card card;
 	private Set set;
