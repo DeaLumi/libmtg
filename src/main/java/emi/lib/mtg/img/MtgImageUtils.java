@@ -13,6 +13,8 @@ import java.io.PipedOutputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 
 public class MtgImageUtils {
 	public static final double ROUND_RADIUS_FRACTION = 3.0 / 63.0; // 3mm out of 63 x 88
@@ -65,12 +67,41 @@ public class MtgImageUtils {
 		}
 	}
 
-	private static final ExecutorService IMAGE_RESIZE_POOL = Executors.newCachedThreadPool(r -> {
-		Thread th = Executors.defaultThreadFactory().newThread(r);
-		th.setName("LibMtg-ImageResize-" + th.getId());
-		th.setDaemon(true);
-		return th;
-	});
+	private static ExecutorService daemonPool(String prefix) {
+		return Executors.newCachedThreadPool(r -> {
+			Thread th = Executors.defaultThreadFactory().newThread(r);
+			th.setName(prefix + th.getId());
+			th.setDaemon(true);
+			return th;
+		});
+	}
+
+	private static final ExecutorService IMAGE_RESIZE_POOL = daemonPool("LibMtg-ImageResize-");
+
+	private static final ExecutorService IMAGE_OP_POOL = daemonPool("LibMtg-ImageOp-");
+
+	public static Image blur(Image source, double a) {
+
+	}
+
+	public static DoubleBinaryOperator lanczos(double a) {
+		DoubleUnaryOperator L = x -> {
+			if (x < -a || x > a) {
+				return 0.0;
+			} else if (x == 0) {
+				return 1.0;
+			} else {
+				final double pix = Math.PI*x;
+				return a*Math.sin(pix)*Math.sin(pix/a)/(pix*pix);
+			}
+		};
+
+		return (x, y) -> L.applyAsDouble(x)*L.applyAsDouble(y);
+	}
+
+	public static Image resample(Image source, double w, double h, DoubleBinaryOperator kernel) {
+		return source;
+	}
 
 	// TODO: I hate this. Write my own blur/Lanczos downsampler?
 	public static Image scaled(Image source, double w, double h, boolean smooth) {
