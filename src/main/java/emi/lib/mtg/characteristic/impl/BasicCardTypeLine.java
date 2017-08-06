@@ -16,6 +16,10 @@ public class BasicCardTypeLine implements CardTypeLine {
 		typeLine = typeLine.trim();
 		int split = typeLine.indexOf('\u2014');
 
+		if (split < 0) {
+			split = typeLine.indexOf('\u0097');
+		}
+
 		final String[] upperTypes;
 
 		if (split >= 0) {

@@ -25,25 +25,27 @@ public class XlhqImageSource implements ImageSource {
 		}
 
 		File file = new File(PARENT, name);
+
+		return null; // TODO
 	}
 
 	@Override
 	public InputStream open(Card card) throws IOException {
-		return null;
+		return null; // TODO
 	}
 
 	@Override
 	public InputStream open(Card card, Card.Face face) throws IOException {
-		return null;
+		return null; // TODO
 	}
 
 	@Override
 	public InputStream open(Card.Printing printing) throws IOException {
-		return null;
+		return null; // TODO
 	}
 
 	@Override
 	public InputStream open(Card.Printing.Face facePrint) throws IOException {
-		return null;
+		return null; // TODO
 	}
 }
