@@ -15,6 +15,7 @@ import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.HashSet;
 import java.util.Set;
@@ -99,19 +100,19 @@ public class MtgImageUtils {
 	}
 
 	public static DoubleBinaryOperator simplifiedGaussian(double sigma) {
-		final double[] precomp = new double[(int) (2*Math.ceil(sigma) + 1)];
+		final double[] precomp = new double[(int) Math.ceil(6*sigma)];
 
 		for (int i = 0; i < precomp.length; ++i) {
-			precomp[i] = 1/Math.sqrt(Math.PI*sigma*sigma)*Math.exp(-i/(2*sigma));
+			precomp[i] = 1/Math.sqrt(2*Math.PI*sigma*sigma)*Math.exp(-(i*i)/(2*sigma*sigma));
 		}
 
 		return (x, y) -> {
-			final int r = (int) Math.round(Math.sqrt(x*x + y*y));
+			final int ix = (int) Math.round(Math.abs(x)), iy = (int) Math.round(Math.abs(y));
 
-			if (r >= precomp.length) {
+			if (ix >= precomp.length || iy >= precomp.length) {
 				return 0.0;
 			} else {
-				return precomp[r];
+				return precomp[ix]*precomp[iy];
 			}
 		};
 	}
@@ -131,16 +132,23 @@ public class MtgImageUtils {
 		};
 	}
 
+	// TODO: Rewrite all this to use ordinary byte arrays?
+
 	public static Image convolve(Image source, DoubleBinaryOperator kernel, int a) {
 		return resample(source, (int) source.getWidth(), (int) source.getHeight(), kernel, a);
 	}
 
 	public static WritableImage resample(Image source, int w, int h, DoubleBinaryOperator kernel, int a) {
-		WritableImage destination = new WritableImage(w, h);
-
 		PixelReader reader = source.getPixelReader();
-		PixelWriter writer = destination.getPixelWriter();
-		WritablePixelFormat<IntBuffer> pixelFormat = WritablePixelFormat.getIntArgbPreInstance();
+		WritablePixelFormat<ByteBuffer> pixelFormat = WritablePixelFormat.getByteBgraInstance();
+
+		final int sourceW = (int) Math.ceil(source.getWidth());
+		final int sourceH = (int) Math.ceil(source.getHeight());
+
+		byte[] srcBuffer = new byte[sourceW * sourceH * 4];
+		reader.getPixels(0, 0, sourceW, sourceH, pixelFormat, srcBuffer, 0, sourceW*4);
+
+		byte[] destBuffer = new byte[w * h * 4];
 
 		Set<Future<?>> completions = new HashSet<>(w*h);
 		for (int y = 0; y < h; ++y) {
@@ -151,30 +159,25 @@ public class MtgImageUtils {
 				final double sourceX = destX * (source.getWidth() / w);
 				final double sourceY = destY * (source.getHeight() / h);
 
-				final int windowX = Math.max(0, (int) Math.floor(sourceX) - a + 1);
-				final int windowY = Math.max(0, (int) Math.floor(sourceY) - a + 1);
+				final int windowX1 = Math.max(0, (int) Math.floor(sourceX) - a + 1);
+				final int windowY1 = Math.max(0, (int) Math.floor(sourceY) - a + 1);
 
-				final int windowW = Math.min((int) Math.floor(sourceX) + a, (int) source.getWidth()) - windowX;
-				final int windowH = Math.min((int) Math.floor(sourceY) + a, (int) source.getHeight()) - windowY;
-
-				final double cx = sourceX - windowX;
-				final double cy = sourceY - windowY;
+				final int windowX2 = Math.min((int) Math.floor(sourceX) + a, sourceW - 1);
+				final int windowY2 = Math.min((int) Math.floor(sourceY) + a, sourceH - 1);
 
 				completions.add(IMAGE_OP_POOL.submit(() -> {
-					int[] buffer = new int[windowW*windowH];
-					reader.getPixels(windowX, windowY, windowW, windowH, pixelFormat, buffer, 0, windowW);
-
 					double accumR = 0, accumG = 0, accumB = 0, accumA = 0;
 					double accumF = 0.0;
-					for (int ay = 0; ay < windowH; ++ay) {
-						for (int ax = 0; ax < windowW; ++ax) {
-							int argb = buffer[ay*windowW + ax];
-							int alpha = (argb >> 24) & 0xFF;
-							int r = (argb >> 16) & 0xFF;
-							int g = (argb >> 8) & 0xFF;
-							int b = argb & 0xFF;
+					for (int ay = windowY1; ay <= windowY2; ++ay) {
+						for (int ax = windowX1; ax <= windowX2; ++ax) {
+							final int xyi = (ay*sourceW + ax)*4;
 
-							double f = kernel.applyAsDouble(cx - ax, cy - ay);
+							int alpha = (int) srcBuffer[xyi + 3] & 0xFF;
+							int r = (int) srcBuffer[xyi + 2] & 0xFF;
+							int g = (int) srcBuffer[xyi + 1] & 0xFF;
+							int b = (int) srcBuffer[xyi] & 0xFF;
+
+							double f = kernel.applyAsDouble(sourceX - ax, sourceY - ay);
 
 							accumF += f;
 							accumA += alpha * f;
@@ -184,18 +187,12 @@ public class MtgImageUtils {
 						}
 					}
 
-					accumA = Math.max(0, Math.min((int) (accumA / accumF), 0xFF));
-					accumR = Math.max(0, Math.min((int) (accumR / accumF), 0xFF));
-					accumG = Math.max(0, Math.min((int) (accumG / accumF), 0xFF));
-					accumB = Math.max(0, Math.min((int) (accumB / accumF), 0xFF));
+					final int xyi = (destY*w + destX)*4;
 
-					int packed = 0;
-					packed |= ((int) accumA << 24) & 0xFF000000;
-					packed |= ((int) accumR << 16) & 0x00FF0000;
-					packed |= ((int) accumG << 8) & 0x0000FF00;
-					packed |= ((int) accumB) & 0x000000FF;
-
-					writer.setArgb(destX, destY, packed);
+					destBuffer[xyi + 3] = (byte) Math.max(0, Math.min((int) (accumA / accumF), 0xFF));
+					destBuffer[xyi + 2] = (byte) Math.max(0, Math.min((int) (accumR / accumF), 0xFF));
+					destBuffer[xyi + 1] = (byte) Math.max(0, Math.min((int) (accumG / accumF), 0xFF));
+					destBuffer[xyi] = (byte) Math.max(0, Math.min((int) (accumB / accumF), 0xFF));
 				}));
 			}
 		}
@@ -206,11 +203,14 @@ public class MtgImageUtils {
 			}
 		} catch (InterruptedException ie) {
 			ie.printStackTrace();
-			return destination;
+			throw new Error(ie);
 		} catch (ExecutionException ee) {
 			ee.getCause().printStackTrace();
 			throw new Error(ee.getCause());
 		}
+
+		WritableImage destination = new WritableImage(w, h);
+		destination.getPixelWriter().setPixels(0, 0, w, h, pixelFormat, destBuffer, 0, w*4);
 
 		return destination;
 	}
@@ -225,28 +225,28 @@ public class MtgImageUtils {
 
 		Image out = source;
 		long start = System.nanoTime();
-		if (lanczos) {
+//		if (lanczos) {
 			++lanczosCount;
 			if (smooth) {
 				out = convolve(out, simplifiedGaussian(1.0), 3);
 			}
 			out = resample(out, (int) w, (int) h, lanczos(3), 3);
 			lanczosTime += (System.nanoTime() - start) / 1e9;
-		} else {
-			++imageCount;
-			try {
-				PipedOutputStream output = new PipedOutputStream();
-				PipedInputStream input = new PipedInputStream(output);
-
-				IMAGE_RESIZE_POOL.submit(() -> ImageIO.write(SwingFXUtils.fromFXImage(source, null), "png", output));
-				out = new Image(input, w, h, true, smooth);
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				System.err.println("(Ignoring.)");
-				System.err.flush();
-			}
-			imageTime += (System.nanoTime() - start) / 1e9;
-		}
+//		} else {
+//			++imageCount;
+//			try {
+//				PipedOutputStream output = new PipedOutputStream();
+//				PipedInputStream input = new PipedInputStream(output);
+//
+//				IMAGE_RESIZE_POOL.submit(() -> ImageIO.write(SwingFXUtils.fromFXImage(source, null), "png", output));
+//				out = new Image(input, w, h, true, smooth);
+//			} catch (IOException ioe) {
+//				ioe.printStackTrace();
+//				System.err.println("(Ignoring.)");
+//				System.err.flush();
+//			}
+//			imageTime += (System.nanoTime() - start) / 1e9;
+//		}
 
 		System.err.println(String.format("Average times: %.2f lanczos, %.2f image", lanczosTime / lanczosCount, imageTime / imageCount));
 
@@ -304,7 +304,7 @@ public class MtgImageUtils {
 		public void start(Stage primaryStage) throws Exception {
 			Image comparison = new Image("file:front.png");
 			Image source = new Image("file:front.png");
-			source = convolve(source, gaussian(1), 3);
+//			source = convolve(source, gaussian(1), 3);
 			source = scaled(source, 220, 308, true);
 			ImageView comparisonImage = new ImageView(comparison);
 			ImageView image = new ImageView(source);
