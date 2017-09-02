@@ -150,57 +150,49 @@ public class MtgImageUtils {
 
 		byte[] destBuffer = new byte[w * h * 4];
 
-		Set<Future<?>> completions = new HashSet<>(w*h);
-		for (int y = 0; y < h; ++y) {
-			for (int x = 0; x < w; ++x) {
-				final int destX = x;
-				final int destY = y;
-
-				final double sourceX = destX * (source.getWidth() / w);
-				final double sourceY = destY * (source.getHeight() / h);
-
-				final int windowX1 = Math.max(0, (int) Math.floor(sourceX) - a + 1);
-				final int windowY1 = Math.max(0, (int) Math.floor(sourceY) - a + 1);
-
-				final int windowX2 = Math.min((int) Math.floor(sourceX) + a, sourceW - 1);
-				final int windowY2 = Math.min((int) Math.floor(sourceY) + a, sourceH - 1);
-
-				completions.add(IMAGE_OP_POOL.submit(() -> {
-					double accumR = 0, accumG = 0, accumB = 0, accumA = 0;
-					double accumF = 0.0;
-					for (int ay = windowY1; ay <= windowY2; ++ay) {
-						for (int ax = windowX1; ax <= windowX2; ++ax) {
-							final int xyi = (ay*sourceW + ax)*4;
-
-							int alpha = (int) srcBuffer[xyi + 3] & 0xFF;
-							int r = (int) srcBuffer[xyi + 2] & 0xFF;
-							int g = (int) srcBuffer[xyi + 1] & 0xFF;
-							int b = (int) srcBuffer[xyi] & 0xFF;
-
-							double f = kernel.applyAsDouble(sourceX - ax, sourceY - ay);
-
-							accumF += f;
-							accumA += alpha * f;
-							accumR += r * f;
-							accumG += g * f;
-							accumB += b * f;
-						}
-					}
-
-					final int xyi = (destY*w + destX)*4;
-
-					destBuffer[xyi + 3] = (byte) Math.max(0, Math.min((int) (accumA / accumF), 0xFF));
-					destBuffer[xyi + 2] = (byte) Math.max(0, Math.min((int) (accumR / accumF), 0xFF));
-					destBuffer[xyi + 1] = (byte) Math.max(0, Math.min((int) (accumG / accumF), 0xFF));
-					destBuffer[xyi] = (byte) Math.max(0, Math.min((int) (accumB / accumF), 0xFF));
-				}));
-			}
-		}
-
 		try {
-			for (Future<?> future : completions) {
-				future.get();
-			}
+			IMAGE_OP_POOL.submit(() -> {
+				for (int y = 0; y < h; ++y) {
+					for (int x = 0; x < w; ++x) {
+						final double sourceX = x * (source.getWidth() / w);
+						final double sourceY = y * (source.getHeight() / h);
+
+						final int windowX1 = Math.max(0, (int) Math.floor(sourceX) - a + 1);
+						final int windowY1 = Math.max(0, (int) Math.floor(sourceY) - a + 1);
+
+						final int windowX2 = Math.min((int) Math.floor(sourceX) + a, sourceW - 1);
+						final int windowY2 = Math.min((int) Math.floor(sourceY) + a, sourceH - 1);
+
+						double accumR = 0, accumG = 0, accumB = 0, accumA = 0;
+						double accumF = 0.0;
+						for (int ay = windowY1; ay <= windowY2; ++ay) {
+							for (int ax = windowX1; ax <= windowX2; ++ax) {
+								final int xyi = (ay*sourceW + ax)*4;
+
+								int alpha = (int) srcBuffer[xyi + 3] & 0xFF;
+								int r = (int) srcBuffer[xyi + 2] & 0xFF;
+								int g = (int) srcBuffer[xyi + 1] & 0xFF;
+								int b = (int) srcBuffer[xyi] & 0xFF;
+
+								double f = kernel.applyAsDouble(sourceX - ax, sourceY - ay);
+
+								accumF += f;
+								accumA += alpha * f;
+								accumR += r * f;
+								accumG += g * f;
+								accumB += b * f;
+							}
+						}
+
+						final int xyi = (y *w + x)*4;
+
+						destBuffer[xyi + 3] = (byte) Math.max(0, Math.min((int) (accumA / accumF), 0xFF));
+						destBuffer[xyi + 2] = (byte) Math.max(0, Math.min((int) (accumR / accumF), 0xFF));
+						destBuffer[xyi + 1] = (byte) Math.max(0, Math.min((int) (accumG / accumF), 0xFF));
+						destBuffer[xyi] = (byte) Math.max(0, Math.min((int) (accumB / accumF), 0xFF));
+					}
+				}
+			}).get();
 		} catch (InterruptedException ie) {
 			ie.printStackTrace();
 			throw new Error(ie);
