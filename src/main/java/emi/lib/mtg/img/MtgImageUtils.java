@@ -70,7 +70,7 @@ public class MtgImageUtils {
 				}
 			}
 
-			writer.setPixels(radUp, 0, (int) dst.getWidth() - 2*radUp, (int) dst.getHeight(), reader, radUp, 0);
+			writer.setPixels(radDn, 0, (int) dst.getWidth() - 2*radDn, (int) dst.getHeight(), reader, radUp, 0);
 			writer.setPixels(0, radDn, radUp, (int) dst.getHeight() - 2*radDn, reader, 0, radDn);
 			writer.setPixels((int) dst.getWidth() - radUp, radDn, radUp, (int) dst.getHeight() - 2*radDn, reader, (int) dst.getWidth() - radUp, radDn);
 
