@@ -5,6 +5,7 @@ import emi.lib.mtg.Card;
 import emi.lib.mtg.ImageSource;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -15,6 +16,12 @@ public class XlhqImageSource implements ImageSource {
 	private static final File PARENT = new File(new File("images"), "xlhq");
 
 	private File file(Card.Printing print) {
+		File setFile = new File(PARENT, String.format("s%s", print.set().code().toUpperCase()));
+
+		if (!setFile.isDirectory()) {
+			return null;
+		}
+
 		String name;
 		if (print.face(Card.Face.Kind.Right) != null) {
 			name = String.format("%s - %s", print.face(Card.Face.Kind.Left).face().name(), print.face(Card.Face.Kind.Right).face().name());
@@ -24,28 +31,25 @@ public class XlhqImageSource implements ImageSource {
 			name = print.card().name();
 		}
 
-		File file = new File(PARENT, name);
+		File file = new File(setFile, name + ".xlhq.jpg");
 
-		return null; // TODO
-	}
+		if (!file.exists()) {
+			name += print.variation();
 
-	@Override
-	public InputStream open(Card card) throws IOException {
-		return null; // TODO
-	}
+			file = new File(setFile, name + ".xlhq.jpg");
+		}
 
-	@Override
-	public InputStream open(Card card, Card.Face face) throws IOException {
-		return null; // TODO
-	}
-
-	@Override
-	public InputStream open(Card.Printing printing) throws IOException {
-		return null; // TODO
+		return file;
 	}
 
 	@Override
 	public InputStream open(Card.Printing.Face facePrint) throws IOException {
-		return null; // TODO
+		File file = file(facePrint.printing());
+
+		if (file != null && file.isFile()) {
+			return new FileInputStream(file);
+		}
+
+		return null;
 	}
 }
