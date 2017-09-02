@@ -72,6 +72,10 @@ public abstract class AbstractFormat implements Format {
 			nCards += cardsInZone.size();
 
 			for (Card.Printing printing : cardsInZone) {
+				if (!cardIsLegal(printing.card())) {
+					messages.add(String.format("%s is not legal in this format.", printing.card().name()));
+				}
+
 				if (printing.card().faces().stream().allMatch(f -> f.type().supertypes().contains(Supertype.Basic))) {
 					continue;
 				}
