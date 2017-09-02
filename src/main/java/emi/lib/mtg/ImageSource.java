@@ -37,6 +37,7 @@ public interface ImageSource {
 	 * Attempt to open an image of a particular card face. Ideally, this will find an image of that face only, oriented
 	 * so that the face's name and text are upright.
 	 *
+	 * @param card The card owning the face for which to find an image.
 	 * @param face The face for which to find an image.
 	 * @return An input stream to an image of that face, or null if this source couldn't locate such an image.
 	 * @throws IOException if an error occurs while opening the input stream.
