@@ -24,10 +24,6 @@ public abstract class AbstractFormat implements Format {
 
 	protected abstract int maxCards();
 
-	protected abstract int minSideboard();
-
-	protected abstract int maxSideboard();
-
 	protected abstract int maxCardCopies();
 
 	protected boolean setIsLegal(emi.lib.mtg.Set set) {
@@ -83,25 +79,6 @@ public abstract class AbstractFormat implements Format {
 				if (histogram.computeIfAbsent(printing.card().name(), c -> new AtomicInteger(0)).incrementAndGet() > maxCardCopies()) {
 					messages.add(String.format("There must be no more than %d copies of %s.", maxCardCopies(), printing.card().name()));
 				}
-			}
-		}
-
-		final int nSideboard = deck.sideboard().size();
-		nCards += nSideboard;
-
-		if (nSideboard < minSideboard()) {
-			messages.add(String.format("Sideboard must contain no fewer than %d cards.", minSideboard()));
-		} else if (nSideboard > maxSideboard()) {
-			messages.add(String.format("Sideboard must contain no more than %d cards.", maxSideboard()));
-		}
-
-		for (Card.Printing printing : deck.sideboard()) {
-			if (printing.card().faces().stream().allMatch(f -> f.type().supertypes().contains(Supertype.Basic))) {
-				continue;
-			}
-
-			if (histogram.computeIfAbsent(printing.card().name(), c -> new AtomicInteger(0)).incrementAndGet() > maxCardCopies()) {
-				messages.add(String.format("There must be no more than %d copies of %s.", maxCardCopies(), printing.card().name()));
 			}
 		}
 

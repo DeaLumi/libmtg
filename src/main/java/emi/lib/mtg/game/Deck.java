@@ -25,6 +25,4 @@ public interface Deck {
 	String description();
 
 	Map<Zone, ? extends List<? extends Card.Printing>> cards();
-
-	List<? extends Card.Printing> sideboard();
 }

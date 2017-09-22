@@ -88,6 +88,8 @@ public class EDH extends AbstractFormat {
 				return 0;
 			case Command:
 				return 1;
+			case Sideboard:
+				return 0;
 			default:
 				assert false;
 				return 0;
@@ -107,6 +109,8 @@ public class EDH extends AbstractFormat {
 				return 0;
 			case Command:
 				return 2;
+			case Sideboard:
+				return -1;
 			default:
 				assert false;
 				return 0;
@@ -121,16 +125,6 @@ public class EDH extends AbstractFormat {
 	@Override
 	protected int maxCards() {
 		return 115;
-	}
-
-	@Override
-	protected int minSideboard() {
-		return 0;
-	}
-
-	@Override
-	protected int maxSideboard() {
-		return 15;
 	}
 
 	@Override
@@ -179,8 +173,7 @@ public class EDH extends AbstractFormat {
 
 		Set<Color> deckCI = cmd.stream().collect(() -> EnumSet.noneOf(Color.class), (s, c) -> s.addAll(c.card().colorIdentity()), Set::addAll);
 
-		if (!Stream.concat(lib.stream(), deck.sideboard().stream())
-				.allMatch(c -> deckCI.containsAll(c.card().colorIdentity()))) {
+		if (!lib.stream().allMatch(c -> deckCI.containsAll(c.card().colorIdentity()))) {
 			messages.add(COLOR_IDENTITY_ERROR);
 		}
 

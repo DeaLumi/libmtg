@@ -24,6 +24,8 @@ public abstract class TraditionalFormat extends AbstractFormat {
 				return 0;
 			case Library:
 				return 60;
+			case Sideboard:
+				return 0;
 			default:
 				assert false;
 				return 0;
@@ -42,6 +44,8 @@ public abstract class TraditionalFormat extends AbstractFormat {
 				return 0;
 			case Library:
 				return -1;
+			case Sideboard:
+				return 15;
 			default:
 				assert false;
 				return 0;
@@ -56,16 +60,6 @@ public abstract class TraditionalFormat extends AbstractFormat {
 	@Override
 	protected int maxCards() {
 		return -1;
-	}
-
-	@Override
-	protected int minSideboard() {
-		return 0;
-	}
-
-	@Override
-	protected int maxSideboard() {
-		return 15;
 	}
 
 	@Override

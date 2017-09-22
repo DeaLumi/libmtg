@@ -7,9 +7,11 @@ public enum Zone {
 	Graveyard (Type.Public),
 	Stack (Type.Shared),
 	Exile (Type.Shared),
-	Command (Type.Shared);
+	Command (Type.Shared),
+	Sideboard (Type.NonGame);
 
 	public enum Type {
+		NonGame,
 		Private,
 		Public,
 		Shared
