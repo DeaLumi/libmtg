@@ -68,7 +68,7 @@ public abstract class TraditionalFormat extends AbstractFormat {
 	}
 
 	@Override
-	protected Set<String> furtherValidation(Deck deck) {
+	protected Set<String> furtherValidation(Deck.Variant variant) {
 		return Collections.emptySet();
 	}
 }

@@ -2,27 +2,26 @@ package emi.lib.mtg.game;
 
 import emi.lib.mtg.Card;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public interface Deck {
+	interface Variant {
+		Deck deck();
+
+		String name();
+
+		String description();
+
+		Collection<? extends Card.Printing> cards(Zone zone);
+	}
+
 	String name();
 
 	String author();
 
 	Format format();
 
-	default Set<String> validate() {
-		if (format() != null) {
-			return format().validate(this);
-		} else {
-			return Collections.emptySet();
-		}
-	}
-
 	String description();
 
-	Map<Zone, ? extends List<? extends Card.Printing>> cards();
+	Collection<? extends Variant> variants();
 }

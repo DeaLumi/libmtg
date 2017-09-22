@@ -39,10 +39,10 @@ public abstract class AbstractFormat implements Format {
 		return !cardIsBanned(card) && card.printings().stream().anyMatch(pr -> setIsLegal(pr.set()));
 	}
 
-	protected abstract Set<String> furtherValidation(Deck deck);
+	protected abstract Set<String> furtherValidation(Deck.Variant variant);
 
 	@Override
-	public Set<String> validate(Deck deck) {
+	public Set<String> validate(Deck.Variant variant) {
 		Set<String> messages = new HashSet<>();
 
 		Map<String, AtomicInteger> histogram = new HashMap<>();
@@ -52,7 +52,7 @@ public abstract class AbstractFormat implements Format {
 			int min = minCards(zone);
 			int max = maxCards(zone);
 
-			List<? extends Card.Printing> cardsInZone = deck.cards().get(zone);
+			Collection<? extends Card.Printing> cardsInZone = variant.cards(zone);
 			if (cardsInZone == null) {
 				cardsInZone = Collections.emptyList();
 			}
@@ -91,7 +91,7 @@ public abstract class AbstractFormat implements Format {
 			messages.add(String.format("Deck must contain no more than %d cards.", globalMax));
 		}
 
-		messages.addAll(furtherValidation(deck));
+		messages.addAll(furtherValidation(variant));
 
 		return messages;
 	}
