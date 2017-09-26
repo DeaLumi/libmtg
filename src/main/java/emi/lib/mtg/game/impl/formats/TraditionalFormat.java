@@ -4,12 +4,14 @@ import emi.lib.mtg.game.Deck;
 import emi.lib.mtg.game.Zone;
 
 import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Set;
 
 public abstract class TraditionalFormat extends AbstractFormat {
 	@Override
 	public Set<Zone> deckZones() {
-		return Collections.singleton(Zone.Library);
+		return EnumSet.of(Zone.Library, Zone.Sideboard);
 	}
 
 	@Override

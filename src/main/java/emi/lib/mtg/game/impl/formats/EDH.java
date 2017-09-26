@@ -70,6 +70,7 @@ public class EDH extends AbstractFormat {
 		return "EDH";
 	}
 
+	// TODO: Either include sideboard here, or force it to zero in min/maxCards.
 	@Override
 	public Set<Zone> deckZones() {
 		return EnumSet.of(Zone.Library, Zone.Command);
