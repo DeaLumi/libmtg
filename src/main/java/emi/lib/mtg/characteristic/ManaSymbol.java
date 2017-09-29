@@ -57,6 +57,7 @@ public enum ManaSymbol {
 	GENERIC_15 ("{15}", 15),
 	GENERIC_16 ("{16}", 16),
 	GENERIC_20 ("{20}", 20),
+	GENERIC_100 ("{100}", 100),
 	GENERIC_MILLION ("{1000000}", 1000000),
 	GENERIC_INFINITE ("{\u221e}", Double.POSITIVE_INFINITY),
 
