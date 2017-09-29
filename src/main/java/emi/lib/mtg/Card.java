@@ -149,10 +149,11 @@ public interface Card {
 		/**
 		 * Derived characteristic. Union of mana cost color and color indicator and colors of mana
 		 * symbols in rules text and characteristic-defining abilities (uuughh).
-		 * @return This card's color identity. An empty set if the card is colorless.
+		 * @return This card face's color identity. An empty set if the face is colorless.
 		 */
 		default Set<Color> colorIdentity() {
-			EnumSet<Color> color = EnumSet.copyOf(this.color());
+			EnumSet<Color> color = EnumSet.noneOf(Color.class);
+			color.addAll(this.color());
 			ManaSymbol.symbolsIn(this.rules()).stream()
 					.flatMap(s -> s.color().stream())
 					.forEach(color::add);
