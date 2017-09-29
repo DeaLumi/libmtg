@@ -18,6 +18,7 @@ public class BasicCard implements Card {
 		private Kind kind;
 		private String name;
 		private ManaCost manaCost;
+		private double convertedManaCost;
 		private Set<Color> colorIndicator;
 		private CardTypeLine type;
 		private String rules;
@@ -31,6 +32,7 @@ public class BasicCard implements Card {
 			this.kind = kind;
 			this.name = "";
 			this.manaCost = BasicManaCost.parse("");
+			this.convertedManaCost = 0.0;
 			this.colorIndicator = EnumSet.noneOf(Color.class);
 			this.type = BasicCardTypeLine.parse("");
 			this.rules = "";
@@ -68,6 +70,16 @@ public class BasicCard implements Card {
 
 		public Face manaCost(String manaCost) {
 			return this.manaCost(BasicManaCost.parse(manaCost));
+		}
+
+		@Override
+		public double convertedManaCost() {
+			return this.convertedManaCost;
+		}
+
+		public Face convertedManaCost(double convertedManaCost) {
+			this.convertedManaCost = convertedManaCost;
+			return this;
 		}
 
 		@Override

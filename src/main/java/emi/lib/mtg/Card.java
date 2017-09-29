@@ -83,9 +83,14 @@ public interface Card {
 		String name();
 
 		/**
-		 * @return This card face's converted mana cost. An empty ManaCost if this card has no mana cost. (Different from {0}.)
+		 * @return This card face's mana cost. An empty ManaCost if this card has no mana cost. (Different from {0}.)
 		 */
 		ManaCost manaCost();
+
+		/**
+		 * @return This face's converted mana cost, as defined by the comprehensive rules.
+		 */
+		double convertedManaCost();
 
 		/**
 		 * @return The colors of this card's color indicator. An empty set if this card has no color indicator.
