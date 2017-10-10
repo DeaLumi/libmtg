@@ -2,7 +2,9 @@ package emi.lib.mtg;
 
 import emi.lib.Service;
 
+import java.io.IOException;
 import java.util.UUID;
+import java.util.function.DoubleConsumer;
 
 /**
  * Represents a known universe of Magic: the Gathering cards and sets and formats and more.
@@ -45,4 +47,16 @@ public interface DataSource {
 	 * @return Set with that set-code, or null if no such set exists.
 	 */
 	Set set(String code);
+
+	/**
+	 * Update this data source to reflect the most recent Magic universe.
+	 * @param progress Optional target for progress updates
+	 * @return True if the update caused a change in data.
+	 */
+	boolean update(DoubleConsumer progress) throws IOException;
+
+	/**
+	 * @return True if the data source seems to be stale.
+	 */
+	boolean needsUpdate();
 }
