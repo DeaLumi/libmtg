@@ -76,8 +76,6 @@ public class MtgImageUtils {
 		});
 	}
 
-	private static final ExecutorService IMAGE_RESIZE_POOL = daemonPool("LibMtg-ImageResize-");
-
 	private static final ExecutorService IMAGE_OP_POOL = daemonPool("LibMtg-ImageOp-");
 
 	public static DoubleBinaryOperator gaussian(double sigma) {
