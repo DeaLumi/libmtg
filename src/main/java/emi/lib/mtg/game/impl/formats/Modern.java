@@ -79,7 +79,7 @@ public class Modern extends TraditionalFormat {
 				"DIS", "GPT", "RAV",
 				"SOK", "BOK", "CHK",
 				"5DN", "DST", "MRD",
-				"M15", "M14", "M13", "M12", "M10", "10E", "9ED", "8ED",
+				"M15", "M14", "M13", "M12", "M11", "M10", "10E", "9ED", "8ED",
 				"CSP"
 		).collect(Collectors.toSet()));
 	}
