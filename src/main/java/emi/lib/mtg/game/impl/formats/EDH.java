@@ -18,7 +18,6 @@ import java.util.stream.Stream;
 @Service.Property.String(name="name", value="EDH")
 public class EDH extends AbstractFormat {
 	private static final String BAD_CMD_COUNT = "An EDH-legal deck's command zone must contain either one legendary creature, or two legendary creatures with Partner.";
-	private static final String COLOR_IDENTITY_ERROR = "An EDH-legal deck's library zone can't contain cards with color identities outside that of the deck's commanders.";
 
 	private static final Set<String> BANLIST = banlist();
 
@@ -173,9 +172,12 @@ public class EDH extends AbstractFormat {
 		}
 
 		Set<Color> deckCI = cmd.stream().collect(() -> EnumSet.noneOf(Color.class), (s, c) -> s.addAll(c.card().colorIdentity()), Set::addAll);
+		deckCI.add(Color.COLORLESS);
 
-		if (!lib.stream().allMatch(c -> deckCI.containsAll(c.card().colorIdentity()))) {
-			messages.add(COLOR_IDENTITY_ERROR);
+		for (Card.Printing c : lib) {
+			if (!deckCI.containsAll(c.card().colorIdentity())) {
+				messages.add(String.format("%s contains colors not in your commander's color identity!", c.card().name()));
+			}
 		}
 
 		return messages;
