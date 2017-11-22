@@ -51,7 +51,8 @@ public interface DataSource {
 	/**
 	 * Update this data source to reflect the most recent Magic universe.
 	 * @param progress Optional target for progress updates
-	 * @return True if the update caused a change in data.
+	 * @return True if the update completed successfully and caused a change in data.
+	 * @throws IOException If an IO exception causes the update to fail.
 	 */
 	boolean update(DoubleConsumer progress) throws IOException;
 

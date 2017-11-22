@@ -12,6 +12,16 @@ import java.util.stream.Collectors;
  */
 public class BasicCardTypeLine implements CardTypeLine {
 
+	private static <E extends Enum<E>> E insensitiveValueOf(E[] values, String name) {
+		for (E e : values) {
+			if (e.name().toLowerCase().equals(name.toLowerCase())) {
+				return e;
+			}
+		}
+
+		throw new IllegalArgumentException("No such enum element " + name);
+	}
+
 	public static BasicCardTypeLine parse(String typeLine) {
 		typeLine = typeLine.trim();
 		int split = typeLine.indexOf('\u2014');
@@ -33,10 +43,10 @@ public class BasicCardTypeLine implements CardTypeLine {
 
 		for (String s : upperTypes) {
 			try {
-				supertypes.add(Supertype.valueOf(s));
+				supertypes.add(insensitiveValueOf(Supertype.values(), s));
 			} catch (IllegalArgumentException iae) {
 				try {
-					cardTypes.add(CardType.valueOf(s));
+					cardTypes.add(insensitiveValueOf(CardType.values(), s));
 				} catch (IllegalArgumentException iae2) {
 					synchronized (System.err) {
 						System.err.println(typeLine);
