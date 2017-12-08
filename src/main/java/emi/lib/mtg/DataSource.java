@@ -18,13 +18,6 @@ public interface DataSource {
 	java.util.Set<? extends Card> cards();
 
 	/**
-	 * Finds a card by English card name.
-	 * @param name Name of the card to find.
-	 * @return Card with that name, or null if no such card exists.
-	 */
-	Card card(String name);
-
-	/**
 	 * @return Set of all card printings known to this data source.
 	 */
 	java.util.Set<? extends Card.Printing> printings();
