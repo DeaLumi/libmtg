@@ -30,8 +30,23 @@ public interface Card {
 				return Double.NaN;
 			}
 
-			// Why is there a card with *^2 in its power? :c
-			return Double.parseDouble(value.replaceAll("[-+]?[*]\u00b2?", ""));
+			if (value.contains("\u221e")) {
+				return Double.POSITIVE_INFINITY; // TODO: Catch negative infinity? :\
+			} else if (value.contains("?") || "X".equals(value)) {
+				return 0.0;
+			}
+
+			// UGH, DUNGEON MASTER
+			value = value.replaceAll("[1-9][0-9]*d[1-9][0-9]*\\+?", "");
+			value = value.replaceAll("[-+]?[*]\u00b2?", "");
+
+			try {
+				// Why is there a card with *^2 in its power? :c
+				return !value.isEmpty() ? Double.parseDouble(value) : 0;
+			} catch (NumberFormatException nfe) {
+				nfe.printStackTrace();
+				return Double.NaN;
+			}
 		}
 
 		/**
