@@ -19,7 +19,6 @@ public class Modern extends TraditionalFormat {
 				"Ancient Den",
 				"Birthing Pod",
 				"Blazing Shoal",
-				"Bloodbraid Elf",
 				"Chrome Mox",
 				"Cloudpost",
 				"Dark Depths",
@@ -33,7 +32,6 @@ public class Modern extends TraditionalFormat {
 				"Great Furnace",
 				"Green Sun's Zenith",
 				"Hypergenesis",
-				"Jace, the Mind Sculptor",
 				"Mental Misstep",
 				"Ponder",
 				"Preordain",
@@ -79,7 +77,7 @@ public class Modern extends TraditionalFormat {
 				"DIS", "GPT", "RAV",
 				"SOK", "BOK", "CHK",
 				"5DN", "DST", "MRD",
-				"M15", "M14", "M13", "M12", "M11", "M10", "10E", "9ED", "8ED",
+				"M19", "M15", "M14", "M13", "M12", "M11", "M10", "10E", "9ED", "8ED",
 				"CSP"
 		).collect(Collectors.toSet()));
 	}
