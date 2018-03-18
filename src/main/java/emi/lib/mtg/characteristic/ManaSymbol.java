@@ -101,10 +101,11 @@ public enum ManaSymbol {
 	public static List<ManaSymbol> symbolsIn(String text) {
 		List<ManaSymbol> tmp = new ArrayList<>();
 
-		Matcher m = SYMBOL_PATTERN.matcher(text);
-
-		while (m.find()) {
-			tmp.add(ManaSymbol.fromString(m.group()));
+		int start = text.indexOf('{'), end;
+		while (start >= 0) {
+			end = text.indexOf('}', start);
+			tmp.add(ManaSymbol.fromString(text.substring(start, end + 1)));
+			start = text.indexOf('{', end + 1);
 		}
 
 		return tmp;

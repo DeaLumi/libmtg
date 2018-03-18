@@ -10,30 +10,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-/**
- * Created by Emi on 5/19/2017.
- */
 public class BasicManaCost implements ManaCost {
-	private static List<ManaSymbol> parseSymbols(String manaCost) {
-		Matcher m = ManaSymbol.SYMBOL_PATTERN.matcher(manaCost);
-
-		List<ManaSymbol> list = new ArrayList<>();
-
-		int lastEnd = 0;
-		while (m.find()) {
-			list.add(ManaSymbol.fromString(m.group()));
-			lastEnd = m.end();
-		}
-
-		if (lastEnd != manaCost.length()) {
-			throw new IllegalArgumentException(String.format("%s is not a valid mana cost (%d != %d)...", manaCost, lastEnd, manaCost.length()));
-		}
-
-		return list;
-	}
-
 	public static BasicManaCost parse(String manaCost) {
-		return new BasicManaCost(parseSymbols(manaCost));
+		return new BasicManaCost(ManaSymbol.symbolsIn(manaCost));
 	}
 
 	private final List<? extends ManaSymbol> symbols;
