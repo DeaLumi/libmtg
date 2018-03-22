@@ -4,6 +4,8 @@ import emi.lib.Service;
 import emi.lib.mtg.Card;
 import emi.lib.mtg.ImageSource;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,13 +45,18 @@ public class XlhqImageSource implements ImageSource {
 	}
 
 	@Override
-	public InputStream open(Card.Printing.Face facePrint) throws IOException {
-		File file = file(facePrint.printing());
+	public Image open(Card.Printing printing) throws IOException {
+		File file = file(printing);
 
 		if (file != null && file.isFile()) {
-			return new FileInputStream(file);
+			return ImageIO.read(file);
 		}
 
 		return null;
+	}
+
+	@Override
+	public Image open(Card.Printing.Face facePrint) throws IOException {
+		return open(facePrint.printing());
 	}
 }
