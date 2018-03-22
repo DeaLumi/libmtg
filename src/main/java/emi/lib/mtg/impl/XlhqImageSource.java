@@ -3,13 +3,12 @@ package emi.lib.mtg.impl;
 import emi.lib.Service;
 import emi.lib.mtg.Card;
 import emi.lib.mtg.ImageSource;
+import emi.lib.mtg.img.MtgAwtImageUtils;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 @Service.Provider(ImageSource.class)
 @Service.Property.String(name="name", value="XLHQ Images Torrent")
@@ -45,7 +44,7 @@ public class XlhqImageSource implements ImageSource {
 	}
 
 	@Override
-	public Image open(Card.Printing printing) throws IOException {
+	public BufferedImage open(Card.Printing printing) throws IOException {
 		File file = file(printing);
 
 		if (file != null && file.isFile()) {
@@ -56,7 +55,7 @@ public class XlhqImageSource implements ImageSource {
 	}
 
 	@Override
-	public Image open(Card.Printing.Face facePrint) throws IOException {
-		return open(facePrint.printing());
+	public BufferedImage open(Card.Printing.Face facePrint) throws IOException {
+		return MtgAwtImageUtils.faceFromFull(open(facePrint.printing()), facePrint.face().kind());
 	}
 }

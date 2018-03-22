@@ -2,7 +2,7 @@ package emi.lib.mtg;
 
 import emi.lib.Service;
 
-import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -23,7 +23,7 @@ public interface ImageSource {
 	 * @return An InputStream that can be used to load a card image, or null if it couldn't be found.
 	 * @throws IOException if an error occurs while opening a card image the source located.
 	 */
-	Image open(Card.Printing printing) throws IOException;
+	BufferedImage open(Card.Printing printing) throws IOException;
 
 	/**
 	 * Attempt to open an image of a card face. Ideally, this will find an image of that face and only that face,
@@ -33,7 +33,7 @@ public interface ImageSource {
 	 * @return An input stream to an image of that face, or null if this source couldn't find such an image.
 	 * @throws IOException if an error occurs while opening a card image the source located.
 	 */
-	Image open(Card.Printing.Face facePrint) throws IOException;
+	BufferedImage open(Card.Printing.Face facePrint) throws IOException;
 
 	/**
 	 * Attempt to open an an image of the given card. Ideally, this means, "show me what I'd see if I opened a pack and
@@ -44,7 +44,7 @@ public interface ImageSource {
 	 * @return An input stream to an image of this card, or null if no image could be found by this source.
 	 * @throws IOException if an error occurs while opening the input stream.
 	 */
-	default Image open(Card card) throws IOException {
+	default BufferedImage open(Card card) throws IOException {
 		Iterator<? extends Card.Printing> printings = card.printings().iterator();
 
 		if (printings.hasNext()) {
@@ -63,7 +63,7 @@ public interface ImageSource {
 	 * @return An input stream to an image of that face, or null if this source couldn't locate such an image.
 	 * @throws IOException if an error occurs while opening the input stream.
 	 */
-	default Image open(Card card, Card.Face face) throws IOException {
+	default BufferedImage open(Card card, Card.Face face) throws IOException {
 		Iterator<? extends Card.Printing> printings = card.printings().iterator();
 
 		if (printings.hasNext()) {
