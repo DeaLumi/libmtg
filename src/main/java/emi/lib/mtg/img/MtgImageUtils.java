@@ -194,40 +194,13 @@ public class MtgImageUtils {
 		return destination;
 	}
 
-	public static int lanczosCount = 0, imageCount = 0;
-	public static double lanczosTime = 0.0, imageTime = 0.0;
-	private static boolean lanczos = false;
-
-	// TODO: I hate this. Write my own blur/Lanczos downsampler?
 	public static Image scaled(Image source, double w, double h, boolean smooth) {
-		lanczos = !lanczos;
-
 		Image out = source;
 		long start = System.nanoTime();
-//		if (lanczos) {
-			++lanczosCount;
-			if (smooth) {
-				out = convolve(out, simplifiedGaussian(1.0), 3);
-			}
-			out = resample(out, (int) w, (int) h, lanczos(3), 3);
-			lanczosTime += (System.nanoTime() - start) / 1e9;
-//		} else {
-//			++imageCount;
-//			try {
-//				PipedOutputStream output = new PipedOutputStream();
-//				PipedInputStream input = new PipedInputStream(output);
-//
-//				IMAGE_RESIZE_POOL.submit(() -> ImageIO.write(SwingFXUtils.fromFXImage(source, null), "png", output));
-//				out = new Image(input, w, h, true, smooth);
-//			} catch (IOException ioe) {
-//				ioe.printStackTrace();
-//				System.err.println("(Ignoring.)");
-//				System.err.flush();
-//			}
-//			imageTime += (System.nanoTime() - start) / 1e9;
-//		}
-
-		System.err.println(String.format("Average times: %.2f lanczos, %.2f image", lanczosTime / lanczosCount, imageTime / imageCount));
+		if (smooth) {
+			out = convolve(out, simplifiedGaussian(1.0), 3);
+		}
+		out = resample(out, (int) w, (int) h, lanczos(3), 3);
 
 		return out;
 	}
