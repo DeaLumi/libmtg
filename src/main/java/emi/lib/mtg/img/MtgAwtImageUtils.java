@@ -1,6 +1,8 @@
 package emi.lib.mtg.img;
 
 import emi.lib.mtg.Card;
+import emi.lib.mtg.impl.BasicCard;
+import emi.lib.mtg.impl.BasicPrinting;
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
@@ -168,8 +170,8 @@ public class MtgAwtImageUtils {
 			IMAGE_OP_POOL.submit(() -> {
 				for (int y = 0; y < h; ++y) {
 					for (int x = 0; x < w; ++x) {
-						final double sourceX = x * (source.getWidth() / w);
-						final double sourceY = y * (source.getHeight() / h);
+						final double sourceX = x * ((double) source.getWidth() / w);
+						final double sourceY = y * ((double) source.getHeight() / h);
 
 						final int windowX1 = Math.max(0, (int) Math.floor(sourceX) - a + 1);
 						final int windowY1 = Math.max(0, (int) Math.floor(sourceY) - a + 1);
@@ -243,9 +245,9 @@ public class MtgAwtImageUtils {
 		return out;
 	}
 
-	public static BufferedImage subsection(BufferedImage source, int x, int y, int w, int h) {
-		BufferedImage output = new BufferedImage(w, h, source.getType());
-		output.createGraphics().drawImage(source.getSubimage(x, y, w, h), 0, 0, null);
+	public static BufferedImage subsection(BufferedImage source, int x1, int y1, int x2, int y2) {
+		BufferedImage output = new BufferedImage(x2 - x1, y2 - y1, source.getType());
+		output.createGraphics().drawImage(source.getSubimage(x1, y1, x2 - x1, y2 - y1), 0, 0, null);
 		return output;
 	}
 
@@ -260,30 +262,76 @@ public class MtgAwtImageUtils {
 		return dest;
 	}
 
-	public static BufferedImage faceFromFull(BufferedImage source, Card.Face.Kind kind) {
-		switch (kind) {
-			case Front:
-				return clearCorners(source);
-			case Transformed:
-				return clearCorners(source);
-			case Flipped:
-				return clearCorners(rotated(source, 180.0));
-			case Other:
-				throw new IllegalArgumentException();
-			default:
-				break;
-		}
-
-		final int faceDelta = (int) (BORDER_WIDTH * source.getWidth() / 2);
+	public static BufferedImage faceFromFull(Card.Printing.Face printedFace, BufferedImage source) {
 		final double borderRadius = source.getWidth() * ROUND_RADIUS_FRACTION;
 
-		switch (kind) {
-			case Left:
-				return clearCorners(rotated(subsection(source, 0, source.getHeight() / 2 - faceDelta, source.getWidth(), source.getHeight() / 2 + faceDelta), -90.0), borderRadius);
-			case Right:
-				return clearCorners(rotated(subsection(source, 0, 0, source.getWidth(), source.getHeight() / 2 + faceDelta), -90.0), borderRadius);
-			default:
+		Card card = printedFace.printing().card();
+
+		if (card.face(Card.Face.Kind.Left) != null) {
+			// split card
+			if (card.face(Card.Face.Kind.Right) == null) {
 				throw new IllegalStateException();
+			}
+
+			final int startY, endY;
+			final double rotation;
+
+			if (card.face(Card.Face.Kind.Right).rules().startsWith("Aftermath")) {
+				int division = (int) (source.getHeight() * 0.5425);
+				switch (printedFace.face().kind()) {
+					case Left:
+						startY = 0;
+						endY = division;
+						rotation = 0.0;
+						break;
+					case Right:
+						startY = division;
+						endY = source.getHeight();
+						rotation = 90.0;
+						break;
+					default:
+						throw new IllegalStateException();
+				}
+			} else {
+				int division = (int) (source.getHeight() * 0.5);
+				switch (printedFace.face().kind()) {
+					case Left:
+						startY = division;
+						endY = source.getHeight();
+						break;
+					case Right:
+						startY = 0;
+						endY = division;
+						break;
+					default:
+						throw new IllegalStateException();
+				}
+				rotation = -90.0;
+			}
+
+			return rotated(clearCorners(subsection(source, 0, startY, source.getWidth(), endY), borderRadius), rotation);
+		} else if (card.face(Card.Face.Kind.Flipped) != null) {
+			// Kamigawa flip card - probably.
+			int divisionTop, divisionBottom;
+
+			if (card.face(Card.Face.Kind.Front).name().equals("Curse of the Fire Penguin")) {
+				divisionTop = (int) (source.getHeight() * 0.675);
+				divisionBottom = divisionTop;
+			} else {
+				divisionTop = (int) (source.getHeight() * 0.307);
+				divisionBottom = (int) (source.getHeight() * 0.667);
+			}
+
+			switch (printedFace.face().kind()) {
+				case Front:
+					return clearCorners(subsection(source, 0, 0, source.getWidth(), divisionBottom), borderRadius);
+				case Flipped:
+					return rotated(clearCorners(subsection(source, 0, divisionTop, source.getWidth(), source.getHeight()), borderRadius), 180.0);
+				default:
+					throw new IllegalStateException();
+			}
+		} else {
+			return clearCorners(source);
 		}
 	}
 
@@ -292,8 +340,20 @@ public class MtgAwtImageUtils {
 		static BufferedImage example;
 
 		public static void main(String[] args) throws IOException {
-			source = ImageIO.read(new File("front.jpg"));
-			example = faceFromFull(source, Card.Face.Kind.Front);
+			BasicCard card = new BasicCard()
+					.face(new BasicCard.Face(Card.Face.Kind.Front).name("Curse of the Fire Penguin").type("Sorcery").rules(""))
+					.face(new BasicCard.Face(Card.Face.Kind.Flipped).type("Sorcery").rules("Aftermath"));
+
+			BasicPrinting printing = new BasicPrinting();
+			printing.card(card)
+					.face(printing.new Face(card.face(Card.Face.Kind.Front)))
+					.face(printing.new Face(card.face(Card.Face.Kind.Flipped)));
+
+			card.printing(printing);
+
+			source = ImageIO.read(new File("fire-penguin.png"));
+			source = scaled(source, source.getWidth() * 0.75, source.getHeight() * 0.75, true);
+			example = faceFromFull(printing.face(Card.Face.Kind.Front), source);
 
 			Application.launch(args);
 		}
