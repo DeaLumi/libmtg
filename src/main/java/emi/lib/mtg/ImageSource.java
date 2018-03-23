@@ -73,4 +73,19 @@ public interface ImageSource {
 		}
 	}
 
+	/**
+	 * Returns true if images opened through this ImageSource can be cached.
+	 *
+	 * In general, an ImageSource reads from a URL or other remote source and passes the image in memory to the client
+	 * application, which may wish to cache that image on disk for future executions. If an ImageSource's results should
+	 * not be used in this way, it must override this method to return false. (Reasons for specifying this might include
+	 * an intent that its images be used only temporarily until another ImageSource can find something, or if the source
+	 * of the image is already on disk.)
+	 *
+	 * @return True if images opened through this ImageSource can be cached. False otherwise.
+	 */
+	default boolean cacheable() {
+		return true;
+	}
+
 }

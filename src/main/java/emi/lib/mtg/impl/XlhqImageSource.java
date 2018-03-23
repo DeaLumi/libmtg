@@ -56,6 +56,17 @@ public class XlhqImageSource implements ImageSource {
 
 	@Override
 	public BufferedImage open(Card.Printing.Face facePrint) throws IOException {
-		return MtgAwtImageUtils.faceFromFull(open(facePrint.printing()), facePrint.face().kind());
+		BufferedImage source = open(facePrint.printing());
+
+		if (source != null) {
+			return MtgAwtImageUtils.faceFromFull(facePrint, source);
+		}
+
+		return null;
+	}
+
+	@Override
+	public boolean cacheable() {
+		return false;
 	}
 }
