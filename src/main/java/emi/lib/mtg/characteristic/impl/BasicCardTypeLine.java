@@ -42,6 +42,10 @@ public class BasicCardTypeLine implements CardTypeLine {
 		Set<CardType> cardTypes = EnumSet.noneOf(CardType.class);
 
 		for (String s : upperTypes) {
+			if (s.isEmpty()) {
+				continue;
+			}
+
 			try {
 				supertypes.add(insensitiveValueOf(Supertype.values(), s));
 			} catch (IllegalArgumentException iae) {

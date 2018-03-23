@@ -224,4 +224,9 @@ public class BasicCard implements Card {
 	public Printing printing(UUID id) {
 		return this.printings.get(id);
 	}
+
+	public BasicCard printing(Card.Printing printing) {
+		this.printings.put(printing.id(), printing);
+		return this;
+	}
 }
