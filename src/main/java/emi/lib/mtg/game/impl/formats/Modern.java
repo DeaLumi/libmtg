@@ -73,7 +73,7 @@ public class Modern extends TraditionalFormat {
 				"ARB", "CON", "ALA",
 				"EVE", "SHM",
 				"MOR", "LRW",
-				"FUT", "PLC", "TSP",
+				"FUT", "PLC", "TSP", "TSB",
 				"DIS", "GPT", "RAV",
 				"SOK", "BOK", "CHK",
 				"5DN", "DST", "MRD",
