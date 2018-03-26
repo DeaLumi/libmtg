@@ -49,12 +49,12 @@ public class Standard extends TraditionalFormat {
 	}
 
 	@Override
-	protected boolean setIsLegal(emi.lib.mtg.Set set) {
+	public boolean setIsLegal(emi.lib.mtg.Set set) {
 		return SETLIST.contains(set.name());
 	}
 
 	@Override
-	protected boolean cardIsBanned(Card card) {
+	public boolean cardIsBanned(Card card) {
 		return BANLIST.contains(card.name());
 	}
 }

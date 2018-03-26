@@ -67,12 +67,12 @@ public class Vintage extends TraditionalFormat {
 	}
 
 	@Override
-	protected boolean setIsLegal(emi.lib.mtg.Set set) {
+	public boolean setIsLegal(emi.lib.mtg.Set set) {
 		return true;
 	}
 
 	@Override
-	protected boolean cardIsBanned(Card card) {
+	public boolean cardIsBanned(Card card) {
 		return BANLIST.contains(card.name());
 	}
 }

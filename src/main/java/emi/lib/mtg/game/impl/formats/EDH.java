@@ -76,7 +76,7 @@ public class EDH extends AbstractFormat {
 	}
 
 	@Override
-	protected int minCards(Zone zone) {
+	public int minCards(Zone zone) {
 		switch (zone) {
 			case Library:
 				return 98;
@@ -97,7 +97,7 @@ public class EDH extends AbstractFormat {
 	}
 
 	@Override
-	protected int maxCards(Zone zone) {
+	public int maxCards(Zone zone) {
 		switch (zone) {
 			case Library:
 				return 99;
@@ -118,27 +118,27 @@ public class EDH extends AbstractFormat {
 	}
 
 	@Override
-	protected int minCards() {
+	public int minCards() {
 		return 100;
 	}
 
 	@Override
-	protected int maxCards() {
+	public int maxCards() {
 		return 115;
 	}
 
 	@Override
-	protected int maxCardCopies() {
+	public int maxCardCopies() {
 		return 1;
 	}
 
 	@Override
-	protected boolean setIsLegal(emi.lib.mtg.Set set) {
+	public boolean setIsLegal(emi.lib.mtg.Set set) {
 		return true;
 	}
 
 	@Override
-	protected boolean cardIsBanned(Card card) {
+	public boolean cardIsBanned(Card card) {
 		return Vintage.BANLIST.contains(card.name()) || BANLIST.contains(card.name());
 	}
 

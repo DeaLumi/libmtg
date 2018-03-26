@@ -15,7 +15,7 @@ public abstract class TraditionalFormat extends AbstractFormat {
 	}
 
 	@Override
-	protected int minCards(Zone zone) {
+	public int minCards(Zone zone) {
 		switch (zone) {
 			case Hand:
 			case Exile:
@@ -35,7 +35,7 @@ public abstract class TraditionalFormat extends AbstractFormat {
 	}
 
 	@Override
-	protected int maxCards(Zone zone) {
+	public int maxCards(Zone zone) {
 		switch (zone) {
 			case Hand:
 			case Exile:
@@ -55,17 +55,17 @@ public abstract class TraditionalFormat extends AbstractFormat {
 	}
 
 	@Override
-	protected int minCards() {
+	public int minCards() {
 		return 60;
 	}
 
 	@Override
-	protected int maxCards() {
+	public int maxCards() {
 		return -1;
 	}
 
 	@Override
-	protected int maxCardCopies() {
+	public int maxCardCopies() {
 		return 4;
 	}
 

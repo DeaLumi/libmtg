@@ -16,21 +16,21 @@ public abstract class AbstractFormat implements Format {
 		return name();
 	}
 
-	protected abstract int minCards(Zone zone);
+	public abstract int minCards(Zone zone);
 
-	protected abstract int maxCards(Zone zone);
+	public abstract int maxCards(Zone zone);
 
-	protected abstract int minCards();
+	public abstract int minCards();
 
-	protected abstract int maxCards();
+	public abstract int maxCards();
 
-	protected abstract int maxCardCopies();
+	public abstract int maxCardCopies();
 
-	protected boolean setIsLegal(emi.lib.mtg.Set set) {
+	public boolean setIsLegal(emi.lib.mtg.Set set) {
 		return true;
 	}
 
-	protected boolean cardIsBanned(Card card) {
+	public boolean cardIsBanned(Card card) {
 		return false;
 	}
 
