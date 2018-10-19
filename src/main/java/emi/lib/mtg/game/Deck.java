@@ -5,16 +5,6 @@ import emi.lib.mtg.Card;
 import java.util.*;
 
 public interface Deck {
-	interface Variant {
-		Deck deck();
-
-		String name();
-
-		String description();
-
-		Collection<? extends Card.Printing> cards(Zone zone);
-	}
-
 	String name();
 
 	String author();
@@ -23,5 +13,5 @@ public interface Deck {
 
 	String description();
 
-	Collection<? extends Variant> variants();
+	Collection<? extends Card.Printing> cards(Zone zone);
 }

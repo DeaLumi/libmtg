@@ -183,11 +183,11 @@ public class EDH extends AbstractFormat {
 	}
 
 	@Override
-	protected Set<String> furtherValidation(Deck.Variant variant) {
+	protected Set<String> furtherValidation(Deck deck) {
 		Set<String> messages = new HashSet<>();
 
-		Collection<? extends Card.Printing> cmd = variant.cards(Zone.Command);
-		Collection<? extends Card.Printing> lib = variant.cards(Zone.Library);
+		Collection<? extends Card.Printing> cmd = deck.cards(Zone.Command);
+		Collection<? extends Card.Printing> lib = deck.cards(Zone.Library);
 
 		if (cmd == null) {
 			cmd = Collections.emptyList();

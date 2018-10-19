@@ -70,7 +70,7 @@ public abstract class TraditionalFormat extends AbstractFormat {
 	}
 
 	@Override
-	protected Set<String> furtherValidation(Deck.Variant variant) {
+	protected Set<String> furtherValidation(Deck deck) {
 		return Collections.emptySet();
 	}
 }
