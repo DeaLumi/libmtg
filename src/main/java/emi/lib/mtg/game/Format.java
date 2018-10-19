@@ -15,5 +15,5 @@ public interface Format {
 
 	boolean cardIsLegal(Card card);
 
-	Set<String> validate(Deck deckVariant);
+	Set<String> validate(Deck deck);
 }
