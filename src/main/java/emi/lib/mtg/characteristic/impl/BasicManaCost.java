@@ -1,13 +1,10 @@
 package emi.lib.mtg.characteristic.impl;
 
-import emi.lib.mtg.characteristic.ManaSymbol;
 import emi.lib.mtg.characteristic.ManaCost;
+import emi.lib.mtg.characteristic.ManaSymbol;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 public class BasicManaCost implements ManaCost {
