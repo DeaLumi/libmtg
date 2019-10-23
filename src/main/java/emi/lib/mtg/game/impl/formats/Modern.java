@@ -19,6 +19,7 @@ public class Modern extends TraditionalFormat {
 				"Ancient Den",
 				"Birthing Pod",
 				"Blazing Shoal",
+				"Bridge from Below",
 				"Chrome Mox",
 				"Cloudpost",
 				"Dark Depths",
@@ -31,7 +32,9 @@ public class Modern extends TraditionalFormat {
 				"Golgari Grave-Troll",
 				"Great Furnace",
 				"Green Sun's Zenith",
+				"Hogaak, Arisen Necropolis",
 				"Hypergenesis",
+				"Krark-Clan Ironworks",
 				"Mental Misstep",
 				"Ponder",
 				"Preordain",
@@ -43,7 +46,6 @@ public class Modern extends TraditionalFormat {
 				"Sensei's Divining Top",
 				"Skullclamp",
 				"Splinter Twin",
-				"Stoneforge Mystic",
 				"Summer Bloom",
 				"Treasure Cruise",
 				"Tree of Tales",
@@ -57,6 +59,9 @@ public class Modern extends TraditionalFormat {
 	// TODO: This is far from complete.
 	private static Set<String> setlist() {
 		return Collections.unmodifiableSet(Stream.of(
+				"ELD",
+				"MH1",
+				"WAR", "RNA", "GRN",
 				"DOM",
 				"RIX", "XLN",
 				"HOU", "AKH",
@@ -77,7 +82,7 @@ public class Modern extends TraditionalFormat {
 				"DIS", "GPT", "RAV",
 				"SOK", "BOK", "CHK",
 				"5DN", "DST", "MRD",
-				"M19", "M15", "M14", "M13", "M12", "M11", "M10", "10E", "9ED", "8ED",
+				"M20", "M19", "M15", "M14", "M13", "M12", "M11", "M10", "10E", "9ED", "8ED",
 				"CSP"
 		).collect(Collectors.toSet()));
 	}
