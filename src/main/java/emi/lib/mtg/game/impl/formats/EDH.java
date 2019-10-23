@@ -11,6 +11,8 @@ import emi.lib.mtg.game.Zone;
 
 import java.util.*;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -142,6 +144,44 @@ public class EDH extends AbstractFormat {
 		return Vintage.BANLIST.contains(card.name()) || BANLIST.contains(card.name());
 	}
 
+	private static String isLegalCommander(Card.Face cmdr) {
+		if (!cmdr.type().supertypes().contains(Supertype.Legendary)) {
+			return String.format("%s is not a legal commander.", cmdr.name());
+		}
+
+		if (!cmdr.type().cardTypes().contains(CardType.Creature) && !cmdr.rules().contains("can be your commander.")) {
+			return String.format("%s is not a legal commander.", cmdr.name());
+		}
+
+		return null; // Null is good here. It means no reason to reject this commander.
+	}
+
+	private static Pattern partner = Pattern.compile("Partner(?: with (?<partner>[-A-Za-z0-9 ,]+))?(?: \\(.*\\))?");
+
+	private static String canBePartners(Card.Face cmdr1, Card.Face cmdr2) {
+		Matcher m1 = partner.matcher(cmdr1.rules());
+
+		if (!m1.find()) {
+			return String.format("%s does not have Partner.", cmdr1.name());
+		}
+
+		Matcher m2 = partner.matcher(cmdr2.rules());
+
+		if (!m2.find()) {
+			return String.format("%s does not have Partner.", cmdr2.name());
+		}
+
+		if (m1.group("partner") != null && !m1.group("partner").equals(cmdr2.name())) {
+			return String.format("%s can only be partnered with %s, not %s.", cmdr1.name(), m1.group("partner"), cmdr2.name());
+		}
+
+		if (m2.group("partner") != null && !m2.group("partner").equals(cmdr1.name())) {
+			return String.format("%s can only be partnered with %s, not %s.", cmdr2.name(), m2.group("partner"), cmdr1.name());
+		}
+
+		return null;
+	}
+
 	@Override
 	protected Set<String> furtherValidation(Deck.Variant variant) {
 		Set<String> messages = new HashSet<>();
@@ -151,18 +191,45 @@ public class EDH extends AbstractFormat {
 
 		if (cmd == null) {
 			cmd = Collections.emptyList();
-			messages.add(BAD_CMD_COUNT);
-		} else if (cmd.size() > 2) {
-			messages.add(BAD_CMD_COUNT);
+		}
+
+		Card.Face cmdr1, cmdr2;
+		switch (cmd.size()) {
+			case 1: {
+				cmdr1 = cmd.iterator().next().card().face(Card.Face.Kind.Front);
+				cmdr2 = null;
+				break;
+			}
+			case 2: {
+				Iterator<? extends Card.Printing> it = cmd.iterator();
+				cmdr1 = it.next().card().face(Card.Face.Kind.Front);
+				cmdr2 = it.next().card().face(Card.Face.Kind.Front);
+				break;
+			}
+			default: {
+				cmdr1 = null;
+				cmdr2 = null;
+				break;
+			}
+		}
+
+		if (cmdr1 != null) {
+			String badCmdr1 = isLegalCommander(cmdr1);
+			if (badCmdr1 != null) {
+				messages.add(badCmdr1);
+			}
 		} else {
-			for (Card.Printing pr : cmd) {
-				Card.Face front = pr.card().face(Card.Face.Kind.Front);
-				if (front == null ||
-						!front.type().supertypes().contains(Supertype.Legendary) ||
-						!front.type().cardTypes().contains(CardType.Creature) ||
-						(cmd.size() != 1 && !front.rules().contains("Partner"))) {
-					messages.add(BAD_CMD_COUNT);
-					break;
+			messages.add(BAD_CMD_COUNT);
+		}
+
+		if (cmdr2 != null) {
+			String badCmdr2 = isLegalCommander(cmdr2);
+			if (badCmdr2 != null) {
+				messages.add(badCmdr2);
+			} else {
+				badCmdr2 = canBePartners(cmdr1, cmdr2);
+				if (badCmdr2 != null) {
+					messages.add(badCmdr2);
 				}
 			}
 		}
