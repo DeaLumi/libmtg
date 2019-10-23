@@ -17,13 +17,7 @@ public class Standard extends TraditionalFormat {
 
 	private static Set<String> banlist() {
 		return Collections.unmodifiableSet(Stream.of(
-				"Aetherworks Marvel",
-				"Smuggler's Copter",
-				"Felidar Guardian",
-				"Attune with Aether",
-				"Rogue Refiner",
-				"Rampaging Ferocidon",
-				"Ramanup Ruins"
+				"Field of the Dead"
 		).collect(Collectors.toSet()));
 	}
 
@@ -31,15 +25,13 @@ public class Standard extends TraditionalFormat {
 
 	private static Set<String> setlist() {
 		return Collections.unmodifiableSet(Stream.of(
-				"Kaladesh",
-				"Aether Revolt",
-				"Amonkhet",
-				"Welcome Deck 2017",
-				"Hour of Devastation",
-				"Ixalan",
-				"Rivals of Ixalan",
-				"Dominaria",
-				"Core 2019"
+				"Guilds of Ravnica",
+				"Ravnica Allegiance",
+				"War of the Spark",
+				"Core Set 2020",
+				"Throne of Eldraine",
+				"Theros: Beyond Death",
+				"Ikoria: Lair of Behemoths"
 		).collect(Collectors.toSet()));
 	}
 
