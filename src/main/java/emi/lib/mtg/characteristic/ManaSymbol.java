@@ -73,6 +73,7 @@ public enum ManaSymbol {
 	HALF_RED("{HR}", 0.5, Color.RED),
 	HALF_GREEN("{HG}", 0.5, Color.GREEN),
 
+	ACORN("{A}", 0.0),
 	ENERGY("{E}", 0.0),
 	PLANESWALK("{PW}", 0.0),
 	CHAOS("{CHAOS}", 0.0),
