@@ -59,6 +59,7 @@ public class Modern extends TraditionalFormat {
 	// TODO: This is far from complete.
 	private static Set<String> setlist() {
 		return Collections.unmodifiableSet(Stream.of(
+				"TBD",
 				"ELD",
 				"MH1",
 				"WAR", "RNA", "GRN",
