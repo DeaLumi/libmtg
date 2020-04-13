@@ -8,6 +8,7 @@ import emi.lib.mtg.characteristic.ManaCost;
 import emi.lib.mtg.characteristic.impl.BasicCardTypeLine;
 import emi.lib.mtg.characteristic.impl.BasicManaCost;
 import emi.lib.mtg.Card;
+import emi.lib.mtg.game.Format;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -194,10 +195,12 @@ public class BasicCard implements Card {
 
 	private EnumHashBiMap<Face.Kind, Card.Face> faces;
 	private HashBiMap<UUID, Card.Printing> printings;
+	private Map<Format, Legality> legalities;
 
 	public BasicCard() {
 		this.faces = EnumHashBiMap.create(Face.Kind.class);
 		this.printings = HashBiMap.create();
+		this.legalities = new EnumMap<>(Format.class);
 	}
 
 	@Override
@@ -227,6 +230,16 @@ public class BasicCard implements Card {
 
 	public BasicCard printing(Card.Printing printing) {
 		this.printings.put(printing.id(), printing);
+		return this;
+	}
+
+	@Override
+	public Legality legality(Format format) {
+		return this.legalities.getOrDefault(format, Legality.Unknown);
+	}
+
+	public BasicCard legality(Format format, Legality legality) {
+		this.legalities.put(format, legality);
 		return this;
 	}
 }

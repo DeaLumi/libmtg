@@ -2,6 +2,7 @@ package emi.lib.mtg;
 
 import emi.lib.mtg.characteristic.*;
 import emi.lib.mtg.characteristic.impl.BasicManaCost;
+import emi.lib.mtg.game.Format;
 
 import java.util.*;
 import java.util.Set;
@@ -381,4 +382,37 @@ public interface Card {
 				.flatMap(f -> f.colorIdentity().stream())
 				.collect(() -> EnumSet.noneOf(Color.class), Set::add, Set::addAll);
 	}
+
+	/**
+	 * State of a card's legality in any given format.
+	 */
+	enum Legality {
+		/**
+		 * This card was at one point legal, but has been banned (by English card name, normally).
+		 */
+		Banned,
+		/**
+		 * This card is not and has not been legal.
+		 */
+		NotLegal,
+		/**
+		 * No more than one of these cards is permitted in a deck.
+		 */
+		Restricted,
+		/**
+		 * This card is legal in the format.
+		 */
+		Legal,
+		/**
+		 * The data source for this card doesn't know this card's legality.
+		 */
+		Unknown;
+	};
+
+	/**
+	 * Returns the card's legality in the given format.
+	 * @param format The format to check for legality.
+	 * @return The card's legality enum value in that format, or Unknown.
+	 */
+	Legality legality(Format format);
 }
