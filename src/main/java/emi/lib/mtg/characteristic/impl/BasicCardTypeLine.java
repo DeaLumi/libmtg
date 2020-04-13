@@ -23,6 +23,17 @@ public class BasicCardTypeLine implements CardTypeLine {
 	}
 
 	public static BasicCardTypeLine parse(String typeLine) {
+		// Hack for B.F.M.'s right half.
+		if ("Scariest Creature You’ll Ever See".equals(typeLine)) {
+			Set<CardType> types = EnumSet.of(CardType.Creature);
+			Set<String> subtypes = new HashSet<>();
+			subtypes.addAll(Arrays.asList("Scariest", "Creature", "You’ll", "Ever", "See"));
+			return new BasicCardTypeLine(Collections.emptySet(), types, subtypes);
+		}
+
+		// Hack for un-cards with the Summon X type line
+		typeLine = typeLine.replace("Summon", "Summon \u2014");
+
 		typeLine = typeLine.trim();
 		int split = typeLine.indexOf('\u2014');
 

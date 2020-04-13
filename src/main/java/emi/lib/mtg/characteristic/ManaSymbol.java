@@ -82,7 +82,7 @@ public enum ManaSymbol {
 	UNTAP ("{Q}", 0)
 	;
 
-	public static final Pattern SYMBOL_PATTERN = Pattern.compile("\\{(?:[WUBRG]|W/[UB]|U/[BR]|B/[RG]|R/[GW]|G/[WU]|2/[WUBRG]|(?:[WUBRG]/)?P|S|C|[0-9]+|\u221e|[XYZ]|\u00bd|H[WUBRG]|E|PW|CHAOS|[TQ])\\}");
+	public static final Pattern SYMBOL_PATTERN = Pattern.compile("\\{(?:[WUBRG]|W/[UB]|U/[BR]|B/[RG]|R/[GW]|G/[WU]|2/[WUBRG]|(?:[WUBRG]/)?P|S|C|[0-9]+|\u221e|[XYZ]|\u00bd|H[WUBRG]|A|E|PW|CHAOS|[TQ])\\}");
 
 	private final static Map<String, ManaSymbol> reverse = reverseMap();
 
@@ -105,7 +105,12 @@ public enum ManaSymbol {
 		int start = text.indexOf('{'), end;
 		while (start >= 0) {
 			end = text.indexOf('}', start);
-			tmp.add(ManaSymbol.fromString(text.substring(start, end + 1)));
+			try {
+				tmp.add(ManaSymbol.fromString(text.substring(start, end + 1)));
+			} catch (IllegalArgumentException iae) {
+				iae.printStackTrace();
+				// continue
+			}
 			start = text.indexOf('{', end + 1);
 		}
 

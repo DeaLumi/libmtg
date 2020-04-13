@@ -38,7 +38,11 @@ public enum CardType {
 	Enchant,
 	Summon,
 	Player,
-	Host;
+	Host,
+	Hero,
+	Elemental,
+	Autobot,
+	Character;
 
 	public static final Set<CardType> CONSTRUCTED_TYPES = Collections.unmodifiableSet(EnumSet.of(
 			CardType.Artifact,
