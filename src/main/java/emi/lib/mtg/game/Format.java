@@ -68,7 +68,7 @@ public enum Format {
 	}
 
 	private static class Validators {
-		private static Pattern partner = Pattern.compile("(?<legendary>Legendary )[Pp]artner(?: with (?<partner>[-A-Za-z0-9 ,]+))?(?: \\(.*\\))?");
+		private static Pattern partner = Pattern.compile("(?<legendary>Legendary )?[Pp]artner(?: with (?<partner>[-A-Za-z0-9 ,]+))?(?: \\(.*\\))?");
 
 		private static boolean commanderIsLegal(Card.Face front) {
 			return front.rules().contains("can be your commander.") || (front.type().supertypes().contains(Supertype.Legendary) && front.type().cardTypes().contains(CardType.Creature));
@@ -107,11 +107,11 @@ public enum Format {
 						result.cardErrors.computeIfAbsent(cmdrOther, pr -> new HashSet<>()).add(String.format("%s must be partnered with a creature card.", faceMain.name()));
 					}
 				} else if (found1 && found2) {
-					if (match1.group("partner") != null && !match1.group("partner").equals(face2.name())) {
-						result.cardErrors.computeIfAbsent(cmdr2, pr -> new HashSet<>()).add(String.format("%s is partners with %s, not %s.", face2.name(), match1.group("partner"), face1.name()));
+					if (match1.group("partner") != null && !match1.group("partner").trim().equals(face2.name())) {
+						result.cardErrors.computeIfAbsent(cmdr2, pr -> new HashSet<>()).add(String.format("%s is partners with %s, not %s.", face1.name(), match1.group("partner").trim(), face2.name()));
 					}
-					if (match2.group("partner") != null && !match2.group("partner").equals(face1.name())) {
-						result.cardErrors.computeIfAbsent(cmdr1, pr -> new HashSet<>()).add(String.format("%s is partners with %s, not %s.", face1.name(), match2.group("partner"), face2.name()));
+					if (match2.group("partner") != null && !match2.group("partner").trim().equals(face1.name())) {
+						result.cardErrors.computeIfAbsent(cmdr1, pr -> new HashSet<>()).add(String.format("%s is partners with %s, not %s.", face2.name(), match2.group("partner").trim(), face1.name()));
 					}
 					if (!commanderIsLegal(face1)) {
 						result.cardErrors.computeIfAbsent(cmdr1, pr -> new HashSet<>()).add(String.format("%s is not a legal commander.", face1.name()));

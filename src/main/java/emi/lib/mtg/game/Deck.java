@@ -14,4 +14,8 @@ public interface Deck {
 	String description();
 
 	Collection<? extends Card.Printing> cards(Zone zone);
+
+	default Format.ValidationResult validate() {
+		return format().validate(this);
+	}
 }
