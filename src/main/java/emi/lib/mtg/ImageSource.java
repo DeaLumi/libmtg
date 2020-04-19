@@ -1,7 +1,5 @@
 package emi.lib.mtg;
 
-import emi.lib.Service;
-
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Iterator;
@@ -9,10 +7,14 @@ import java.util.Iterator;
 /**
  * Represents a source of Magic: the Gathering card and related object images.
  */
-@Service
-@Service.Property.String(name="name")
-@Service.Property.Number(name="priority")
 public interface ImageSource {
+
+	/**
+	 * Provides a hint to clients as to the ordering of image sources to try.
+	 * Disk-based sources may propose a higher priority, for instance, to avoid network usage.
+	 * @return A number indicating this source's priority.
+	 */
+	int priority();
 
 	/**
 	 * Attempt to open an an image of the given card printing. Ideally, this means, "show me what I'd see if I opened a

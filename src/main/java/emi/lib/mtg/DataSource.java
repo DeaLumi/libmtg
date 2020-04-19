@@ -1,7 +1,5 @@
 package emi.lib.mtg;
 
-import emi.lib.Service;
-
 import java.io.IOException;
 import java.util.UUID;
 import java.util.function.DoubleConsumer;
@@ -9,8 +7,6 @@ import java.util.function.DoubleConsumer;
 /**
  * Represents a known universe of Magic: the Gathering cards and sets and formats and more.
  */
-@Service
-@Service.Property.String(name="name")
 public interface DataSource {
 	/**
 	 * @return Set of all cards known to this data source.
