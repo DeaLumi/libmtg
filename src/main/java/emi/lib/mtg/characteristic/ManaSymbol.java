@@ -1,6 +1,7 @@
 package emi.lib.mtg.characteristic;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -102,16 +103,17 @@ public enum ManaSymbol {
 	public static List<ManaSymbol> symbolsIn(String text) {
 		List<ManaSymbol> tmp = new ArrayList<>();
 
-		int start = text.indexOf('{'), end;
-		while (start >= 0) {
-			end = text.indexOf('}', start);
-			try {
-				tmp.add(ManaSymbol.fromString(text.substring(start, end + 1)));
-			} catch (IllegalArgumentException iae) {
-				iae.printStackTrace();
-				// continue
+		for (int i = 0; i < text.length(); ++i) {
+			if (text.charAt(i) == '{') {
+				try {
+					tmp.add(ManaSymbol.fromString(text.substring(i, text.indexOf('}', i) + 1)));
+				} catch (IllegalArgumentException iae) {
+					iae.printStackTrace();
+					// Continue
+				}
+			} else if (text.charAt(i) == '(') {
+				while (i < text.length() && text.charAt(i) != ')') ++i;
 			}
-			start = text.indexOf('{', end + 1);
 		}
 
 		return tmp;
@@ -165,5 +167,22 @@ public enum ManaSymbol {
 
 	public Set<Color> color() {
 		return colors;
+	}
+
+	public static void main(String[] args) {
+		Map<String, Predicate<List<ManaSymbol>>> tests = new HashMap<>();
+
+		assert ManaSymbol.symbolsIn("{2/W}{2/U}{2/B}{2/R}{2/G}").equals(Arrays.asList(
+				ManaSymbol.TWOBRID_WHITE_2,
+				ManaSymbol.TWOBRID_BLUE_2,
+				ManaSymbol.TWOBRID_BLACK_2,
+				ManaSymbol.TWOBRID_RED_2,
+				ManaSymbol.TWOBRID_GREEN_2));
+
+		assert ManaSymbol.symbolsIn("Flashback {2}{R}").equals(Arrays.asList(
+				ManaSymbol.GENERIC_2,
+				ManaSymbol.RED));
+
+		assert ManaSymbol.symbolsIn("Extort (Whenever you cast a spell, you may pay {W/B}. If you do, each opponent loses 1 life and you gain that much life.)").equals(Collections.emptyList());
 	}
 }
