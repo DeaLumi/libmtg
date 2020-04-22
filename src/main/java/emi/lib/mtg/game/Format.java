@@ -265,15 +265,11 @@ public enum Format {
 								}
 							}
 
-							if (pr.card().faces().stream().allMatch(f -> f.type().supertypes().contains(Supertype.Basic))) {
-								max = -1;
-							}
-
-							if (max > 0 && histogram.get(pr.card().name()).get() > maxCopies) {
+							if (max > 0 && histogram.get(pr.card().name()).get() > max) {
 								result.cardErrors(pr).add(String.format("In %s, a deck can contain no more than %d cop%s of %s.",
 										Format.this.name(),
-										maxCopies,
-										maxCopies == 1 ? "y" : "ies",
+										max,
+										max == 1 ? "y" : "ies",
 										pr.card().name()));
 							}
 						}
