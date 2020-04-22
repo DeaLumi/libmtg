@@ -2,7 +2,6 @@ package emi.lib.mtg.game;
 
 import emi.lib.mtg.Card;
 import emi.lib.mtg.characteristic.CardType;
-import emi.lib.mtg.characteristic.CardTypeLine;
 import emi.lib.mtg.characteristic.Color;
 import emi.lib.mtg.characteristic.Supertype;
 
@@ -12,6 +11,7 @@ import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("unused")
 public enum Format {
 	Freeform (-1, FormatZoneInfo.FREEFORM, null),
 	Standard,
@@ -68,10 +68,89 @@ public enum Format {
 	}
 
 	private static class Validators {
-		private static Pattern partner = Pattern.compile("(?<legendary>Legendary )?[Pp]artner(?: with (?<partner>[-A-Za-z0-9 ,]+))?(?: \\(.*\\))?");
+		private static final Pattern PARTNER_PATTERN = Pattern.compile("(?<legendary>Legendary )?[Pp]artner(?: with (?<with>[-A-Za-z0-9 ,]+))?");
 
-		private static boolean commanderIsLegal(Card.Face front) {
-			return front.rules().contains("can be your commander.") || (front.type().supertypes().contains(Supertype.Legendary) && front.type().cardTypes().contains(CardType.Creature));
+		private static boolean isCreature(Card.Printing pr) {
+			Card.Face front = pr.card().face(Card.Face.Kind.Front);
+			return front != null && front.type().cardTypes().contains(CardType.Creature);
+		}
+
+		private static void validateCommander(ValidationResult result, Collection<? extends Card.Printing> cmdZone, Card.Printing cmdr) {
+			Card.Face front = cmdr.card().face(Card.Face.Kind.Front);
+
+			if (front != null) {
+				// cmdr is a valid commander if it says it is.
+				if (front.rules().contains("can be your commander.")) return;
+
+				if (front.type().cardTypes().contains(CardType.Creature)) {
+					if (front.type().supertypes().contains(Supertype.Legendary)) {
+						Matcher matcher = PARTNER_PATTERN.matcher(front.rules());
+						if (matcher.find()) {
+							if (matcher.group("legendary") != null) {
+								// Legendary partner. It's a valid commander if there's exactly one other creature card in the command zone.
+								// (If that card has partner, it will fail its own validation if we're not the right partner for it.)
+								if (cmdZone.size() <= 2 && cmdZone.stream().allMatch(pr -> pr == cmdr || isCreature(pr))) {
+									return;
+								} else {
+									result.cardErrors(cmdr).add(String.format("%s must be partnered with exactly one creature card.", front.name()));
+									return;
+								}
+							} else if (matcher.group("with") != null) {
+								// Partner-with. It's a valid commander if there's exactly one other creature card in the command zone,
+								// *and* its name matches.
+								if (cmdZone.size() <= 2) {
+									Card.Printing other = cmdZone.stream().filter(pr -> pr != cmdr).findAny().orElse(null);
+									if (other == null || other.card().name().equals(matcher.group("with").trim())) {
+										return;
+									} else {
+										result.cardErrors(cmdr).add(String.format("%s must be partnered with exactly %s, not %s.", front.name(), matcher.group("with").trim(), other.card().name()));
+										return;
+									}
+								} else {
+									result.cardErrors(cmdr).add(String.format("%s must be partnered with exactly %s.", front.name(), matcher.group("with").trim()));
+									return;
+								}
+							} else {
+								// Ordinary partner. It's a valid commander if there's exactly one other creature card in the command zone,
+								// *and* it too has partner. (If it has partner-with, it will fail its validation if we're not the right partner.)
+								if (cmdZone.size() <= 2) {
+									Card.Printing other = cmdZone.stream().filter(pr -> pr != cmdr).findAny().orElse(null);
+									if (other == null || (isCreature(other) && PARTNER_PATTERN.matcher(other.card().face(Card.Face.Kind.Front).rules()).find())) {
+										return;
+									} else {
+										result.cardErrors(cmdr).add(String.format("%s must be partnered with a creature card with partner.", front.name()));
+										return;
+									}
+								} else {
+									result.cardErrors(cmdr).add(String.format("%s must be partnered with exactly one creature card with partner.", front.name()));
+									return;
+								}
+							}
+						} else {
+							// No 'partner' in cmdr's rules. It's a valid commander if it's the only one.
+							if (cmdZone.size() == 1) {
+								return;
+							} else {
+								result.cardErrors(cmdr).add(String.format("%s can't be partnered with any other cards.", front.name()));
+								return;
+							}
+						}
+					} else {
+						// Nonlegendary creature card. It's a valid commander if there's exactly one other creature card in the command zone and it has legendary partner.
+						if (cmdZone.size() == 2) {
+							Card.Printing other = cmdZone.stream().filter(pr -> pr != cmdr).findAny().orElseThrow(AssertionError::new);
+							if (other != null && other.card().face(Card.Face.Kind.Front) != null) {
+								Matcher matcher = PARTNER_PATTERN.matcher(other.card().face(Card.Face.Kind.Front).rules());
+								if (matcher.find() && matcher.group("legendary") != null) {
+									return;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			result.cardErrors(cmdr).add(String.format("%s is not a valid commander.", cmdr.card().name()));
 		}
 
 		private static final BiConsumer<Deck, ValidationResult> COMMAND_ZONE = (deck, result) -> {
@@ -79,54 +158,9 @@ public enum Format {
 			Collection<? extends Card.Printing> library = deck.cards(Zone.Library) == null ? Collections.emptyList() : deck.cards(Zone.Library);
 
 			Set<Color> cmdrColors = EnumSet.of(Color.COLORLESS);
-			if (commanders.size() == 1) {
-				Card.Printing cmdr = commanders.iterator().next();
-				Card.Face face = cmdr.card().face(Card.Face.Kind.Front);
-				CardTypeLine ctl = face.type();
-
-				if (!commanderIsLegal(face)) {
-					result.cardErrors.computeIfAbsent(cmdr, s -> new HashSet<>()).add(String.format("%s is not a legal commander.", face.name()));
-				}
-
-				cmdrColors.addAll(face.colorIdentity());
-			} else if (commanders.size() == 2) {
-				Iterator<? extends Card.Printing> iter = commanders.iterator();
-				Card.Printing cmdr1 = iter.next(), cmdr2 = iter.next();
-				Card.Face face1 = cmdr1.card().face(Card.Face.Kind.Front), face2 = cmdr2.card().face(Card.Face.Kind.Front);
-				Matcher match1 = partner.matcher(face1.rules()), match2 = partner.matcher(face2.rules());
-				boolean found1 = match1.find(), found2 = match2.find();
-
-				if ((found1 || found2) && (found1 ? match1 : match2).group("legendary") != null) {
-					Card.Printing cmdrMain = found1 ? cmdr1 : cmdr2, cmdrOther = found1 ? cmdr2 : cmdr1;
-					Card.Face faceMain = found1 ? face1 : face2, faceOther = found1 ? face2 : face1;
-
-					if (!commanderIsLegal(faceMain)) {
-						result.cardErrors.computeIfAbsent(cmdrMain, pr -> new HashSet<>()).add(String.format("%s is not a legal commander.", faceMain.name()));
-					}
-					if (!faceOther.type().cardTypes().contains(CardType.Creature)) {
-						result.cardErrors.computeIfAbsent(cmdrOther, pr -> new HashSet<>()).add(String.format("%s must be partnered with a creature card.", faceMain.name()));
-					}
-				} else if (found1 && found2) {
-					if (match1.group("partner") != null && !match1.group("partner").trim().equals(face2.name())) {
-						result.cardErrors.computeIfAbsent(cmdr2, pr -> new HashSet<>()).add(String.format("%s is partners with %s, not %s.", face1.name(), match1.group("partner").trim(), face2.name()));
-					}
-					if (match2.group("partner") != null && !match2.group("partner").trim().equals(face1.name())) {
-						result.cardErrors.computeIfAbsent(cmdr1, pr -> new HashSet<>()).add(String.format("%s is partners with %s, not %s.", face2.name(), match2.group("partner").trim(), face1.name()));
-					}
-					if (!commanderIsLegal(face1)) {
-						result.cardErrors.computeIfAbsent(cmdr1, pr -> new HashSet<>()).add(String.format("%s is not a legal commander.", face1.name()));
-					}
-					if (!commanderIsLegal(face2)) {
-						result.cardErrors.computeIfAbsent(cmdr2, pr -> new HashSet<>()).add(String.format("%s is not a legal commander.", face2.name()));
-					}
-				} else {
-					result.zoneErrors.get(Zone.Command).add("You can have two commanders only if both have partner.");
-				}
-
-				cmdrColors.addAll(face1.colorIdentity());
-				cmdrColors.addAll(face2.colorIdentity());
-			} else {
-				result.zoneErrors.get(Zone.Command).add("You must have exactly one or two commanders.");
+			for (Card.Printing pr : commanders) {
+				validateCommander(result, commanders, pr);
+				cmdrColors.addAll(pr.card().colorIdentity());
 			}
 
 			library.stream()
@@ -166,18 +200,24 @@ public enum Format {
 			}
 			this.cardErrors = new HashMap<>();
 		}
+
+		private Set<String> cardErrors(Card.Printing pr) {
+			return cardErrors.computeIfAbsent(pr, x -> new HashSet<>());
+		}
+
+		private Set<String> zoneErrors(Zone zone) {
+			return zoneErrors.computeIfAbsent(zone, x -> new HashSet<>());
+		}
 	}
 
-	private static final Pattern countPattern = Pattern.compile("A deck can have (?<any>any number of|up to (?<numword>[- a-z0-9]-)) cards named");
+	private static final Pattern COUNT_PATTERN = Pattern.compile("A deck can have (?<any>any number of|up to (?<numword>[- a-z0-9]+)) cards named");
 
 	private static int numberWordToInt(String str) {
 		// TODO: Move this to a utility library or something. Heck.
-		switch(str) {
-			case "seven":
-				return 7;
-			default:
-				return -1;
+		if ("seven".equals(str)) {
+			return 7;
 		}
+		return -1;
 	}
 
 	/**
@@ -197,30 +237,29 @@ public enum Format {
 			ciz.stream()
 					.peek(pr -> histogram.computeIfAbsent(pr.card().name(), n -> new AtomicInteger(0)).incrementAndGet())
 					.forEach(pr -> {
-						Set<String> messages = result.cardErrors.containsKey(pr) ? result.cardErrors.get(pr) : new HashSet<>();
 						switch (pr.card().legality(Format.this)) {
 							case Banned:
-								messages.add(String.format("%s is banned in %s!", pr.card().name(), Format.this.name()));
+								result.cardErrors(pr).add(String.format("%s is banned in %s!", pr.card().name(), Format.this.name()));
 								break;
 							case NotLegal:
-								messages.add(String.format("%s is not legal in %s.", pr.card().name(), Format.this.name()));
+								result.cardErrors(pr).add(String.format("%s is not legal in %s.", pr.card().name(), Format.this.name()));
 								break;
 							case Restricted:
 								if (histogram.get(pr.card().name()).get() > 1) {
-									messages.add(String.format("%s is restricted to one copy per deck in %s.", pr.card().name(), Format.this.name()));
+									result.cardErrors(pr).add(String.format("%s is restricted to one copy per deck in %s.", pr.card().name(), Format.this.name()));
 								}
 								break;
 							case Legal:
 								break;
 							case Unknown:
-								messages.add(String.format("Couldn't verify legality of %s in %s.", pr.card().name(), Format.this.name()));
+								result.cardErrors(pr).add(String.format("Couldn't verify legality of %s in %s.", pr.card().name(), Format.this.name()));
 								break;
 						}
 
 						if (!pr.card().faces().stream().allMatch(f -> f.type().supertypes().contains(Supertype.Basic))) {
 							int max = maxCopies;
 							if (pr.card().face(Card.Face.Kind.Front) != null) {
-								Matcher countMatcher = countPattern.matcher(pr.card().face(Card.Face.Kind.Front).rules());
+								Matcher countMatcher = COUNT_PATTERN.matcher(pr.card().face(Card.Face.Kind.Front).rules());
 								if (countMatcher.find()) {
 									max = countMatcher.group("numword") != null ? numberWordToInt(countMatcher.group("numword")) : -1;
 								}
@@ -230,23 +269,26 @@ public enum Format {
 								max = -1;
 							}
 
-							if (max >= 0 && histogram.get(pr.card().name()).get() > maxCopies) {
-								messages.add(String.format("In %s, a deck can contain no more than %d copies of %s.", Format.this.name(), maxCopies, pr.card().name()));
+							if (max > 0 && histogram.get(pr.card().name()).get() > maxCopies) {
+								result.cardErrors(pr).add(String.format("In %s, a deck can contain no more than %d cop%s of %s.",
+										Format.this.name(),
+										maxCopies,
+										maxCopies == 1 ? "y" : "ies",
+										pr.card().name()));
 							}
-						}
-
-						if (!messages.isEmpty()) {
-							result.cardErrors.put(pr, messages);
 						}
 					});
 
-			if (ciz.size() < fzi.minCards || ciz.size() > fzi.maxCards) {
-				Set<String> zoneMessages = result.zoneErrors.computeIfAbsent(zone, z -> new HashSet<>());
-				if (fzi.minCards == fzi.maxCards) {
-					zoneMessages.add(String.format("In %s, the %s zone must contain exactly %d cards.", Format.this.name(), zone.name(), fzi.minCards));
-				} else {
-					zoneMessages.add(String.format("In %s, the %s zone must contain between %d and %d cards.", Format.this.name(), zone.name(), fzi.minCards, fzi.maxCards));
-				}
+			if (fzi.minCards > 0 && ciz.size() < fzi.minCards) {
+				result.zoneErrors(zone).add(String.format("In %s, the %s zone must contain at least %d cards.",
+						Format.this.name(),
+						zone.name(),
+						fzi.minCards));
+			} else if (fzi.maxCards > 0 && ciz.size() > fzi.maxCards) {
+				result.zoneErrors(zone).add(String.format("In %s, the %s zone may contain no more than %d cards.",
+						Format.this.name(),
+						zone.name(),
+						fzi.maxCards));
 			}
 		}
 
