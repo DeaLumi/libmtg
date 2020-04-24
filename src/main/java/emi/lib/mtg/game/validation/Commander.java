@@ -165,7 +165,7 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 		}
 
 		for (Card.Printing pr : chaff) {
-			result.card(pr).warnings.add("Unexpected card in the Command zone!");
+			result.card(pr).warnings.add(String.format("%s is not expected in the command zone.", pr.card().name()));
 		}
 
 		Collection<Card.Printing> startDeck = chaff;
