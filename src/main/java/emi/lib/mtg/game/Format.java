@@ -84,22 +84,25 @@ public enum Format {
 		return zones.keySet();
 	}
 
-	public class ValidationResult {
+	public static class ValidationResult {
+		public static class CardResult {
+			public final Set<String> errors = new HashSet<>();
+			public final Set<String> warnings = new HashSet<>();
+			public final Set<String> notices = new HashSet<>();
+		}
+
 		public final Set<String> deckErrors;
 		public final Map<Zone, Set<String>> zoneErrors;
-		public final Map<Card.Printing, Set<String>> cardErrors;
+		public final Map<Card.Printing, CardResult> cards;
 
 		private ValidationResult() {
 			this.deckErrors = new HashSet<>();
 			this.zoneErrors = new HashMap<>();
-			for (Zone zone : deckZones()) {
-				this.zoneErrors.put(zone, new HashSet<>());
-			}
-			this.cardErrors = new HashMap<>();
+			this.cards = new HashMap<>();
 		}
 
-		public Set<String> cardErrors(Card.Printing pr) {
-			return cardErrors.computeIfAbsent(pr, x -> new HashSet<>());
+		public CardResult card(Card.Printing pr) {
+			return cards.computeIfAbsent(pr, x -> new CardResult());
 		}
 
 		public Set<String> zoneErrors(Zone zone) {
@@ -136,20 +139,20 @@ public enum Format {
 					.forEach(pr -> {
 						switch (pr.card().legality(Format.this)) {
 							case Banned:
-								result.cardErrors(pr).add(String.format("%s is banned in %s!", pr.card().name(), Format.this.name()));
+								result.card(pr).errors.add(String.format("%s is banned in %s!", pr.card().name(), Format.this.name()));
 								break;
 							case NotLegal:
-								result.cardErrors(pr).add(String.format("%s is not legal in %s.", pr.card().name(), Format.this.name()));
+								result.card(pr).errors.add(String.format("%s is not legal in %s.", pr.card().name(), Format.this.name()));
 								break;
 							case Restricted:
 								if (histogram.get(pr.card().name()).get() > 1) {
-									result.cardErrors(pr).add(String.format("%s is restricted to one copy per deck in %s.", pr.card().name(), Format.this.name()));
+									result.card(pr).errors.add(String.format("%s is restricted to one copy per deck in %s.", pr.card().name(), Format.this.name()));
 								}
 								break;
 							case Legal:
 								break;
 							case Unknown:
-								result.cardErrors(pr).add(String.format("Couldn't verify legality of %s in %s.", pr.card().name(), Format.this.name()));
+								result.card(pr).warnings.add(String.format("Couldn't verify legality of %s in %s.", pr.card().name(), Format.this.name()));
 								break;
 						}
 
@@ -163,7 +166,7 @@ public enum Format {
 							}
 
 							if (max > 0 && histogram.get(pr.card().name()).get() > max) {
-								result.cardErrors(pr).add(String.format("In %s, a deck can contain no more than %d cop%s of %s.",
+								result.card(pr).errors.add(String.format("In %s, a deck can contain no more than %d cop%s of %s.",
 										Format.this.name(),
 										max,
 										max == 1 ? "y" : "ies",
