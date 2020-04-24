@@ -40,7 +40,7 @@ public class CommandZone implements BiConsumer<Deck, Format.ValidationResult> {
 							if (cmdZone.size() <= 2 && cmdZone.stream().allMatch(pr -> pr == cmdr || isCreature(pr))) {
 								return;
 							} else {
-								result.cardErrors(cmdr).add(String.format("%s must be partnered with exactly one creature card.", front.name()));
+								result.card(cmdr).errors.add(String.format("%s must be partnered with exactly one creature card.", front.name()));
 								return;
 							}
 						} else if (matcher.group("with") != null) {
@@ -51,11 +51,11 @@ public class CommandZone implements BiConsumer<Deck, Format.ValidationResult> {
 								if (other == null || other.card().name().equals(matcher.group("with").trim())) {
 									return;
 								} else {
-									result.cardErrors(cmdr).add(String.format("%s must be partnered with exactly %s, not %s.", front.name(), matcher.group("with").trim(), other.card().name()));
+									result.card(cmdr).errors.add(String.format("%s must be partnered with exactly %s, not %s.", front.name(), matcher.group("with").trim(), other.card().name()));
 									return;
 								}
 							} else {
-								result.cardErrors(cmdr).add(String.format("%s must be partnered with exactly %s.", front.name(), matcher.group("with").trim()));
+								result.card(cmdr).errors.add(String.format("%s must be partnered with exactly %s.", front.name(), matcher.group("with").trim()));
 								return;
 							}
 						} else {
@@ -66,11 +66,11 @@ public class CommandZone implements BiConsumer<Deck, Format.ValidationResult> {
 								if (other == null || (isCreature(other) && PARTNER_PATTERN.matcher(other.card().face(Card.Face.Kind.Front).rules()).find())) {
 									return;
 								} else {
-									result.cardErrors(cmdr).add(String.format("%s must be partnered with a creature card with partner.", front.name()));
+									result.card(cmdr).errors.add(String.format("%s must be partnered with a creature card with partner.", front.name()));
 									return;
 								}
 							} else {
-								result.cardErrors(cmdr).add(String.format("%s must be partnered with exactly one creature card with partner.", front.name()));
+								result.card(cmdr).errors.add(String.format("%s must be partnered with exactly one creature card with partner.", front.name()));
 								return;
 							}
 						}
@@ -79,7 +79,7 @@ public class CommandZone implements BiConsumer<Deck, Format.ValidationResult> {
 						if (cmdZone.size() == 1) {
 							return;
 						} else {
-							result.cardErrors(cmdr).add(String.format("%s can't be partnered with any other cards.", front.name()));
+							result.card(cmdr).errors.add(String.format("%s can't be partnered with any other cards.", front.name()));
 							return;
 						}
 					}
@@ -98,7 +98,7 @@ public class CommandZone implements BiConsumer<Deck, Format.ValidationResult> {
 			}
 		}
 
-		result.cardErrors(cmdr).add(String.format("%s is not a valid commander.", cmdr.card().name()));
+		result.card(cmdr).errors.add(String.format("%s is not a valid commander.", cmdr.card().name()));
 	}
 
 	@Override
@@ -114,6 +114,6 @@ public class CommandZone implements BiConsumer<Deck, Format.ValidationResult> {
 
 		library.stream()
 				.filter(pr -> !cmdrColors.containsAll(pr.card().colorIdentity()))
-				.forEach(pr -> result.cardErrors.computeIfAbsent(pr, p -> new HashSet<>()).add(String.format("%s contains colors not in your commander's color identity.", pr.card().name())));
+				.forEach(pr -> result.card(pr).errors.add(String.format("%s contains colors not in your commander's color identity.", pr.card().name())));
 	}
 }
