@@ -2,7 +2,6 @@ package emi.lib.mtg.game;
 
 import emi.lib.mtg.Card;
 import emi.lib.mtg.characteristic.Supertype;
-import emi.lib.mtg.game.validation.CommandZone;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,70 +11,72 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("unused")
 public enum Format {
-	Freeform (-1, FormatZoneInfo.FREEFORM, null),
+	Freeform (-1, 0, -1, ZoneInfo.FREEFORM, null),
 	Standard,
 	Future,
 	Pioneer,
 	Modern,
 	Legacy,
 	Vintage,
-	Brawl(1, FormatZoneInfo.BRAWL, CommandZone.INSTANCE),
+	Brawl(1, 60, 60, ZoneInfo.BRAWL, emi.lib.mtg.game.validation.Commander.INSTANCE),
 	Historic,
 	Pauper,
 	Penny,
-	Commander(1, FormatZoneInfo.COMMANDER, CommandZone.INSTANCE);
+	Commander(1, 100, 100, ZoneInfo.COMMANDER, emi.lib.mtg.game.validation.Commander.INSTANCE);
 
-	private static class FormatZoneInfo {
-		public FormatZoneInfo(int minCards, int maxCards) {
+	private static class ZoneInfo {
+		public ZoneInfo(int minCards, int maxCards) {
 			this.minCards = minCards;
 			this.maxCards = maxCards;
 		}
 
 		public final int minCards, maxCards;
 
-		private static final Map<Zone, FormatZoneInfo> FREEFORM = freeformFormatZoneInfo();
-		private static Map<Zone, FormatZoneInfo> freeformFormatZoneInfo() {
-			Map<Zone, FormatZoneInfo> tmp = new EnumMap<>(Zone.class);
-			tmp.put(Zone.Library, new FormatZoneInfo(0, -1));
-			tmp.put(Zone.Sideboard, new FormatZoneInfo(0, -1));
+		private static final Map<Zone, ZoneInfo> FREEFORM = freeformFormatZoneInfo();
+		private static Map<Zone, ZoneInfo> freeformFormatZoneInfo() {
+			Map<Zone, ZoneInfo> tmp = new EnumMap<>(Zone.class);
+			tmp.put(Zone.Library, new ZoneInfo(0, -1));
+			tmp.put(Zone.Sideboard, new ZoneInfo(0, -1));
 			return Collections.unmodifiableMap(tmp);
 		}
 
-		private static final Map<Zone, FormatZoneInfo> BASIC = basicFormatZoneInfo();
-		private static Map<Zone, FormatZoneInfo> basicFormatZoneInfo() {
-			Map<Zone, FormatZoneInfo> tmp = new EnumMap<>(Zone.class);
-			tmp.put(Zone.Library, new FormatZoneInfo(60, -1));
-			tmp.put(Zone.Sideboard, new FormatZoneInfo(0, 15));
+		private static final Map<Zone, ZoneInfo> BASIC = basicFormatZoneInfo();
+		private static Map<Zone, ZoneInfo> basicFormatZoneInfo() {
+			Map<Zone, ZoneInfo> tmp = new EnumMap<>(Zone.class);
+			tmp.put(Zone.Library, new ZoneInfo(60, -1));
+			tmp.put(Zone.Sideboard, new ZoneInfo(0, 15));
 			return Collections.unmodifiableMap(tmp);
 		}
 
-		private static final Map<Zone, FormatZoneInfo> BRAWL = brawlFormatZoneInfo();
-		private static Map<Zone, FormatZoneInfo> brawlFormatZoneInfo() {
-			Map<Zone, FormatZoneInfo> tmp = new EnumMap<>(Zone.class);
-			tmp.put(Zone.Library, new FormatZoneInfo(59,59));
-			tmp.put(Zone.Command, new FormatZoneInfo(1,1));
+		private static final Map<Zone, ZoneInfo> BRAWL = brawlFormatZoneInfo();
+		private static Map<Zone, ZoneInfo> brawlFormatZoneInfo() {
+			Map<Zone, ZoneInfo> tmp = new EnumMap<>(Zone.class);
+			tmp.put(Zone.Library, new ZoneInfo(59,59));
+			tmp.put(Zone.Command, new ZoneInfo(1,1));
 			return Collections.unmodifiableMap(tmp);
 		}
 
-		private static final Map<Zone, FormatZoneInfo> COMMANDER = commanderFormatZoneInfo();
-		private static Map<Zone, FormatZoneInfo> commanderFormatZoneInfo() {
-			Map<Zone, FormatZoneInfo> tmp = new EnumMap<>(Zone.class);
-			tmp.put(Zone.Library, new FormatZoneInfo(98,99));
-			tmp.put(Zone.Command, new FormatZoneInfo(1,2));
+		private static final Map<Zone, ZoneInfo> COMMANDER = commanderFormatZoneInfo();
+		private static Map<Zone, ZoneInfo> commanderFormatZoneInfo() {
+			Map<Zone, ZoneInfo> tmp = new EnumMap<>(Zone.class);
+			tmp.put(Zone.Library, new ZoneInfo(98,99));
+			tmp.put(Zone.Command, new ZoneInfo(1,2));
 			return Collections.unmodifiableMap(tmp);
 		}
 	}
 
-	public final int maxCopies;
-	private final Map<Zone, FormatZoneInfo> zones;
+	public final int maxCopies, minDeckSize, maxDeckSize;
+	private final Map<Zone, ZoneInfo> zones;
 	private final BiConsumer<Deck, ValidationResult> validator;
 
 	Format() {
-		this(4, FormatZoneInfo.BASIC, null);
+		this(4, 60, -1, ZoneInfo.BASIC, null);
 	}
 
-	Format(int maxCopies, Map<Zone, FormatZoneInfo> zones, BiConsumer<Deck, ValidationResult> validator) {
+	Format(int maxCopies, int minDeckSize, int maxDeckSize, Map<Zone, ZoneInfo> zones, BiConsumer<Deck, ValidationResult> validator) {
 		this.maxCopies = maxCopies;
+		this.minDeckSize = minDeckSize;
+		this.maxDeckSize = maxDeckSize;
 		this.zones = Collections.unmodifiableMap(zones);
 		this.validator = validator;
 	}
@@ -84,8 +85,8 @@ public enum Format {
 		return zones.keySet();
 	}
 
-	public static class ValidationResult {
-		public static class CardResult {
+	public class ValidationResult {
+		public class CardResult {
 			public final Set<String> errors = new HashSet<>();
 			public final Set<String> warnings = new HashSet<>();
 			public final Set<String> notices = new HashSet<>();
@@ -99,6 +100,10 @@ public enum Format {
 			this.deckErrors = new HashSet<>();
 			this.zoneErrors = new HashMap<>();
 			this.cards = new HashMap<>();
+		}
+
+		public Format format() {
+			return Format.this;
 		}
 
 		public CardResult card(Card.Printing pr) {
@@ -131,7 +136,7 @@ public enum Format {
 		Map<String, AtomicInteger> histogram = new HashMap<>();
 
 		for (Zone zone : deckZones()) {
-			FormatZoneInfo fzi = zones.get(zone);
+			ZoneInfo fzi = zones.get(zone);
 			Collection<? extends Card.Printing> ciz = deck.cards(zone) == null ? Collections.emptyList() : deck.cards(zone);
 
 			ciz.stream()
