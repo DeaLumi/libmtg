@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public enum Format {
@@ -90,6 +91,27 @@ public enum Format {
 			public final Set<String> errors = new HashSet<>();
 			public final Set<String> warnings = new HashSet<>();
 			public final Set<String> notices = new HashSet<>();
+
+			@Override
+			public String toString() {
+				StringBuilder sb = new StringBuilder();
+				if (!errors.isEmpty()) {
+					sb.append("Errors:\n\u2022 ").append(String.join("\n\u2022 ", errors));
+				}
+				if (!errors.isEmpty() && !warnings.isEmpty()) {
+					sb.append('\n').append('\n');
+				}
+				if (!warnings.isEmpty()) {
+					sb.append("Warnings:\n\u2022 ").append(String.join("\n\u2022 ", warnings));
+				}
+				if ((!errors.isEmpty() || !warnings.isEmpty()) && !notices.isEmpty()) {
+					sb.append('\n').append('\n');
+				}
+				if (!notices.isEmpty()) {
+					sb.append("Notices:\n\u2022 ").append(String.join("\n\u2022 ", notices));
+				}
+				return sb.toString();
+			}
 		}
 
 		public final Set<String> deckErrors;
