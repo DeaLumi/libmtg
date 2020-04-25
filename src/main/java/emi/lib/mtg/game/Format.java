@@ -183,25 +183,27 @@ public enum Format {
 								result.card(pr).warnings.add(String.format("Couldn't verify legality of %s in %s.", pr.card().name(), Format.this.name()));
 								break;
 						}
-
-						if (!pr.card().faces().stream().allMatch(f -> f.type().supertypes().contains(Supertype.Basic))) {
-							int max = maxCopies;
-							if (pr.card().face(Card.Face.Kind.Front) != null) {
-								Matcher countMatcher = COUNT_PATTERN.matcher(pr.card().face(Card.Face.Kind.Front).rules());
-								if (countMatcher.find()) {
-									max = countMatcher.group("numword") != null ? numberWordToInt(countMatcher.group("numword")) : -1;
-								}
-							}
-
-							if (max > 0 && histogram.get(pr.card().name()).get() > max) {
-								result.card(pr).errors.add(String.format("In %s, a deck can contain no more than %d cop%s of %s.",
-										Format.this.name(),
-										max,
-										max == 1 ? "y" : "ies",
-										pr.card().name()));
-							}
-						}
 					});
+
+			ciz.forEach(pr -> {
+				if (!pr.card().faces().stream().allMatch(f -> f.type().supertypes().contains(Supertype.Basic))) {
+					int max = maxCopies;
+					if (pr.card().face(Card.Face.Kind.Front) != null) {
+						Matcher countMatcher = COUNT_PATTERN.matcher(pr.card().face(Card.Face.Kind.Front).rules());
+						if (countMatcher.find()) {
+							max = countMatcher.group("numword") != null ? numberWordToInt(countMatcher.group("numword")) : -1;
+						}
+					}
+
+					if (max > 0 && histogram.get(pr.card().name()).get() > max) {
+						result.card(pr).errors.add(String.format("In %s, a deck can contain no more than %d cop%s of %s.",
+								Format.this.name(),
+								max,
+								max == 1 ? "y" : "ies",
+								pr.card().name()));
+					}
+				}
+			});
 
 			if (fzi.minCards > 0 && ciz.size() < fzi.minCards) {
 				result.zoneErrors(zone).add(String.format("In %s, the %s zone must contain at least %d cards.",
