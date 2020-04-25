@@ -2,6 +2,7 @@ package emi.lib.mtg.game;
 
 import emi.lib.mtg.Card;
 import emi.lib.mtg.characteristic.Supertype;
+import emi.lib.mtg.game.validation.Companions;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -71,7 +72,7 @@ public enum Format {
 	private final BiConsumer<Deck, ValidationResult> validator;
 
 	Format() {
-		this(4, 60, -1, ZoneInfo.BASIC, null);
+		this(4, 60, -1, ZoneInfo.BASIC, Companions.INSTANCE);
 	}
 
 	Format(int maxCopies, int minDeckSize, int maxDeckSize, Map<Zone, ZoneInfo> zones, BiConsumer<Deck, ValidationResult> validator) {
