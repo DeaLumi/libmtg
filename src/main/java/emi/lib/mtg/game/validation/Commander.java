@@ -116,7 +116,7 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 
 		Collection<Card.Printing> cmdrs = new ArrayList<>();
 		Collection<Card.Printing> companions = new ArrayList<>();
-		Collection<Card.Printing> chaff = new ArrayList<>();
+		Collection<Card.Printing> startDeck = new ArrayList<>();
 
 		// Pass 1: Filter compansions and valid commanders from the other cards in the zone.
 		for (Card.Printing pr : cmdZone) {
@@ -130,7 +130,7 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 					continue;
 				}
 			}
-			chaff.add(pr);
+			startDeck.add(pr);
 		}
 
 		// Pass 2: If there are no commanders, take the companions.
@@ -144,7 +144,7 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 			Card.Face front = cmdrs.iterator().next().card().face(Card.Face.Kind.Front);
 			Matcher m = PARTNER_PATTERN.matcher(front.rules());
 			if (m.find() && m.group("legendary") != null) {
-				Iterator<Card.Printing> iter = chaff.iterator();
+				Iterator<Card.Printing> iter = startDeck.iterator();
 				while (iter.hasNext()) {
 					Card.Printing pr = iter.next();
 					Card.Face fr = pr.card().face(Card.Face.Kind.Front);
@@ -164,17 +164,18 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 			cmdrColors.addAll(pr.card().colorIdentity());
 		}
 
-		for (Card.Printing pr : chaff) {
+		for (Card.Printing pr : startDeck) {
 			result.card(pr).warnings.add(String.format("%s is not expected in the command zone.", pr.card().name()));
 		}
 
-		Collection<Card.Printing> startDeck = chaff;
-		result.format().deckZones().stream()
-				.map(deck::cards)
-				.flatMap(Collection::stream)
-				.forEach(startDeck::add);
+		startDeck.addAll(cmdrs);
+		if (deck.cards(Zone.Library) != null) startDeck.addAll(deck.cards(Zone.Library));
 		for (Card.Printing pr : companions) {
 			Companions.validateCompanion(startDeck, result, pr);
+		}
+
+		if (deck.cards(Zone.Library) == null || deck.cards(Zone.Library).size() + cmdrs.size() != 100) {
+			result.deckErrors.add("A Commander deck must contain exactly 100 cards, including its commander.");
 		}
 
 		Arrays.stream(Zone.values())
