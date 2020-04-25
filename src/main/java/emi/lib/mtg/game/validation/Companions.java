@@ -66,13 +66,15 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 	private static boolean kaheera(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
 		boolean allCuties = true;
 		for (Card.Printing pr : startDeck) {
+			Card.Face front = pr.card().face(Card.Face.Kind.Front);
+
+			if (front == null || !front.type().cardTypes().contains(CardType.Creature)) continue;
+
 			boolean isCute = false;
-			out: for (Card.Face face : pr.card().faces()) {
-				for (String subtype : face.type().subtypes()) {
-					if (KAHEERA_SUBTYPES.contains(subtype)) {
-						isCute = true;
-						break out;
-					}
+			for (String subtype : front.type().subtypes()) {
+				if (KAHEERA_SUBTYPES.contains(subtype)) {
+					isCute = true;
+					break;
 				}
 			}
 
@@ -226,7 +228,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return true;
 	}
 
-	private static final Pattern ACTIVATED_ABILITY_PATTERN = Pattern.compile("(?m)^(?:(?:(?:Equip|Cycling)[— ])|[^\"]+: [^\"]+$)");
+	private static final Pattern ACTIVATED_ABILITY_PATTERN = Pattern.compile("(?m)^(?:(?:(?:Equip|Cycling)[— ])|[^\"]+: .+$)");
 
 	private static boolean zirda(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
 		boolean allActive = true;
@@ -234,6 +236,17 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 			Card.Face front = pr.card().face(Card.Face.Kind.Front);
 
 			if (front == null || !front.type().isPermanent()) {
+				continue;
+			}
+
+			CardTypeLine type = front.type();
+			if (type.cardTypes().contains(CardType.Land) && (
+					type.subtypes().contains("Plains") ||
+					type.subtypes().contains("Island") ||
+					type.subtypes().contains("Swamp") ||
+					type.subtypes().contains("Mountain") ||
+					type.subtypes().contains("Forest")
+					)) {
 				continue;
 			}
 
@@ -273,7 +286,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 			case "Lutri, the Spellchaser":
 				if (!lutri(startDeck, result)) return;
 				break;
-			case "Obosh, the Piercer":
+			case "Obosh, the Preypiercer":
 				if (!obosh(startDeck, result)) return;
 				break;
 			case "Umori, the Collector":
