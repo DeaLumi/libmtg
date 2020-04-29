@@ -9,6 +9,13 @@ import java.util.function.DoubleConsumer;
  */
 public interface DataSource {
 	/**
+	 * Called when this data source is selected and about to be used.
+	 * If this completes successfully, all data access methods below should work.
+	 * @throws IOException If the data couldn't be loaded for any reason.
+	 */
+	void loadData() throws IOException;
+
+	/**
 	 * @return Set of all cards known to this data source.
 	 */
 	java.util.Set<? extends Card> cards();
