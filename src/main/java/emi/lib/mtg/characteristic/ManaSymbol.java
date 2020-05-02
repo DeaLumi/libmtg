@@ -101,6 +101,8 @@ public enum ManaSymbol {
 	}
 
 	public static List<ManaSymbol> symbolsIn(String text) {
+		if (text == null || text.isEmpty()) return Collections.emptyList();
+
 		List<ManaSymbol> tmp = new ArrayList<>();
 
 		for (int i = 0; i < text.length(); ++i) {
