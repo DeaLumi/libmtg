@@ -1,24 +1,11 @@
 package emi.lib.mtg.img;
 
 import emi.lib.mtg.Card;
-import emi.lib.mtg.impl.BasicCard;
-import emi.lib.mtg.impl.BasicPrinting;
-import javafx.application.Application;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
-import javafx.scene.layout.*;
-import javafx.stage.Stage;
 
-import javax.imageio.ImageIO;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -332,49 +319,6 @@ public class MtgAwtImageUtils {
 			}
 		} else {
 			return clearCorners(source);
-		}
-	}
-
-	public static class Test extends Application {
-		static BufferedImage source;
-		static BufferedImage example;
-
-		public static void main(String[] args) throws IOException {
-			BasicCard card = new BasicCard()
-					.face(new BasicCard.Face(Card.Face.Kind.Front).name("Curse of the Fire Penguin").type("Sorcery").rules(""))
-					.face(new BasicCard.Face(Card.Face.Kind.Flipped).type("Sorcery").rules("Aftermath"));
-
-			BasicPrinting printing = new BasicPrinting();
-			printing.card(card)
-					.face(printing.new Face(card.face(Card.Face.Kind.Front)))
-					.face(printing.new Face(card.face(Card.Face.Kind.Flipped)));
-
-			card.printing(printing);
-
-			source = ImageIO.read(new File("fire-penguin.png"));
-			source = scaled(source, source.getWidth() * 0.75, source.getHeight() * 0.75, true);
-			example = faceFromFull(printing.face(Card.Face.Kind.Front), source);
-
-			Application.launch(args);
-		}
-
-		@Override
-		public void start(Stage primaryStage) throws Exception {
-			WritableImage fxComparison = SwingFXUtils.toFXImage(source, null);
-			WritableImage fxExample = SwingFXUtils.toFXImage(example, null);
-
-			ImageView comparisonImage = new ImageView(fxComparison);
-			BorderPane comparisonBorder = new BorderPane(comparisonImage);
-			comparisonBorder.setBorder(new Border(new BorderStroke(javafx.scene.paint.Color.BLACK, BorderStrokeStyle.SOLID, null, BorderWidths.DEFAULT)));
-
-			ImageView image = new ImageView(fxExample);
-			BorderPane border = new BorderPane(image);
-			border.setBorder(new Border(new BorderStroke(javafx.scene.paint.Color.BLACK, BorderStrokeStyle.SOLID, null, BorderWidths.DEFAULT)));
-
-			Scene scene = new Scene(new HBox(16, new Group(comparisonBorder), new Group(border)));
-			scene.setFill(javafx.scene.paint.Color.MAGENTA);
-			primaryStage.setScene(scene);
-			primaryStage.show();
 		}
 	}
 
