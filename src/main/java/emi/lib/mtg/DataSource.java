@@ -11,9 +11,10 @@ public interface DataSource {
 	/**
 	 * Called when this data source is selected and about to be used.
 	 * If this completes successfully, all data access methods below should work.
+	 * @param progress Optional callback to report loading progress percentage (0-1).
 	 * @throws IOException If the data couldn't be loaded for any reason.
 	 */
-	void loadData() throws IOException;
+	void loadData(DoubleConsumer progress) throws IOException;
 
 	/**
 	 * @return Set of all cards known to this data source.
@@ -46,7 +47,7 @@ public interface DataSource {
 
 	/**
 	 * Update this data source to reflect the most recent Magic universe.
-	 * @param progress Optional target for progress updates
+	 * @param progress Optional target for progress updates (0-1).
 	 * @return True if the update completed successfully and caused a change in data.
 	 * @throws IOException If an IO exception causes the update to fail.
 	 */
