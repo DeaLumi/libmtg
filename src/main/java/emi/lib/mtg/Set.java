@@ -1,5 +1,6 @@
 package emi.lib.mtg;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -15,6 +16,16 @@ public interface Set {
 	 * @return This set's code.
 	 */
 	String code();
+
+	/**
+	 * @return The day this set was released (approximately).
+	 */
+	LocalDate releaseDate();
+
+	/**
+	 * @return True if this set is a digital set, from MTGO or Magic Arena, for instance.
+	 */
+	boolean digital();
 
 	/**
 	 * @return The set of cards printed in this set.

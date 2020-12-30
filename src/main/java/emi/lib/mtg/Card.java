@@ -280,6 +280,11 @@ public interface Card {
 		Integer mtgoCatalogId();
 
 		/**
+		 * @return True if this is a promo card. These cards include datestamped prerelease promos, promo pack printings, and so on.
+		 */
+		boolean promo();
+
+		/**
 		 * N.B. for implementors: This ID must be unique across all printings of all cards, and ideally unique across
 		 * all data sources.
 		 *
