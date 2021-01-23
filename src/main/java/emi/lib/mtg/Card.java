@@ -4,6 +4,7 @@ import emi.lib.mtg.characteristic.*;
 import emi.lib.mtg.characteristic.impl.BasicManaCost;
 import emi.lib.mtg.game.Format;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -283,6 +284,11 @@ public interface Card {
 		 * @return True if this is a promo card. These cards include datestamped prerelease promos, promo pack printings, and so on.
 		 */
 		boolean promo();
+
+		/**
+		 * @return The day this printing was first released. This can differ from the printing's set's releaseDate in some cases.
+		 */
+		LocalDate releaseDate();
 
 		/**
 		 * N.B. for implementors: This ID must be unique across all printings of all cards, and ideally unique across

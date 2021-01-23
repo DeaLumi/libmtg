@@ -4,6 +4,7 @@ import emi.lib.mtg.Card;
 import emi.lib.mtg.characteristic.Supertype;
 import emi.lib.mtg.game.validation.Companions;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
@@ -170,7 +171,11 @@ public enum Format {
 								result.card(pr).errors.add(String.format("%s is banned in %s!", pr.card().name(), Format.this.name()));
 								break;
 							case NotLegal:
-								result.card(pr).errors.add(String.format("%s is not legal in %s.", pr.card().name(), Format.this.name()));
+								if (pr.releaseDate().isAfter(LocalDate.now())) {
+									result.card(pr).warnings.add(String.format("%s has not released yet.", pr.card().name()));
+								} else {
+									result.card(pr).errors.add(String.format("%s is not legal in %s.", pr.card().name(), Format.this.name()));
+								}
 								break;
 							case Restricted:
 								if (histogram.get(pr.card().name()).get() > 1) {
