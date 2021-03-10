@@ -6,12 +6,12 @@ import java.util.NoSuchElementException;
  * Created by Emi on 5/6/2016.
  */
 public enum CardRarity {
+	Special,
 	BasicLand,
 	Common,
 	Uncommon,
 	Rare,
-	MythicRare,
-	Special;
+	MythicRare;
 
 	private final String text;
 
