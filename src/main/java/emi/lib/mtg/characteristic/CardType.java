@@ -8,25 +8,25 @@ import java.util.Set;
  * Created by Emi on 5/6/2016.
  */
 public enum CardType {
-	Artifact,
-	Creature,
-	Enchantment,
-	Instant,
-	Land,
-	Planeswalker,
-	Sorcery,
-	Tribal,
+	Artifact (true),
+	Creature (true),
+	Enchantment (true),
+	Instant (false),
+	Land (true),
+	Planeswalker (true),
+	Sorcery (false),
+	Tribal (false),
 
 	/*
 	 * Types after this are not legal in usual constructed formats.
 	 */
 
-	Plane,
-	Phenomena,
-	Vanguard,
-	Scheme,
-	Conspiracy,
-	Phenomenon,
+	Plane (true),
+	Phenomena (true),
+	Vanguard (true),
+	Scheme (true),
+	Conspiracy (true),
+	Phenomenon (true),
 
 	/*
 	 * Types after this are weird types; they're used in 'silly' sets like Unhinged.
@@ -34,24 +34,25 @@ public enum CardType {
 	 * modern sets is oracle-ized, so these types now only appear in un-sets.)
 	 */
 
-	Eaturecray,
-	Enchant,
-	Summon,
-	Player,
-	Host,
-	Hero,
-	Elemental,
-	Autobot,
-	Character;
+	Eaturecray (false, true),
+	Enchant (false, true),
+	Summon (false, true),
+	Player (false, true),
+	Host (false, true),
+	Hero (false, true),
+	Elemental (false, true),
+	Autobot (false, true),
+	Character (false, true);
 
-	public static final Set<CardType> CONSTRUCTED_TYPES = Collections.unmodifiableSet(EnumSet.of(
-			CardType.Artifact,
-			CardType.Creature,
-			CardType.Enchantment,
-			CardType.Instant,
-			CardType.Land,
-			CardType.Planeswalker,
-			CardType.Sorcery,
-			CardType.Tribal
-	));
+	public final boolean constructed;
+	public final boolean permanent;
+
+	CardType(boolean permanent) {
+		this(true, permanent);
+	}
+
+	CardType(boolean constructed, boolean permanent) {
+		this.constructed = constructed;
+		this.permanent = permanent;
+	}
 }

@@ -13,12 +13,6 @@ public interface CardTypeLine {
 	Collection<String> subtypes();
 
 	default boolean isPermanent() {
-		Collection<CardType> types = cardTypes();
-
-		return types.contains(CardType.Artifact) ||
-				types.contains(CardType.Creature) ||
-				types.contains(CardType.Enchantment) ||
-				types.contains(CardType.Land) ||
-				types.contains(CardType.Planeswalker);
+		return cardTypes().stream().anyMatch(t -> t.permanent);
 	}
 }
