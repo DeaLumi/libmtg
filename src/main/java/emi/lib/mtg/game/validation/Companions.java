@@ -1,9 +1,9 @@
 package emi.lib.mtg.game.validation;
 
 import emi.lib.mtg.Card;
+import emi.lib.mtg.Mana;
 import emi.lib.mtg.characteristic.CardType;
 import emi.lib.mtg.characteristic.CardTypeLine;
-import emi.lib.mtg.characteristic.ManaSymbol;
 import emi.lib.mtg.game.Deck;
 import emi.lib.mtg.game.Format;
 import emi.lib.mtg.game.Zone;
@@ -36,10 +36,9 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 	private static boolean jegantha(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
 		boolean allUnique = true;
 		for (Card.Printing pr : startDeck) {
-			Collection<? extends ManaSymbol> syms = pr.card().manaCost().symbols();
-			Set<ManaSymbol> seen = EnumSet.noneOf(ManaSymbol.class);
+			Set<Mana.Symbol> seen = new HashSet<>();
 
-			for (ManaSymbol sym : syms) {
+			for (Mana.Symbol sym : pr.card().manaCost().symbols()) {
 				if (!seen.add(sym)) {
 					allUnique = false;
 					result.card(pr).warnings.add(String.format("%s has duplicate symbols in its mana cost.", pr.card().name()));

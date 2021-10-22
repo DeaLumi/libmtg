@@ -1,14 +1,12 @@
 package emi.lib.mtg;
 
 import emi.lib.mtg.characteristic.*;
-import emi.lib.mtg.characteristic.impl.BasicManaCost;
 import emi.lib.mtg.game.Format;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A Magic: the Gathering card. Collects all of a card's playable and fluff characteristics with each unique
@@ -100,9 +98,9 @@ public interface Card {
 		String name();
 
 		/**
-		 * @return This card face's mana cost. An empty ManaCost if this card has no mana cost. (Different from {0}.)
+		 * @return This card face's mana cost. An empty Mana.Value if this card has no mana cost. (Different from {0}.)
 		 */
-		ManaCost manaCost();
+		Mana.Value manaCost();
 
 		/**
 		 * @return This face's mana value, as defined by the comprehensive rules.
@@ -179,12 +177,11 @@ public interface Card {
 		 * @return This card face's color identity. An empty set if the face is colorless.
 		 */
 		default Set<Color> colorIdentity() {
-			Color.Combination color = Color.Combination.byColors(this.colorIdentity())
+			return Mana.Symbol.symbolsIn(this.rules())
+					.map(Mana.Symbol::color)
+					.collect(Color.Combination.COMBO_COLLECTOR)
+					.plus(this.colorIdentity())
 					.plus(this.manaCost().color());
-			for (ManaSymbol symbol : ManaSymbol.symbolsIn(this.rules())) {
-				color = color.plus(symbol.color());
-			}
-			return color;
 		}
 
 		/**
@@ -378,14 +375,12 @@ public interface Card {
 	 * is the combined mana cost of the left and right halves (as though it were fused).
 	 * @return The most presentable mana cost of this card.
 	 */
-	default ManaCost manaCost() {
+	default Mana.Value manaCost() {
 		if (this.faces().size() <= 2 && this.face(Face.Kind.Front) != null) {
 			return this.face(Face.Kind.Front).manaCost();
 		} else if (this.faces().size() == 2 && this.face(Face.Kind.Left) != null && this.face(Face.Kind.Right) != null) {
-			return new BasicManaCost(Stream.concat(
-							this.face(Face.Kind.Left).manaCost().symbols().stream(),
-							this.face(Face.Kind.Right).manaCost().symbols().stream())
-					.collect(Collectors.toList()));
+			return this.face(Face.Kind.Left).manaCost().copy()
+					.add(this.face(Face.Kind.Right).manaCost());
 		} else {
 			return this.fullManaCost();
 		}
@@ -396,10 +391,10 @@ public interface Card {
 	 * of each face's mana cost together. Note that this does not reduce generic symbols.
 	 * @return The complete mana cost of this card.
 	 */
-	default ManaCost fullManaCost() {
-		return new BasicManaCost(this.faces().stream()
-				.flatMap(f -> f.manaCost().symbols().stream())
-				.collect(Collectors.toList()));
+	default Mana.Value fullManaCost() {
+		return this.faces().stream()
+				.map(Face::manaCost)
+				.collect(Mana.Value.COLLECTOR);
 	}
 
 	/**
