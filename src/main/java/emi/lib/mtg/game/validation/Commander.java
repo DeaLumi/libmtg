@@ -158,7 +158,7 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 			}
 		}
 
-		Set<Color> cmdrColors = EnumSet.of(Color.COLORLESS);
+		Set<Color> cmdrColors = EnumSet.of(Color.Colorless);
 		for (Card.Printing pr : cmdrs) {
 			validateCommander(result, cmdrs, pr);
 			cmdrColors.addAll(pr.card().colorIdentity());

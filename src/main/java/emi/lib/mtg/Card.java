@@ -158,9 +158,8 @@ public interface Card {
 		 * @return This card's effective color. An empty set if the card is colorless.
 		 */
 		default Set<Color> color() {
-			EnumSet<Color> color = EnumSet.copyOf(this.colorIndicator());
-			color.addAll(this.manaCost().color());
-			return color;
+			return Color.Combination.byColors(this.colorIdentity())
+					.plus(this.manaCost().color());
 		}
 
 		/**
@@ -169,11 +168,11 @@ public interface Card {
 		 * @return This card face's color identity. An empty set if the face is colorless.
 		 */
 		default Set<Color> colorIdentity() {
-			EnumSet<Color> color = EnumSet.noneOf(Color.class);
-			color.addAll(this.color());
-			ManaSymbol.symbolsIn(this.rules()).stream()
-					.flatMap(s -> s.color().stream())
-					.forEach(color::add);
+			Color.Combination color = Color.Combination.byColors(this.colorIdentity())
+					.plus(this.manaCost().color());
+			for (ManaSymbol symbol : ManaSymbol.symbolsIn(this.rules())) {
+				color = color.plus(symbol.color());
+			}
 			return color;
 		}
 
