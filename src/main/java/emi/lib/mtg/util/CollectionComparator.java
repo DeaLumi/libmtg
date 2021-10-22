@@ -6,7 +6,7 @@ import java.util.Set;
 
 /**
  * Represents an object which can be compared with another in a complex way.
- * @param <T>
+ * @param <T> The collection type this comparator compares. Element type is irrelevant.
  */
 public interface CollectionComparator<T extends Collection<?>> {
 	enum Result {
