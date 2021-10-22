@@ -281,7 +281,7 @@ public interface Card {
 		int variation();
 
 		/**
-		 * @return The collector number of this card printing. Null if there is no collecotr number.
+		 * @return The collector number of this card printing. Null if there is no collector number.
 		 */
 		String collectorNumber();
 
@@ -335,6 +335,14 @@ public interface Card {
 	 * @return The printing with that ID, or null if this card has no such printing.
 	 */
 	Printing printing(UUID id);
+
+	/**
+	 * Returns the front face of this card. May be null.
+	 * @return The front face of this card. May be null.
+	 */
+	default Face front() {
+		return face(Card.Face.Kind.Front);
+	}
 
 	/**
 	 * Tries to calculate the best name of this card. For most cards including transform and
