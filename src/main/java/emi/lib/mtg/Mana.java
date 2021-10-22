@@ -228,7 +228,6 @@ public interface Mana {
 			public Color.Combination color() {
 				return Color.Combination.Empty;
 			}
-
 		}
 
 		class Hybrid implements Symbol {
@@ -663,6 +662,10 @@ public interface Mana {
 
 		public boolean pure() {
 			return false;
+		}
+
+		public boolean varies() {
+			return symbolsInternal().stream().anyMatch(s -> s instanceof Symbol.Variable);
 		}
 
 		public Value copy() {
