@@ -105,9 +105,20 @@ public interface Card {
 		ManaCost manaCost();
 
 		/**
-		 * @return This face's converted mana cost, as defined by the comprehensive rules.
+		 * @return This face's mana value, as defined by the comprehensive rules.
+		 * @deprecated Renamed to {@link #manaValue}.
 		 */
-		double convertedManaCost();
+		default double convertedManaCost() {
+			return manaValue();
+		}
+
+		/**
+		 * Returns this card face's mana value, as defined by the comprehensive rules. Note that this isn't guaranteed
+		 * to equal <code>manaCost().value()</code>.
+		 *
+		 * @return This face's mana value, as defined by the comprehensive rules.
+		 */
+		double manaValue();
 
 		/**
 		 * @return The colors of this card's color indicator. An empty set if this card has no color indicator.

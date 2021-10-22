@@ -20,7 +20,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 	private static boolean gyruda(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
 		boolean allEven = true;
 		for (Card.Printing pr : startDeck) {
-			double cmc = pr.card().manaCost().convertedCost();
+			double cmc = pr.card().manaCost().value();
 
 			if (Double.isFinite(cmc) && Math.floor(cmc) == cmc && ((int) cmc % 2) == 0) {
 				continue;
@@ -92,7 +92,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 	private static boolean keruga(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
 		boolean allBig = true;
 		for (Card.Printing pr : startDeck) {
-			double cmc = pr.card().manaCost().convertedCost();
+			double cmc = pr.card().manaCost().value();
 
 			if (cmc >= 3) {
 				continue;
@@ -125,7 +125,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 				continue;
 			}
 
-			double cmc = front.convertedManaCost();
+			double cmc = front.manaValue();
 			if (cmc <= 2) {
 				continue;
 			}
@@ -168,7 +168,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 				continue;
 			}
 
-			double cmc = pr.card().manaCost().convertedCost();
+			double cmc = pr.card().manaCost().value();
 			if (Double.isFinite(cmc) && Math.floor(cmc) == cmc && ((int) cmc) % 2 == 1) {
 				continue;
 			}
