@@ -2,6 +2,7 @@ package emi.lib.mtg;
 
 import emi.lib.mtg.characteristic.*;
 import emi.lib.mtg.game.Format;
+import emi.lib.mtg.game.ability.Abilities;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -157,6 +158,11 @@ public interface Card {
 		 * @return This card's life modifier. An empty string if it has no hand/life modifiers.
 		 */
 		String lifeModifier();
+
+		/**
+		 * @return The set of abilities printed on this card. An empty collection if this card has no text.
+		 */
+		Abilities abilities();
 
 		/**
 		 * Derived characteristic. Union of the color indicator and mana cost color.

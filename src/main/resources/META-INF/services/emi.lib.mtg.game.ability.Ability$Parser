@@ -1,0 +1,4 @@
+emi.lib.mtg.game.ability.pregame.CommanderOverride$CanBeCommander$Parser
+emi.lib.mtg.game.ability.pregame.Companion$Parser
+emi.lib.mtg.game.ability.pregame.CopyLimit$Parser
+emi.lib.mtg.game.ability.pregame.PartnerCommander$Parser
