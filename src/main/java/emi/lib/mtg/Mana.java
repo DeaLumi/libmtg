@@ -5,10 +5,8 @@ import emi.lib.mtg.util.Multiset;
 
 import java.util.*;
 import java.util.Set;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import java.util.regex.Pattern;
+import java.util.stream.*;
 
 public interface Mana {
 	double value();
@@ -53,10 +51,45 @@ public interface Mana {
 		}
 
 		static Stream<Symbol> symbolsIn(String str) {
-			return IntStream.iterate(str.indexOf('}'), i -> i >= 0 ? str.indexOf('}', i + 1) : -1)
-					.limit(str.length() / 3) // '{' LETTER '}' -- at least three characters per symbol.
-					.filter(i -> i >= 0 && i < str.length())
-					.mapToObj(i -> Symbol.parse(str.substring(str.lastIndexOf('{', i) + 1, i)));
+			Iterator<Symbol> symbolIterator = new Iterator<Symbol>() {
+				private Symbol next = null;
+				private int nextStart = 0;
+
+				private void findNext() {
+					for (; nextStart >= 0 && nextStart < str.length(); ++nextStart) {
+						switch (str.charAt(nextStart)) {
+							case '(':
+								nextStart = str.indexOf(')', nextStart);
+								break;
+							case '{':
+								int end = str.indexOf('}', nextStart);
+								next = Symbol.parse(str.substring(nextStart + 1, end));
+								nextStart = end + 1;
+								return;
+						}
+					}
+
+					if (nextStart < 0) nextStart = str.length();
+					next = null;
+				}
+
+				@Override
+				public boolean hasNext() {
+					if (next == null) findNext();
+					return next != null;
+				}
+
+				@Override
+				public Symbol next() {
+					if (next == null) findNext();
+
+					Symbol tmp = next;
+					findNext();
+					return tmp;
+				}
+			};
+
+			return StreamSupport.stream(Spliterators.spliteratorUnknownSize(symbolIterator, Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.IMMUTABLE), false);
 		}
 
 		interface Pure extends Symbol {
@@ -737,7 +770,7 @@ public interface Mana {
 
 		listsEqual(
 				Mana.Symbol.symbolsIn("Extort (Whenever you cast a spell, you may pay {W/B}. If you do, each opponent loses 1 life and you gain that much life.)").collect(Collectors.toList()),
-				Collections.singletonList(Symbol.Hybrid.WHITE_BLACK)
+				Collections.emptyList()
 		);
 	}
 }
