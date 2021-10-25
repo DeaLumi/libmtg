@@ -2,15 +2,13 @@ package emi.lib.mtg.game;
 
 import emi.lib.mtg.Card;
 import emi.lib.mtg.characteristic.Supertype;
+import emi.lib.mtg.game.ability.pregame.CopyLimit;
 import emi.lib.mtg.game.validation.Companions;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public enum Format {
@@ -139,16 +137,6 @@ public enum Format {
 		}
 	}
 
-	private static final Pattern COUNT_PATTERN = Pattern.compile("A deck can have (?<any>any number of|up to (?<numword>[- a-z0-9]+)) cards named");
-
-	private static int numberWordToInt(String str) {
-		// TODO: Move this to a utility library or something. Heck.
-		if ("seven".equals(str)) {
-			return 7;
-		}
-		return -1;
-	}
-
 	/**
 	 * Validates a deck according to this format's card legality and deck construction rules.
 	 * @param deck The deck to validate.
@@ -192,12 +180,21 @@ public enum Format {
 
 			ciz.forEach(pr -> {
 				if (!pr.card().faces().stream().allMatch(f -> f.type().supertypes().contains(Supertype.Basic))) {
-					int max = maxCopies;
-					if (pr.card().face(Card.Face.Kind.Front) != null) {
-						Matcher countMatcher = COUNT_PATTERN.matcher(pr.card().face(Card.Face.Kind.Front).rules());
-						if (countMatcher.find()) {
-							max = countMatcher.group("numword") != null ? numberWordToInt(countMatcher.group("numword")) : -1;
+					int min = 0, max = maxCopies;
+					if (pr.card().front() != null) {
+						CopyLimit override = pr.card().front().abilities().only(CopyLimit.class);
+						if (override != null) {
+							min = override.min;
+							max = override.max;
 						}
+					}
+
+					if (min > 0 && histogram.get(pr.card().name()).get() < min) {
+						result.card(pr).errors.add(String.format("In %s, a deck must contain no fewer than %d cop%s of %s.",
+								Format.this.name(),
+								min,
+								min == 1 ? "y" : "ies",
+								pr.card().name()));
 					}
 
 					if (max > 0 && histogram.get(pr.card().name()).get() > max) {
