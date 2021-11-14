@@ -11,23 +11,32 @@ import java.util.stream.Collectors;
  * Created by Emi on 5/6/2016.
  */
 public enum Color {
-	White("W", "White"),
-	Blue("U", "Blue"),
-	Black("B", "Black"),
-	Red("R", "Red"),
-	Green("G", "Green"),
-	Colorless("C", "Colorless"); // SPECIFICALLY colorless. This should NOT be used for generic costs or colorless creatures.
+	White('W', "White"),
+	Blue('U', "Blue"),
+	Black('B', "Black"),
+	Red('R', "Red"),
+	Green('G', "Green"),
+	Colorless('C', "Colorless"); // SPECIFICALLY colorless. This should NOT be used for generic costs or colorless creatures.
 
-	public final String letter, name;
+	public final char letter;
+	public final String name;
 
-	Color(String letter, String name) {
+	Color(char letter, String name) {
 		this.letter = letter;
 		this.name = name;
 	}
 
+	public static Color forChar(int ch) {
+		for (Color c : Color.values()) {
+			if (c.letter == Character.toUpperCase(ch)) return c;
+		}
+
+		throw new NoSuchElementException(String.format("No MTG color associated with %c", ch));
+	}
+
 	public static Color fromString(String from) {
 		for (Color c : Color.values()) {
-			if (from.length() == 1 && c.letter.equals(from) || c.name.equals(from)) {
+			if (from.length() == 1 && c.letter == Character.toUpperCase(from.charAt(0)) || c.name.equals(from)) {
 				return c;
 			}
 		}
