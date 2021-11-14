@@ -314,7 +314,9 @@ public interface Mana {
 
 			protected Hybrid(Collection<? extends Symbol.Pure> options) {
 				this.color = options.stream().map(Symbol::color).collect(Color.Combination.COMBO_COLLECTOR);
-				TreeSet<Symbol.Pure> tmp = new TreeSet<>(Comparator.comparing(Symbol::color, this.color.symbolOrder()));
+				TreeSet<Symbol.Pure> tmp = new TreeSet<>(Comparator.comparing(Symbol::color, this.color.symbolOrder())
+						.thenComparing(Symbol::value)
+						.thenComparing((s1, s2) -> s1.equals(s2) ? 0 : 1));
 				tmp.addAll(options);
 				this.options = Collections.unmodifiableSortedSet(tmp);
 			}
@@ -367,7 +369,8 @@ public interface Mana {
 
 				protected Family(Collection<? extends Pure> options) {
 					Color.Combination color = options.stream().map(Pure::color).collect(Color.Combination.COMBO_COLLECTOR);
-					this.options = new TreeSet<>(Pure.comparator(color.symbolOrder()));
+					this.options = new TreeSet<>(Value.COMPLETE_COMPARATOR
+							.thenComparing((v1, v2) -> v1.equals(v2) ? 0 : 1));
 					this.options.addAll(options);
 				}
 
@@ -736,6 +739,7 @@ public interface Mana {
 			return String.format("%s (value %.1f, color %s, min color %s, %s)", this, value(), color(), minimalColor(), this instanceof Pure ? "pure" : "hybrid");
 		}
 
+		// TODO: I hate the names of these comparators.
 		public static final Comparator<Value> SEARCH_COMPARATOR = (a, b) -> {
 			Venn venn = Venn.of(a, b);
 			return venn.asComparison();
