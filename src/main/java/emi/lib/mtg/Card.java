@@ -114,7 +114,7 @@ public interface Card {
 		/**
 		 * @return The colors of this card's color indicator. An empty set if this card has no color indicator.
 		 */
-		Set<Color> colorIndicator();
+		Color.Combination colorIndicator();
 
 		/**
 		 * @return This card's type line. An empty CardTypeLine if this card has no type. (...it really should have a type.)
@@ -164,8 +164,8 @@ public interface Card {
 		 *
 		 * @return This card's effective color. An empty set if the card is colorless.
 		 */
-		default Set<Color> color() {
-			return Color.Combination.byColors(this.colorIdentity())
+		default Color.Combination color() {
+			return this.colorIdentity()
 					.plus(this.manaCost().color());
 		}
 
@@ -174,11 +174,11 @@ public interface Card {
 		 * symbols in rules text and characteristic-defining abilities (uuughh).
 		 * @return This card face's color identity. An empty set if the face is colorless.
 		 */
-		default Set<Color> colorIdentity() {
+		default Color.Combination colorIdentity() {
 			return Mana.Symbol.symbolsIn(this.rules())
 					.map(Mana.Symbol::color)
 					.collect(Color.Combination.COMBO_COLLECTOR)
-					.plus(this.colorIdentity())
+					.plus(this.colorIndicator())
 					.plus(this.manaCost().color());
 		}
 
@@ -399,10 +399,10 @@ public interface Card {
 	 * Returns the color identity of this card. This is the union of all faces' color identities.
 	 * @return The color identity of this card.
 	 */
-	default Set<Color> colorIdentity() {
+	default Color.Combination colorIdentity() {
 		return this.faces().stream()
-				.flatMap(f -> f.colorIdentity().stream())
-				.collect(() -> EnumSet.noneOf(Color.class), Set::add, Set::addAll);
+				.map(Face::colorIdentity)
+				.collect(Color.Combination.COMBO_COLLECTOR);
 	}
 
 	/**
