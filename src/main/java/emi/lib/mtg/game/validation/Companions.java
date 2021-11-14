@@ -3,7 +3,7 @@ package emi.lib.mtg.game.validation;
 import emi.lib.mtg.Card;
 import emi.lib.mtg.Mana;
 import emi.lib.mtg.characteristic.CardType;
-import emi.lib.mtg.characteristic.CardTypeLine;
+import emi.lib.mtg.TypeLine;
 import emi.lib.mtg.game.Deck;
 import emi.lib.mtg.game.Format;
 import emi.lib.mtg.game.Zone;
@@ -119,7 +119,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 				continue;
 			}
 
-			CardTypeLine type = front.type();
+			TypeLine type = front.type();
 			if (!type.isPermanent()) {
 				continue;
 			}
@@ -193,7 +193,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 			if (sharedType.isEmpty()) {
 				pr.card().faces().stream()
 						.map(Card.Face::type)
-						.map(CardTypeLine::cardTypes)
+						.map(TypeLine::cardTypes)
 						.flatMap(Collection::stream)
 						.forEach(sharedType::add);
 				continue;
@@ -202,7 +202,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 			EnumSet<CardType> intersection = EnumSet.copyOf(sharedType);
 			intersection.retainAll(pr.card().faces().stream()
 					.map(Card.Face::type)
-					.map(CardTypeLine::cardTypes)
+					.map(TypeLine::cardTypes)
 					.flatMap(Collection::stream)
 					.collect(Collectors.toCollection(() -> EnumSet.noneOf(CardType.class))));
 
@@ -238,7 +238,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 				continue;
 			}
 
-			CardTypeLine type = front.type();
+			TypeLine type = front.type();
 			if (type.cardTypes().contains(CardType.Land) && (
 					type.subtypes().contains("Plains") ||
 					type.subtypes().contains("Island") ||

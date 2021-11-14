@@ -117,9 +117,9 @@ public interface Card {
 		Color.Combination colorIndicator();
 
 		/**
-		 * @return This card's type line. An empty CardTypeLine if this card has no type. (...it really should have a type.)
+		 * @return This card's type line. An empty TypeLine if this card has no type. (...it really should have a type.)
 		 */
-		CardTypeLine type();
+		TypeLine type();
 
 		/**
 		 * @return This card's rules text. An empty string if a vanilla card.

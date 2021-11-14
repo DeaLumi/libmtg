@@ -2,9 +2,8 @@ package emi.lib.mtg.game.ability;
 
 import emi.lib.mtg.Card;
 import emi.lib.mtg.Mana;
-import emi.lib.mtg.characteristic.CardTypeLine;
+import emi.lib.mtg.TypeLine;
 import emi.lib.mtg.characteristic.Color;
-import emi.lib.mtg.characteristic.impl.BasicCardTypeLine;
 
 import java.util.*;
 import java.util.regex.Matcher;
