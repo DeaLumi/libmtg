@@ -263,7 +263,7 @@ public interface Card {
 		/**
 		 * @return The rarity of this printing.
 		 */
-		CardRarity rarity();
+		Rarity rarity();
 
 		/**
 		 * @return The multiverseId of this printing. Null if the card has no multiverseid.
