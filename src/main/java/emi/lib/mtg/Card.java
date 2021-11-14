@@ -406,6 +406,16 @@ public interface Card {
 	}
 
 	/**
+	 * Returns this card's complete rules text. This is the text of each face, separated by two forward slashes.
+	 * @return This card's complete rules text.
+	 */
+	default String rules() {
+		return this.faces().stream()
+				.map(Face::rules)
+				.collect(Collectors.joining("\n\n//\n\n"));
+	}
+
+	/**
 	 * State of a card's legality in any given format.
 	 */
 	enum Legality {
