@@ -201,8 +201,8 @@ public interface Mana {
 				if ("\u221e".equals(str)) return INFINITY;
 
 				double val = 0.0;
-				if (str.contains("\u00bd")) {
-					str = str.replaceAll("\u00bd", "");
+				if (str.endsWith("\u00bd")) {
+					str = str.substring(0, str.length() - 1);
 					val += 0.5;
 				}
 
@@ -224,15 +224,15 @@ public interface Mana {
 
 			@Override
 			public boolean equals(Object obj) {
-				return obj instanceof Generic && ((Generic) obj).value == value;
+				return obj instanceof Generic && Double.compare(((Generic) obj).value, value) == 0;
 			}
 
 			@Override
 			public String toString() {
-				if (value == 0.5) return "\u00db";
+				if (value == 0.5) return "\u00bd";
 				if (value == Double.POSITIVE_INFINITY) return "\u221e";
-				double rem = Math.IEEEremainder(value, 1.0);
-				if (rem == 0.5) return ((int) value) + "\u00db";
+				double rem = value % 1.0;
+				if (rem == 0.5) return ((int) value) + "\u00bd";
 				if (rem == 0.0) return Integer.toString((int) value);
 				return Double.toString(value);
 			}
