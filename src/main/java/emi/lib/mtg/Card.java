@@ -104,14 +104,6 @@ public interface Card {
 		Mana.Value manaCost();
 
 		/**
-		 * @return This face's mana value, as defined by the comprehensive rules.
-		 * @deprecated Renamed to {@link #manaValue}.
-		 */
-		default double convertedManaCost() {
-			return manaValue();
-		}
-
-		/**
 		 * Returns this card face's mana value, as defined by the comprehensive rules. Note that this isn't guaranteed
 		 * to equal <code>manaCost().value()</code>.
 		 *
