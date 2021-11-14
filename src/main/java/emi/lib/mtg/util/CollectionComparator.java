@@ -1,8 +1,6 @@
 package emi.lib.mtg.util;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents an object which can be compared with another in a complex way.
@@ -10,19 +8,34 @@ import java.util.Set;
  */
 public interface CollectionComparator<T extends Collection<?>> {
 	enum Result {
-		Equal (0),
-		ContainedIn (-1),
-		Contains (1),
-		Intersects (0),
-		Disjoint (0);
+		Equal (0.0),
+		ContainedIn (-1.0),
+		Contains (1.0),
+		Intersects (Double.NaN),
+		Disjoint (-Double.NaN);
 
-		private final int compareValue;
+		private final double compareValue;
 
-		Result(int compareValue) {
+		Result(double compareValue) {
 			this.compareValue = compareValue;
 		}
 
-		public int value() {
+		/**
+		 * Returns the comparison value of this result. This is analogous to the integer result of a normal comparison,
+		 * and can be used similarly: when greater than or equal to zero, for instance, the left-hand operand is a
+		 * superset-or-equal-to the right-hand operand.
+		 *
+		 * In the event of an intersectional or disjoint comparison result, the returned value is +/-NaN (respectively).
+		 * However, this is value still suitable for use with comparisons as suggested above, due to the following:
+		 * - Except for {@code NaN != x}, all comparisons involving NaN are false, so intersectional and disjoint
+		 *   results will ever indicate one set is greater than, less than, or equal to another.
+		 * - Because {@code NaN != x}, intersectional and disjoint results do indicate that one set is not equal to
+		 *   another via {@code value() != 0}.
+		 *
+		 * @return A double value suitable for comparisons (mostly against zero) analogous to the integer result of
+		 * 	a Comparator.
+		 */
+		public double value() {
 			return compareValue;
 		}
 	}
