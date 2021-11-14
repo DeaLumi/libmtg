@@ -7,6 +7,28 @@ import java.util.UUID;
  * A set of card printings. This is meant to map cleanly onto i.e. "Unhinged".
  */
 public interface Set {
+	enum Type {
+		/**
+		 * A core or expansion set, which immediately enters Standard.
+		 */
+		Standard,
+
+		/**
+		 * A set containing only reprints of preexisting cards. May or may not be a remaster of a specific set.
+		 */
+		Remaster,
+
+		/**
+		 * A preconstructed deck/set, including Premium Deck Series, Commander deck sets, and Challenger decks.
+		 */
+		Precon,
+
+		/**
+		 * A catch-all classification for sets that don't fit under other classifications.
+		 */
+		Other
+	}
+
 	/**
 	 * @return This set's name.
 	 */
@@ -18,12 +40,17 @@ public interface Set {
 	String code();
 
 	/**
+	 * @return This set's gross classification. See {@link Type}.
+	 */
+	Type type();
+
+	/**
 	 * @return The day this set was released (approximately).
 	 */
 	LocalDate releaseDate();
 
 	/**
-	 * @return True if this set is a digital set, from MTGO or Magic Arena, for instance.
+	 * @return True if this set is a digital-only set, from MTGO or Magic Arena, for instance.
 	 */
 	boolean digital();
 
