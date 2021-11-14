@@ -51,6 +51,8 @@ public interface Mana {
 		}
 
 		static Stream<Symbol> symbolsIn(String str) {
+			if (str == null || str.isEmpty()) return Stream.empty();
+
 			Iterator<Symbol> symbolIterator = new Iterator<Symbol>() {
 				private Symbol next = null;
 				private int nextStart = 0;
@@ -63,9 +65,14 @@ public interface Mana {
 								break;
 							case '{':
 								int end = str.indexOf('}', nextStart);
-								next = Symbol.parse(str.substring(nextStart + 1, end));
+								int start = nextStart + 1;
 								nextStart = end + 1;
-								return;
+								try {
+									next = Symbol.parse(str.substring(start, end));
+									return;
+								} catch (IllegalArgumentException iae) {
+									continue; // There's a lot of non-mana symbols in Magic. Be tolerant.
+								}
 						}
 					}
 
