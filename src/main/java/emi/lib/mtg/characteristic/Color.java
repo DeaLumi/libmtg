@@ -146,8 +146,8 @@ public enum Color {
 			if (a.mask == b.mask) return CollectionComparator.Result.Equal;
 
 			int intersection = a.mask & b.mask;
-			if (intersection == a.mask) return CollectionComparator.Result.Contains;
-			if (intersection == b.mask) return CollectionComparator.Result.ContainedIn;
+			if (intersection == a.mask) return CollectionComparator.Result.ContainedIn;
+			if (intersection == b.mask) return CollectionComparator.Result.Contains;
 
 			return intersection == 0 ? CollectionComparator.Result.Disjoint : CollectionComparator.Result.Intersects;
 		};
