@@ -1,9 +1,9 @@
 package emi.lib.mtg.game.validation;
 
 import emi.lib.mtg.Card;
-import emi.lib.mtg.characteristic.CardType;
-import emi.lib.mtg.characteristic.Color;
-import emi.lib.mtg.characteristic.Supertype;
+import emi.lib.mtg.enums.CardType;
+import emi.lib.mtg.enums.Color;
+import emi.lib.mtg.enums.Supertype;
 import emi.lib.mtg.game.Deck;
 import emi.lib.mtg.game.Format;
 import emi.lib.mtg.game.Zone;

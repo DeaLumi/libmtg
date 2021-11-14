@@ -1,6 +1,6 @@
 package emi.lib.mtg;
 
-import emi.lib.mtg.characteristic.*;
+import emi.lib.mtg.enums.*;
 import emi.lib.mtg.game.Format;
 import emi.lib.mtg.game.ability.Abilities;
 

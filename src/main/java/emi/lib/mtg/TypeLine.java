@@ -1,7 +1,7 @@
 package emi.lib.mtg;
 
-import emi.lib.mtg.characteristic.CardType;
-import emi.lib.mtg.characteristic.Supertype;
+import emi.lib.mtg.enums.CardType;
+import emi.lib.mtg.enums.Supertype;
 
 import java.util.*;
 import java.util.Set;

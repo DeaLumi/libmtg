@@ -1,8 +1,4 @@
-package emi.lib.mtg.characteristic;
-
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Set;
+package emi.lib.mtg.enums;
 
 /**
  * Created by Emi on 5/6/2016.

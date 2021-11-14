@@ -1,7 +1,7 @@
 package emi.lib.mtg.game;
 
 import emi.lib.mtg.Card;
-import emi.lib.mtg.characteristic.Supertype;
+import emi.lib.mtg.enums.Supertype;
 import emi.lib.mtg.game.ability.pregame.CopyLimit;
 import emi.lib.mtg.game.validation.Companions;
 

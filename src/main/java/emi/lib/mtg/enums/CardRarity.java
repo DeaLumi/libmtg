@@ -1,4 +1,4 @@
-package emi.lib.mtg.characteristic;
+package emi.lib.mtg.enums;
 
 import java.util.NoSuchElementException;
 

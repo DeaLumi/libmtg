@@ -3,7 +3,7 @@ package emi.lib.mtg.game.ability;
 import emi.lib.mtg.Card;
 import emi.lib.mtg.Mana;
 import emi.lib.mtg.TypeLine;
-import emi.lib.mtg.characteristic.Color;
+import emi.lib.mtg.enums.Color;
 
 import java.util.*;
 import java.util.regex.Matcher;

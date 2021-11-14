@@ -2,7 +2,7 @@ package emi.lib.mtg.game.validation;
 
 import emi.lib.mtg.Card;
 import emi.lib.mtg.Mana;
-import emi.lib.mtg.characteristic.CardType;
+import emi.lib.mtg.enums.CardType;
 import emi.lib.mtg.TypeLine;
 import emi.lib.mtg.game.Deck;
 import emi.lib.mtg.game.Format;

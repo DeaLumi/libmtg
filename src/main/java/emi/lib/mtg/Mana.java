@@ -1,11 +1,10 @@
 package emi.lib.mtg;
 
-import emi.lib.mtg.characteristic.Color;
+import emi.lib.mtg.enums.Color;
 import emi.lib.mtg.util.Multiset;
 
 import java.util.*;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.*;
 
 public interface Mana {

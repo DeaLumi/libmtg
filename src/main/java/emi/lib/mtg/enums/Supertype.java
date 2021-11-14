@@ -1,4 +1,4 @@
-package emi.lib.mtg.characteristic;
+package emi.lib.mtg.enums;
 
 /**
  * Created by Emi on 5/6/2016.

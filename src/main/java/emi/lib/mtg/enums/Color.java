@@ -1,4 +1,4 @@
-package emi.lib.mtg.characteristic;
+package emi.lib.mtg.enums;
 
 import emi.lib.mtg.util.CollectionComparator;
 
