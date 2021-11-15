@@ -1,6 +1,7 @@
 package emi.lib.mtg;
 
 import emi.lib.mtg.enums.Color;
+import emi.lib.mtg.util.CollectionComparator;
 import emi.lib.mtg.util.Multiset;
 
 import java.util.*;
@@ -689,12 +690,12 @@ public interface Mana {
 				this.bOnly = bOnly;
 			}
 
-			public int asComparison() {
-				if (aOnly.symbols.isEmpty() && bOnly.symbols.isEmpty()) return 0;
-				if (aOnly.symbols.isEmpty()) return -1;
-				if (bOnly.symbols.isEmpty()) return 1;
-				if (aOnly.color() != bOnly.color()) return Color.Combination.EMPTY_FIRST_COMPARATOR.compare(aOnly.color(), bOnly.color());
-				return 0;
+			public CollectionComparator.Result asComparison() {
+				if (aOnly.symbols.isEmpty() && bOnly.symbols.isEmpty()) return CollectionComparator.Result.Equal;
+				if (aOnly.symbols.isEmpty()) return CollectionComparator.Result.ContainedIn;
+				if (bOnly.symbols.isEmpty()) return CollectionComparator.Result.Contains;
+				if (both.symbols.isEmpty()) return CollectionComparator.Result.Disjoint;
+				return CollectionComparator.Result.Intersects;
 			}
 		}
 
@@ -739,7 +740,7 @@ public interface Mana {
 		}
 
 		// TODO: I hate the names of these comparators.
-		public static final Comparator<Value> SEARCH_COMPARATOR = (a, b) -> {
+		public static final CollectionComparator<Value> SEARCH_COMPARATOR = (a, b) -> {
 			Venn venn = Venn.of(a, b);
 			return venn.asComparison();
 		};

@@ -6,7 +6,7 @@ import java.util.*;
  * Represents an object which can be compared with another in a complex way.
  * @param <T> The collection type this comparator compares. Element type is irrelevant.
  */
-public interface CollectionComparator<T extends Collection<?>> {
+public interface CollectionComparator<T> {
 	enum Result {
 		Equal (0.0),
 		ContainedIn (-1.0),
