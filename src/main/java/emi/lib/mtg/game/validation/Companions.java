@@ -99,7 +99,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 
 			Card.Face front = pr.card().face(Card.Face.Kind.Front);
 
-			if (front != null && front.type().cardTypes().contains(CardType.Land)) {
+			if (front != null && front.type().is(CardType.Land)) {
 				continue;
 			}
 
@@ -186,7 +186,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		for (Card.Printing pr : startDeck) {
 			Card.Face front = pr.card().face(Card.Face.Kind.Front);
 
-			if (front != null && front.type().cardTypes().contains(CardType.Land)) {
+			if (front != null && front.type().is(CardType.Land)) {
 				continue;
 			}
 
@@ -239,12 +239,12 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 			}
 
 			TypeLine type = front.type();
-			if (type.cardTypes().contains(CardType.Land) && (
-					type.subtypes().contains("Plains") ||
-					type.subtypes().contains("Island") ||
-					type.subtypes().contains("Swamp") ||
-					type.subtypes().contains("Mountain") ||
-					type.subtypes().contains("Forest")
+			if (type.is(CardType.Land) && (
+					type.is("Plains") ||
+					type.is("Island") ||
+					type.is("Swamp") ||
+					type.is("Mountain") ||
+					type.is("Forest")
 					)) {
 				continue;
 			}
