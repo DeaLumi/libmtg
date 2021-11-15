@@ -27,7 +27,7 @@ public interface TypeLine {
 	}
 
 	default boolean isPermanent() {
-		return cardTypes().stream().anyMatch(t -> t.permanent);
+		return cardTypes().stream().anyMatch(CardType::permanent);
 	}
 
 	class Basic implements TypeLine {

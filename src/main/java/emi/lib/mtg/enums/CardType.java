@@ -51,4 +51,12 @@ public enum CardType {
 		this.constructed = constructed;
 		this.permanent = permanent;
 	}
+
+	public boolean permanent() {
+		return permanent;
+	}
+
+	public boolean constructed() {
+		return constructed;
+	}
 }
