@@ -14,6 +14,18 @@ public interface TypeLine {
 
 	Set<String> subtypes();
 
+	default boolean is(Supertype supertype) {
+		return supertypes().contains(supertype);
+	}
+
+	default boolean is(CardType cardType) {
+		return cardTypes().contains(cardType);
+	}
+
+	default boolean is(String subtype) {
+		return subtypes().contains(subtype);
+	}
+
 	default boolean isPermanent() {
 		return cardTypes().stream().anyMatch(t -> t.permanent);
 	}
