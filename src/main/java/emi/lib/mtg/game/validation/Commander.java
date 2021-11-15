@@ -1,6 +1,7 @@
 package emi.lib.mtg.game.validation;
 
 import emi.lib.mtg.Card;
+import emi.lib.mtg.TypeLine;
 import emi.lib.mtg.enums.CardType;
 import emi.lib.mtg.enums.Color;
 import emi.lib.mtg.enums.Supertype;
@@ -17,17 +18,16 @@ import java.util.function.BiConsumer;
 public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 	public static final Commander INSTANCE = new Commander();
 
-	private static void validateCommander(Card.Printing cmdr, Format.ValidationResult result) {
-		Card.Face front = cmdr.card().face(Card.Face.Kind.Front);
+	public static boolean isCommander(Card card) {
+		Card.Face front = card.face(Card.Face.Kind.Front);
+		if (front == null) return false; // For now, at least, no split cards are commanders.
 
-		if (front != null) {
-			if (front.abilities().only(CommanderOverride.CanBeCommander.class) != null) return;
+		if (front.abilities().only(CommanderOverride.CanBeCommander.class) != null) return true;
 
-			if (front.type().supertypes().contains(Supertype.Legendary) &&
-					front.type().cardTypes().contains(CardType.Creature)) return;
-		}
+		TypeLine type = front.type();
+		if (type.supertypes().contains(Supertype.Legendary) && type.cardTypes().contains(CardType.Creature)) return true;
 
-		result.card(cmdr).errors.add(String.format("%s is not a valid commander.", cmdr.card().name()));
+		return false;
 	}
 
 	@Override
@@ -86,7 +86,9 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 		}
 
 		for (Card.Printing pr : commanders) {
-			if (!legendaryPartner) validateCommander(pr, result);
+			if (!legendaryPartner && !isCommander(pr.card())) {
+				result.card(pr).errors.add(String.format("%s is not a valid commander.", pr.card().name()));
+			}
 			colorIdentity = colorIdentity.plus(pr.card().colorIdentity());
 		}
 		final Color.Combination fci = colorIdentity;
