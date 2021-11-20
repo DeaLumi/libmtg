@@ -2,6 +2,7 @@ package emi.lib.mtg;
 
 import emi.lib.mtg.enums.CardType;
 import emi.lib.mtg.enums.Supertype;
+import emi.lib.mtg.util.CollectionComparator;
 
 import java.util.*;
 import java.util.Set;
@@ -60,6 +61,41 @@ public interface TypeLine {
 	default boolean isPermanent() {
 		return cardTypes().stream().anyMatch(CardType::permanent);
 	}
+
+	/**
+	 * Compares two non-null typelines according to the following algorithm:
+	 * - The comparator decides which type groups to compare. It will only compare a type group if both left and right have at least one type in that type group.
+	 * - If no type groups are to be compared, the result is {@link CollectionComparator.Result#Disjoint}.
+	 * - If only one type group is to be compared, the result {@link CollectionComparator#SET_COMPARATOR} comparison of those two sets.
+	 * - If two or more type groups are to be compared, the result depends on the consistency of each of those comparison's results as determined by {@link CollectionComparator#SET_COMPARATOR}:
+	 *     - If all results are in agreement, the agreed-upon result is returned.
+	 *     - If some results disagree, the result is {@link CollectionComparator.Result#Intersects}.
+	 */
+	CollectionComparator<TypeLine> COMPARATOR = (left, right) -> {
+		Objects.requireNonNull(left);
+		Objects.requireNonNull(right);
+
+		boolean compareSupertypes = !left.supertypes().isEmpty() && !right.supertypes().isEmpty();
+		boolean compareCardTypes = !left.cardTypes().isEmpty() && !right.cardTypes().isEmpty();
+		boolean compareSubtypes = !left.subtypes().isEmpty() && !right.subtypes().isEmpty();
+
+		if (!compareSupertypes && !compareCardTypes && !compareSubtypes) return CollectionComparator.Result.Disjoint;
+
+		CollectionComparator.Result supertypes = compareSupertypes ? CollectionComparator.SET_COMPARATOR.compare(left.supertypes(), right.supertypes()) : CollectionComparator.Result.Disjoint;
+		if (!compareCardTypes && !compareSubtypes) return supertypes;
+
+		CollectionComparator.Result cardTypes = compareCardTypes ? CollectionComparator.SET_COMPARATOR.compare(left.cardTypes(), right.cardTypes()) : CollectionComparator.Result.Disjoint;
+		if (!compareSupertypes && !compareSubtypes) return cardTypes;
+
+		CollectionComparator.Result subtypes = compareSubtypes ? CollectionComparator.SET_COMPARATOR.compare(left.subtypes(), right.subtypes()) : CollectionComparator.Result.Disjoint;
+		if (!compareSupertypes && !compareCardTypes) return subtypes;
+
+		if (!compareSupertypes) return cardTypes == subtypes ? cardTypes : CollectionComparator.Result.Intersects;
+		if (!compareCardTypes) return supertypes == subtypes ? supertypes : CollectionComparator.Result.Intersects;
+		if (!compareSubtypes) return supertypes == cardTypes ? supertypes : CollectionComparator.Result.Intersects;
+
+		return (supertypes == cardTypes && cardTypes == subtypes) ? supertypes : CollectionComparator.Result.Intersects;
+	};
 
 	/**
 	 * A basic implementation of a type line. Supertypes and subtypes are stored in EnumSets, while subtypes are stored
