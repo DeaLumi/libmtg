@@ -249,6 +249,88 @@ public class MtgAwtImageUtils {
 		return dest;
 	}
 
+	private static double rgbValue(int pixel) {
+		return ((pixel & 0xFF) + ((pixel & 0xFF00) >> 8)  + ((pixel & 0xFF0000) >> 16)) / 3.0;
+	}
+
+	// TODO: This is a naive implementation.
+	private static double stdDev(int[] rgb, int start, int count, int stride) {
+		double sum = 0, sumOfSquares = 0;
+
+		for (int pixel = start; pixel < start + count; pixel += stride) {
+			double v = rgbValue(rgb[pixel]);
+			sum += v;
+			sumOfSquares += v * v;
+		}
+
+		return Math.sqrt(count * sumOfSquares - sum * sum) / count;
+	}
+
+	private static final double BORDER_DEVIATION = 0.020 * 0xFF; // Split dividers (border colored) are extremely even in color, at least if they have black borders.
+	private static final double FRAME_DEVIATION = 0.050 * 0xFF; // Card frames are a bit rougher,
+
+	private static int findHLine(BufferedImage source, int left, int yStart, int right, int yStop, double maxDeviation) {
+		final int width = Math.abs(right - left);
+		final int x0 = Math.min(left, right);
+		final int height = Math.abs(yStop - yStart);
+		final int[] rgb = new int[right * height];
+		source.getRGB(x0, Math.min(yStart, yStop), width, height, rgb, 0, width);
+
+		if (yStart < yStop) {
+			for (int y = yStart; y < yStop; ++y) {
+				if (stdDev(rgb, width * (y - yStart), width, 1) < maxDeviation) {
+					return y;
+				}
+			}
+		} else if (yStart > yStop) {
+			for (int y = yStart - 1; y >= yStop; --y) {
+				if (stdDev(rgb, width * (y - yStop), width, 1) < maxDeviation) {
+					return y;
+				}
+			}
+		}
+
+		return -1;
+	}
+
+	private static int findHDivider(BufferedImage source, int xStart, int yStart, int xStop, int yStop, double sigma) {
+		final int x0 = Math.min(xStart, xStop);
+		final int x1 = Math.max(xStart, xStop);
+		final int width = x1 - x0;
+		final int y0 = Math.min(yStart, yStop);
+		final int y1 = Math.max(yStart, yStop);
+		final int height = y1 - y0;
+
+		final int[] rgb = new int[width * height];
+		source.getRGB(x0, y0, width, height, rgb, 0, width);
+
+		int top = -1;
+		for (int y = y0; y < y1; ++y) {
+			double dev = stdDev(rgb, width * (y - y0), width, 1);
+			if (dev < sigma) {
+				top = y;
+				break;
+			}
+		}
+
+		if (top < 0) return -1;
+
+		int bottom = -1;
+		for (int y = y1 - 1; y >= y0; --y) {
+			double dev = stdDev(rgb, width * (y - y0), width, 1);
+			if (dev < sigma) {
+				bottom = y;
+				break;
+			}
+		}
+
+		if (bottom < 0) return top;
+
+		return (top + bottom) / 2;
+	}
+
+	private static final double FLIP_FRAME_MARGIN = 0.085; // About 8.5% of the width of the card on either side before we're looking only at frame.
+
 	public static BufferedImage faceFromFull(Card.Printing.Face printedFace, BufferedImage source) {
 		final double borderRadius = source.getWidth() * ROUND_RADIUS_FRACTION;
 
@@ -260,60 +342,71 @@ public class MtgAwtImageUtils {
 				throw new IllegalStateException();
 			}
 
-			final int startY, endY;
-			final double rotation;
+			final boolean fuse = card.face(Card.Face.Kind.Left).rules().contains("Fuse");
+			final boolean aftermath = card.face(Card.Face.Kind.Right).rules().startsWith("Aftermath");
 
-			if (card.face(Card.Face.Kind.Right).rules().startsWith("Aftermath")) {
-				int division = (int) (source.getHeight() * 0.5425);
-				switch (printedFace.face().kind()) {
-					case Left:
-						startY = 0;
-						endY = division;
-						rotation = 0.0;
-						break;
-					case Right:
-						startY = division;
-						endY = source.getHeight();
-						rotation = 90.0;
-						break;
-					default:
-						throw new IllegalStateException();
-				}
+			int xLeft, xRight, yStart, yStop;
+			if (fuse) {
+				xLeft = (int) (0.150 * source.getWidth());
+				xRight = (int) (0.560 * source.getWidth());
+				yStart = (int) (0.475 * source.getHeight());
+				yStop = (int) (0.527 * source.getHeight());
+			} else if (aftermath) {
+				xLeft = 0;
+				xRight = source.getWidth();
+				yStart = (int) (0.425 * source.getHeight());
+				yStop = (int) (0.575 * source.getHeight());
 			} else {
-				int division = (int) (source.getHeight() * 0.5);
-				switch (printedFace.face().kind()) {
-					case Left:
-						startY = division;
-						endY = source.getHeight();
-						break;
-					case Right:
-						startY = 0;
-						endY = division;
-						break;
-					default:
-						throw new IllegalStateException();
-				}
-				rotation = -90.0;
+				xLeft = 0;
+				xRight = source.getWidth();
+				yStart = (int) (0.450 * source.getHeight());
+				yStop = (int) (0.550 * source.getHeight());
 			}
+
+			int division = findHDivider(source, xLeft, yStart, xRight, yStop, BORDER_DEVIATION);
+
+			if (division < 0) {
+				division = (int) ((aftermath ? 0.5425 : 0.5) * source.getHeight());
+			}
+
+			double rotation = aftermath ? (printedFace.face().kind() == Card.Face.Kind.Left ? 0 : 90.0) : -90.0;
+			int startY = (printedFace.face().kind() == Card.Face.Kind.Left ^ aftermath) ? division : 0;
+			int endY = (printedFace.face().kind() == Card.Face.Kind.Left ^ aftermath) ? source.getHeight() : division;
 
 			return rotated(clearCorners(subsection(source, 0, startY, source.getWidth(), endY), borderRadius), rotation);
 		} else if (card.face(Card.Face.Kind.Flipped) != null) {
-			// Kamigawa flip card - probably.
-			int divisionTop, divisionBottom;
+			if (printedFace.face().kind() != Card.Face.Kind.Front && printedFace.face().kind() != Card.Face.Kind.Flipped) throw new IllegalArgumentException();
 
-			if (card.face(Card.Face.Kind.Front).name().equals("Curse of the Fire Penguin")) {
-				divisionTop = (int) (source.getHeight() * 0.675);
-				divisionBottom = divisionTop;
+			int division;
+
+			if (card.front() != null && "Curse of the Fire Penguin".equals(card.front().name())) {
+				System.err.print("Curse the Fire Penguin...\n");
+				division = (int) (source.getHeight() * 0.675);
 			} else {
-				divisionTop = (int) (source.getHeight() * 0.307);
-				divisionBottom = (int) (source.getHeight() * 0.667);
+				int start, stop;
+				if (printedFace.face().kind() == Card.Face.Kind.Front) {
+					start = (int) (source.getHeight() * 0.600);
+					stop = (int) (source.getHeight() * 0.700);
+				} else {
+					start = (int) (source.getHeight() * 0.350);
+					stop = (int) (source.getHeight() * 0.250);
+				}
+				int left = (int) (source.getWidth() * FLIP_FRAME_MARGIN);
+				int right = (int) (source.getWidth() * (1 - FLIP_FRAME_MARGIN));
+
+				division = findHLine(source, left, start, right, stop, FRAME_DEVIATION);
+
+				if (division < 0) {
+					System.err.printf("Unable to determine divider position for %s of %s; defaulting.\n", printedFace.face().kind(), printedFace.printing());
+					division = (int) (printedFace.face().kind() == Card.Face.Kind.Front ? (source.getHeight() * 0.667) : (source.getHeight() * 0.307));
+				}
 			}
 
 			switch (printedFace.face().kind()) {
 				case Front:
-					return clearCorners(subsection(source, 0, 0, source.getWidth(), divisionBottom), borderRadius);
+					return clearCorners(subsection(source, 0, 0, source.getWidth(), division), borderRadius);
 				case Flipped:
-					return rotated(clearCorners(subsection(source, 0, divisionTop, source.getWidth(), source.getHeight()), borderRadius), 180.0);
+					return rotated(clearCorners(subsection(source, 0, division, source.getWidth(), source.getHeight()), borderRadius), 180.0);
 				default:
 					throw new IllegalStateException();
 			}
@@ -321,5 +414,4 @@ public class MtgAwtImageUtils {
 			return clearCorners(source);
 		}
 	}
-
 }
