@@ -42,6 +42,12 @@ public interface CollectionComparator<T> {
 
 	Result compare(T a, T b);
 
+	/**
+	 * Provides a basic comparison of two sets by sorting them into a Venn diagram of A-only, B-only, and both.
+	 * - If both A- and B-only groups are empty, the result is Equal.
+	 * - If A-only is empty, a is ContainedIn b, and vice-versa for B-only.
+	 * - If neither is empty, the result is Disjoint if the intersection is empty or Intersects if it is not.
+	 */
 	CollectionComparator<Set<?>> SET_COMPARATOR = (a, b) -> {
 		Set<Object> aOnly = new HashSet<>();
 		Set<Object> intersection = new HashSet<>();
