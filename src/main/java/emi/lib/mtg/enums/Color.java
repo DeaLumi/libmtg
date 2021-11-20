@@ -204,6 +204,34 @@ public enum Color {
 			return byColors(Arrays.asList(colors));
 		}
 
+		private static final Map<String, Color.Combination> ALIAS_MAP = aliasMap();
+
+		private static Map<String, Color.Combination> aliasMap() {
+			Map<String, Color.Combination> tmp = new HashMap<>();
+
+			for (Color.Combination combo : Color.Combination.values()) {
+				for (String alias : combo.aliases) {
+					tmp.put(alias, combo);
+					tmp.put(alias.toLowerCase(), combo);
+				}
+			}
+
+			return Collections.unmodifiableMap(tmp);
+		}
+
+		public static Combination byString(String in) {
+			Color.Combination ret = ALIAS_MAP.get(in.toLowerCase());
+			if (ret != null) return ret;
+
+			try {
+				return in.toUpperCase().chars().mapToObj(Color::forChar).collect(Combination.COLOR_COLLECTOR);
+			} catch (NoSuchElementException nsee) {
+				// continue
+			}
+
+			return null;
+		}
+
 		private final int mask;
 		private final Color[] colorsArray;
 		public final List<Color> colors;
