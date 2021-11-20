@@ -564,6 +564,8 @@ public interface Mana {
 		}
 
 		protected void polishSymbols() {
+			if (symbolsInternal().isEmpty()) return;
+
 			double generic = 0.0;
 
 			for(Multiset<Symbol>.UniqueIterator iter = symbolsInternal().uniqueIterator(); iter.hasNext();) {
@@ -576,6 +578,7 @@ public interface Mana {
 			}
 
 			if (generic > 0) symbolsInternal().add(Symbol.Generic.of(generic));
+			if (symbolsInternal().isEmpty()) symbolsInternal().add(Symbol.Generic.ZERO); // We don't transform empty mana values. If we're here, all symbols were generic and they're gone now.
 
 			for (Symbol.Atom atom : Symbol.Atom.values()) {
 				if (atom.whole != null) {
