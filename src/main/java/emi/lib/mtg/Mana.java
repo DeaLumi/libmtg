@@ -758,7 +758,8 @@ public interface Mana {
 		};
 
 		public static final Comparator<Value> SYMBOL_COMPARATOR = Comparator.comparing(Value::pure)
-				.thenComparing(DEVOTION_COMPARATOR);
+				.thenComparing(DEVOTION_COMPARATOR)
+				.thenComparingInt(a -> a.symbols().size());
 
 		public static final Comparator<Value> COMPLETE_COMPARATOR = Comparator.comparing(Value::color, Color.Combination.EMPTY_LAST_COMPARATOR)
 				.thenComparing(Value::value)
