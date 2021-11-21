@@ -65,4 +65,11 @@ public interface Set {
 	 * @return The printing with that ID, or null if this set contains no such printing.
 	 */
 	Card.Printing printing(UUID id);
+
+	/**
+	 * Finds a card printing in this set by collector number.
+	 * @param collectorNumber Collector number of the card printing.
+	 * @return The printing with that collector number, or null if this set contains no such printing.
+	 */
+	Card.Printing printing(String collectorNumber);
 }

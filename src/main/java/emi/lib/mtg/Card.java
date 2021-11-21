@@ -332,6 +332,14 @@ public interface Card {
 	Printing printing(UUID id);
 
 	/**
+	 * Retrieves a printing by set code and collector number.
+	 * @param setCode The set code of the printing to get.
+	 * @param collectorNumber The collector number of the printing to get.
+	 * @return The printing with that set code and collector number, or null if this card has no such printing.
+	 */
+	Printing printing(String setCode, String collectorNumber);
+
+	/**
 	 * Returns the front face of this card. May be null.
 	 * @return The front face of this card. May be null.
 	 */
