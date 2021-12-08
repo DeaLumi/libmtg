@@ -19,6 +19,11 @@ public interface Set {
 		Remaster,
 
 		/**
+		 * A set containing only promotional prints of cards. May come out at the same time as the first printings of those cards.
+		 */
+		Promo,
+
+		/**
 		 * A preconstructed deck/set, including Premium Deck Series, Commander deck sets, and Challenger decks.
 		 */
 		Precon,
