@@ -51,6 +51,10 @@ public interface Mana {
 		}
 
 		static Stream<Symbol> symbolsIn(String str) {
+			return symbolsIn(str, false);
+		}
+
+		static Stream<Symbol> symbolsIn(String str, boolean includeReminder) {
 			if (str == null || str.isEmpty()) return Stream.empty();
 
 			Iterator<Symbol> symbolIterator = new Iterator<Symbol>() {
@@ -61,7 +65,9 @@ public interface Mana {
 					for (; nextStart >= 0 && nextStart < str.length(); ++nextStart) {
 						switch (str.charAt(nextStart)) {
 							case '(':
-								nextStart = str.indexOf(')', nextStart);
+								if (!includeReminder) {
+									nextStart = str.indexOf(')', nextStart);
+								}
 								break;
 							case '{':
 								int end = str.indexOf('}', nextStart);
