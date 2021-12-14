@@ -1,6 +1,7 @@
 package emi.lib.mtg;
 
 import emi.lib.mtg.enums.CardType;
+import emi.lib.mtg.enums.Color;
 import emi.lib.mtg.enums.Supertype;
 import emi.lib.mtg.util.CollectionComparator;
 
@@ -96,6 +97,20 @@ public interface TypeLine {
 
 		return (supertypes == cardTypes && cardTypes == subtypes) ? supertypes : CollectionComparator.Result.Intersects;
 	};
+
+	static Color.Combination landColorIdentity(TypeLine type) {
+		if (!type.is(CardType.Land)) return Color.Combination.Empty;
+
+		Color.Combination combo = Color.Combination.Empty;
+		if (type.is("Plains")) combo = combo.plus(Color.White);
+		if (type.is("Island")) combo = combo.plus(Color.Blue);
+		if (type.is("Swamp")) combo = combo.plus(Color.Black);
+		if (type.is("Mountain")) combo = combo.plus(Color.Red);
+		if (type.is("Forest")) combo = combo.plus(Color.Green);
+		if (combo.isEmpty() && type.subtypes().isEmpty()) combo = combo.plus(Color.Colorless);
+
+		return combo;
+	}
 
 	/**
 	 * A basic implementation of a type line. Supertypes and subtypes are stored in EnumSets, while subtypes are stored
