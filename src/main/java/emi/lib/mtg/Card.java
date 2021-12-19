@@ -221,7 +221,6 @@ public interface Card {
 		 * The printed (i.e. not-gameplay-relevant) characteristics of this face. These vary with printing.
 		 */
 		interface Face {
-
 			/**
 			 * @return The printing associated with this face printing.
 			 */
@@ -236,6 +235,13 @@ public interface Card {
 			 * @return The flavor text printed on this face in this printing.
 			 */
 			String flavor();
+
+			/**
+			 * @return The kind of face this is. This shouldn't differ from face().kind(), but does because of reversible cards.
+			 */
+			default Card.Face.Kind kind() {
+				return face().kind();
+			}
 		}
 
 		/**
