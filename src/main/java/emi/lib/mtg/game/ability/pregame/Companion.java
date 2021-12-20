@@ -6,6 +6,7 @@ import emi.lib.mtg.game.Format;
 import emi.lib.mtg.game.Zone;
 import emi.lib.mtg.game.ability.Ability;
 import emi.lib.mtg.game.ability.StaticAbility;
+import emi.lib.mtg.game.validation.Companions;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -26,25 +27,7 @@ public class Companion implements DeckConstructionAbility, StaticAbility {
 
 		@Override
 		public Companion make(Card.Face face, Matcher match) {
-			BiFunction<Deck, Format.ValidationResult, Boolean> validator = (a, b) -> true;
-			switch (face.name()) {
-				case "Gyruda, Doom of Depths":
-				case "Jegantha, the Wellspring":
-					validator = (a, b) -> false;
-					break;
-				case "Kaheera, the Orphanguard":
-				case "Keruga, the Macrosage":
-				case "Lurrus of the Dream-Den":
-				case "Lutri, the Spellchaser":
-				case "Obosh, the Preypiercer":
-				case "Umori, the Collector":
-				case "Yorion, Sky Nomad":
-				case "Zirda, the Dawnwaker":
-					validator = (a, b) -> true; // TODO: Move validators here.
-					break;
-			}
-
-			return new Companion(face.name(), match.group("companionRequirement"), validator);
+			return new Companion(face.name(), match.group("companionRequirement"), Companions.COMPANIONS.get(face.name()));
 		}
 	}
 

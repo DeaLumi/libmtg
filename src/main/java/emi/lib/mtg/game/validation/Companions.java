@@ -7,19 +7,61 @@ import emi.lib.mtg.TypeLine;
 import emi.lib.mtg.game.Deck;
 import emi.lib.mtg.game.Format;
 import emi.lib.mtg.game.Zone;
+import emi.lib.mtg.game.ability.pregame.Companion;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 	public static final Companions INSTANCE = new Companions();
 
-	private static boolean gyruda(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
+	public static final Map<String, BiFunction<Deck, Format.ValidationResult, Boolean>> COMPANIONS = companions();
+
+	private static Map<String, BiFunction<Deck, Format.ValidationResult, Boolean>> companions() {
+		Map<String, BiFunction<Deck, Format.ValidationResult, Boolean>> map = new HashMap<>();
+
+		map.put("Gyruda, Doom of Depths", Companions::gyruda);
+		map.put("Jegantha, the Wellspring", Companions::jegantha);
+		map.put("Kaheera, the Orphanguard", Companions::kaheera);
+		map.put("Keruga, the Macrosage", Companions::keruga);
+		map.put("Lurrus of the Dream-Den", Companions::lurrus);
+		map.put("Lutri, the Spellchaser", Companions::lutri);
+		map.put("Obosh, the Preypiercer", Companions::obosh);
+		map.put("Umori, the Collector", Companions::umori);
+		map.put("Yorion, Sky Nomad", Companions::yorion);
+		map.put("Zirda, the Dawnwaker", Companions::zirda);
+
+		return Collections.unmodifiableMap(map);
+	}
+
+	public static boolean isCompanion(Card.Printing pr) {
+		if (pr.card().front() == null) return false;
+		return pr.card().front().abilities().only(Companion.class) != null;
+	}
+
+	private static boolean notCompanion(Card.Printing pr) {
+		return !isCompanion(pr);
+	}
+
+	private static Stream<Card.Printing> startDeckStream(Deck deck) {
+		if (deck.cards(Zone.Library) == null && deck.cards(Zone.Command) == null) return Stream.empty();
+		if (deck.cards(Zone.Command) == null) return deck.cards(Zone.Library).stream().map(x -> (Card.Printing) x);
+		if (deck.cards(Zone.Library) == null) return deck.cards(Zone.Command).stream().filter(Companions::notCompanion).map(x -> (Card.Printing) x);
+		return Stream.concat(deck.cards(Zone.Library).stream(), deck.cards(Zone.Command).stream().filter(Companions::notCompanion));
+	}
+
+	private static Iterable<? extends Card.Printing> startDeck(Deck deck) {
+		return startDeckStream(deck)::iterator;
+	}
+
+	public static boolean gyruda(Deck deck, Format.ValidationResult result) {
 		boolean allEven = true;
-		for (Card.Printing pr : startDeck) {
+		for (Card.Printing pr : startDeck(deck)) {
 			double cmc = pr.card().manaCost().value();
 
 			if (Double.isFinite(cmc) && Math.floor(cmc) == cmc && ((int) cmc % 2) == 0) {
@@ -33,9 +75,9 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allEven;
 	}
 
-	private static boolean jegantha(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
+	public static boolean jegantha(Deck deck, Format.ValidationResult result) {
 		boolean allUnique = true;
-		for (Card.Printing pr : startDeck) {
+		for (Card.Printing pr : startDeck(deck)) {
 			Set<Mana.Symbol> seen = new HashSet<>();
 
 			for (Mana.Symbol sym : pr.card().manaCost().symbols()) {
@@ -62,9 +104,9 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return Collections.unmodifiableSet(tmp);
 	}
 
-	private static boolean kaheera(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
+	public static boolean kaheera(Deck deck, Format.ValidationResult result) {
 		boolean allCuties = true;
-		for (Card.Printing pr : startDeck) {
+		for (Card.Printing pr : startDeck(deck)) {
 			Card.Face front = pr.card().face(Card.Face.Kind.Front);
 
 			if (front == null || !front.type().cardTypes().contains(CardType.Creature)) continue;
@@ -88,9 +130,9 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allCuties;
 	}
 
-	private static boolean keruga(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
+	public static boolean keruga(Deck deck, Format.ValidationResult result) {
 		boolean allBig = true;
-		for (Card.Printing pr : startDeck) {
+		for (Card.Printing pr : startDeck(deck)) {
 			double cmc = pr.card().manaCost().value();
 
 			if (cmc >= 3) {
@@ -110,9 +152,9 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allBig;
 	}
 
-	private static boolean lurrus(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
+	public static boolean lurrus(Deck deck, Format.ValidationResult result) {
 		boolean allSmol = true;
-		for (Card.Printing pr : startDeck) {
+		for (Card.Printing pr : startDeck(deck)) {
 			Card.Face front = pr.card().face(Card.Face.Kind.Front);
 
 			if (front == null) {
@@ -136,11 +178,11 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allSmol;
 	}
 
-	private static boolean lutri(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
+	public static boolean lutri(Deck deck, Format.ValidationResult result) {
 		boolean allUnique = true;
 		Set<String> seen = new HashSet<>();
 
-		for (Card.Printing pr : startDeck) {
+		for (Card.Printing pr : startDeck(deck)) {
 			Card.Face front = pr.card().face(Card.Face.Kind.Front);
 
 			if (front != null && front.type().cardTypes().contains(CardType.Land)) {
@@ -158,9 +200,9 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allUnique;
 	}
 
-	private static boolean obosh(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
+	public static boolean obosh(Deck deck, Format.ValidationResult result) {
 		boolean allOdd = true;
-		for (Card.Printing pr : startDeck) {
+		for (Card.Printing pr : startDeck(deck)) {
 			Card.Face front = pr.card().face(Card.Face.Kind.Front);
 
 			if (front != null && front.type().cardTypes().contains(CardType.Land)) {
@@ -179,11 +221,11 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allOdd;
 	}
 
-	private static boolean umori(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
+	public static boolean umori(Deck deck, Format.ValidationResult result) {
 		boolean allSameish = true;
 		EnumSet<CardType> sharedType = EnumSet.noneOf(CardType.class);
 
-		for (Card.Printing pr : startDeck) {
+		for (Card.Printing pr : startDeck(deck)) {
 			Card.Face front = pr.card().face(Card.Face.Kind.Front);
 
 			if (front != null && front.type().is(CardType.Land)) {
@@ -218,8 +260,16 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allSameish;
 	}
 
-	private static boolean yorion(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
-		if (startDeck.size() < result.format().minDeckSize + 20) {
+	public static boolean yorion(Deck deck, Format.ValidationResult result) {
+		int size = 0;
+
+		if (deck.cards(Zone.Library) != null) size += deck.cards(Zone.Library).size();
+
+		if (deck.cards(Zone.Command) != null) {
+			size += deck.cards(Zone.Command).stream().filter(Companions::notCompanion).count();
+		}
+
+		if (size < result.format().minDeckSize + 20) {
 			result.deckErrors.add("Your deck doesn't contain at least 20 cards more than the minimum deck size.");
 			return false;
 		}
@@ -229,9 +279,9 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 
 	private static final Pattern ACTIVATED_ABILITY_PATTERN = Pattern.compile("(?m)^(?:(?:(?:Equip|Cycling)[— ])|[^\"]+: .+$)");
 
-	private static boolean zirda(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result) {
+	public static boolean zirda(Deck deck, Format.ValidationResult result) {
 		boolean allActive = true;
-		for (Card.Printing pr : startDeck) {
+		for (Card.Printing pr : startDeck(deck)) {
 			Card.Face front = pr.card().face(Card.Face.Kind.Front);
 
 			if (front == null || !front.type().isPermanent()) {
@@ -262,48 +312,6 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allActive;
 	}
 
-	public static void validateCompanion(Collection<? extends Card.Printing> startDeck, Format.ValidationResult result, Card.Printing companion) {
-		Card.Face front = companion.card().face(Card.Face.Kind.Front);
-		if (front == null) return;
-
-		switch (front.name()) {
-			case "Gyruda, Doom of Depths":
-				if (!gyruda(startDeck, result)) return;
-				break;
-			case "Jegantha, the Wellspring":
-				if (!jegantha(startDeck, result)) return;
-				break;
-			case "Kaheera, the Orphanguard":
-				if (!kaheera(startDeck, result)) return;
-				break;
-			case "Keruga, the Macrosage":
-				if (!keruga(startDeck, result)) return;
-				break;
-			case "Lurrus of the Dream-Den":
-				if (!lurrus(startDeck, result)) return;
-				break;
-			case "Lutri, the Spellchaser":
-				if (!lutri(startDeck, result)) return;
-				break;
-			case "Obosh, the Preypiercer":
-				if (!obosh(startDeck, result)) return;
-				break;
-			case "Umori, the Collector":
-				if (!umori(startDeck, result)) return;
-				break;
-			case "Yorion, Sky Nomad":
-				if (!yorion(startDeck, result)) return;
-				break;
-			case "Zirda, the Dawnwaker":
-				if (!zirda(startDeck, result)) return;
-				break;
-			default:
-				return;
-		}
-
-		result.card(companion).notices.add(String.format("%s is a satisfied companion!", companion.card().name()));
-	}
-
 	@Override
 	public void accept(Deck deck, Format.ValidationResult result) {
 		Collection<? extends Card.Printing> startDeck = deck.cards(Zone.Library);
@@ -316,9 +324,8 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 			Card.Face front = pr.card().face(Card.Face.Kind.Front);
 			if (front == null) continue;
 
-			if (front.rules().startsWith("Companion ")) {
-				validateCompanion(startDeck, result, pr);
-			}
+			Companion ability = front.abilities().only(Companion.class);
+			if (ability != null) ability.check(pr, deck, result);
 		}
 	}
 }
