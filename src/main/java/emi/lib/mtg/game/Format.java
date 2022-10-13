@@ -23,7 +23,9 @@ public enum Format {
 	Historic,
 	Pauper,
 	Penny,
-	Commander(1, 100, 100, ZoneInfo.COMMANDER, emi.lib.mtg.game.validation.Commander.INSTANCE);
+	Commander(1, 100, 100, ZoneInfo.COMMANDER, emi.lib.mtg.game.validation.Commander.INSTANCE),
+	Alchemy,
+	Explorer;
 
 	private static class ZoneInfo {
 		public ZoneInfo(int minCards, int maxCards) {
