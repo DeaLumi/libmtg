@@ -133,7 +133,7 @@ public interface TypeLine {
 		 */
 		public static Basic parse(String typeLine) {
 			// Hack for B.F.M.'s right half.
-			if ("Scariest Creature You’ll Ever See".equals(typeLine)) {
+			if ("Scariest Creature You'll Ever See".equals(typeLine) || "Scariest Creature You’ll Ever See".equals(typeLine)) {
 				Set<CardType> types = EnumSet.of(CardType.Creature);
 				Set<String> subtypes = new HashSet<>();
 				subtypes.addAll(Arrays.asList("Scariest", "Creature", "You’ll", "Ever", "See"));
