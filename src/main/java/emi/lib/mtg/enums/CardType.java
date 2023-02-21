@@ -38,7 +38,9 @@ public enum CardType {
 	Hero (false, true),
 	Elemental (false, true),
 	Autobot (false, true),
-	Character (false, true);
+	Character (false, true),
+	Stickers (false, false),
+	Universewalker (false, true);
 
 	public final boolean constructed;
 	public final boolean permanent;
