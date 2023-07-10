@@ -12,6 +12,7 @@ public enum CardType {
 	Planeswalker (true),
 	Sorcery (false),
 	Tribal (false),
+	Battle (true),
 
 	/*
 	 * Types after this are not legal in usual constructed formats.

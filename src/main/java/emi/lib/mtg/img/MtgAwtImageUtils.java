@@ -1,6 +1,7 @@
 package emi.lib.mtg.img;
 
 import emi.lib.mtg.Card;
+import emi.lib.mtg.enums.CardType;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -334,6 +335,7 @@ public class MtgAwtImageUtils {
 	public static BufferedImage faceFromFull(Card.Printing.Face printedFace, BufferedImage source) {
 		final double borderRadius = source.getWidth() * ROUND_RADIUS_FRACTION;
 
+		Card.Face face = printedFace.face();
 		Card card = printedFace.printing().card();
 
 		if (card.face(Card.Face.Kind.Left) != null) {
@@ -369,13 +371,14 @@ public class MtgAwtImageUtils {
 				division = (int) ((aftermath ? 0.5425 : 0.5) * source.getHeight());
 			}
 
-			double rotation = aftermath ? (printedFace.face().kind() == Card.Face.Kind.Left ? 0 : 90.0) : -90.0;
-			int startY = (printedFace.face().kind() == Card.Face.Kind.Left ^ aftermath) ? division : 0;
-			int endY = (printedFace.face().kind() == Card.Face.Kind.Left ^ aftermath) ? source.getHeight() : division;
+			double rotation = aftermath ? (face.kind() == Card.Face.Kind.Left ? 0 : 90.0) : -90.0;
+			int startY = (face.kind() == Card.Face.Kind.Left ^ aftermath) ? division : 0;
+			int endY = (face.kind() == Card.Face.Kind.Left ^ aftermath) ? source.getHeight() : division;
 
 			return rotated(clearCorners(subsection(source, 0, startY, source.getWidth(), endY), borderRadius), rotation);
 		} else if (card.face(Card.Face.Kind.Flipped) != null) {
-			if (printedFace.face().kind() != Card.Face.Kind.Front && printedFace.face().kind() != Card.Face.Kind.Flipped) throw new IllegalArgumentException();
+			if (face.kind() != Card.Face.Kind.Front && face.kind() != Card.Face.Kind.Flipped)
+				throw new IllegalArgumentException("Face's card has a flipped version, but this face is neither front nor flipped. What on earth card is this? " + card.fullName());
 
 			int division;
 
@@ -397,18 +400,27 @@ public class MtgAwtImageUtils {
 				division = findHLine(source, left, start, right, stop, FRAME_DEVIATION);
 
 				if (division < 0) {
-					System.err.printf("Unable to determine divider position for %s of %s; defaulting.\n", printedFace.face().kind(), printedFace.printing());
-					division = (int) (printedFace.face().kind() == Card.Face.Kind.Front ? (source.getHeight() * 0.667) : (source.getHeight() * 0.307));
+					System.err.printf("Unable to determine divider position for %s of %s; defaulting.\n", face.kind(), printedFace.printing());
+					division = (int) (face.kind() == Card.Face.Kind.Front ? (source.getHeight() * 0.667) : (source.getHeight() * 0.307));
 				}
 			}
 
-			switch (printedFace.face().kind()) {
+			switch (face.kind()) {
 				case Front:
 					return clearCorners(subsection(source, 0, 0, source.getWidth(), division), borderRadius);
 				case Flipped:
 					return rotated(clearCorners(subsection(source, 0, division, source.getWidth(), source.getHeight()), borderRadius), 180.0);
 				default:
 					throw new IllegalStateException();
+			}
+		} else if (card.face(Card.Face.Kind.Transformed) != null) {
+			switch (face.kind()) {
+				case Front:
+					return clearCorners(face.type().is(CardType.Battle) ? rotated(source, -90.0) : source);
+				case Transformed:
+					return clearCorners(source);
+				default:
+					throw new IllegalArgumentException();
 			}
 		} else {
 			return clearCorners(source);
