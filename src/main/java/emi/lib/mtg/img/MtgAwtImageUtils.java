@@ -2,7 +2,9 @@ package emi.lib.mtg.img;
 
 import emi.lib.mtg.Card;
 import emi.lib.mtg.enums.CardType;
+import emi.lib.mtg.enums.StandardFrame;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -233,6 +235,15 @@ public class MtgAwtImageUtils {
 		return out;
 	}
 
+	public static BufferedImage combined(BufferedImage source1, int x11, int y11, int x12, int y12, BufferedImage source2, int x21, int y21, int x22, int y22) {
+		BufferedImage output = new BufferedImage(Math.max(x12, x22) - Math.min(x11, x21), Math.max(y12, y22) - Math.min(y11, y21), source1.getType());
+
+		Graphics2D graphics = output.createGraphics();
+		graphics.drawImage(source1, x11, y11, x12 - x11, y12 - y11, null);
+		graphics.drawImage(source2, x21, y21, x22 - x21, y22 - y21, null);
+		return output;
+	}
+
 	public static BufferedImage subsection(BufferedImage source, int x1, int y1, int x2, int y2) {
 		BufferedImage output = new BufferedImage(x2 - x1, y2 - y1, source.getType());
 		output.createGraphics().drawImage(source.getSubimage(x1, y1, x2 - x1, y2 - y1), 0, 0, null);
@@ -332,7 +343,7 @@ public class MtgAwtImageUtils {
 
 	private static final double FLIP_FRAME_MARGIN = 0.085; // About 8.5% of the width of the card on either side before we're looking only at frame.
 
-	public static BufferedImage faceFromFull(Card.Printing.Face printedFace, BufferedImage source) {
+	public static BufferedImage faceFromFullOld(Card.Printing.Face printedFace, BufferedImage source) {
 		final double borderRadius = source.getWidth() * ROUND_RADIUS_FRACTION;
 
 		Card.Face face = printedFace.face();
@@ -425,5 +436,24 @@ public class MtgAwtImageUtils {
 		} else {
 			return clearCorners(source);
 		}
+	}
+
+	public static BufferedImage faceFromFull(Card.Printing.Face printedFace, BufferedImage full) {
+		BufferedImage tmp = full;
+
+		Card.Printing.Face.Frame frame = printedFace.frame();
+		if (frame.left() > 0 || frame.right() > 0 || frame.top() > 0 || frame.bottom() > 0)
+			tmp = subsection(tmp, (int) (frame.left() * full.getWidth()), (int) (frame.top() * full.getHeight()),
+					(int) ((1.0 - frame.right()) * full.getWidth()), (int) ((1.0 - frame.bottom()) * full.getHeight()));
+
+		if (frame.rotation() != 0)
+			tmp = rotated(tmp, -90.0 * frame.rotation());
+
+		return clearCorners(tmp);
+	}
+
+	public static BufferedImage meldedFace(Card.Printing.Face printedFace, BufferedImage top, BufferedImage bottom) {
+		return clearCorners(rotated(combined(bottom, 0, 0, bottom.getWidth(), bottom.getHeight(),
+				top, bottom.getWidth(), 0, bottom.getWidth() + top.getWidth(), top.getHeight()), -90.0 * StandardFrame.Meld.rotation()));
 	}
 }

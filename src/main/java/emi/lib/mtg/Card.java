@@ -221,6 +221,33 @@ public interface Card {
 		 * The printed (i.e. not-gameplay-relevant) characteristics of this face. These vary with printing.
 		 */
 		interface Face {
+			interface Frame {
+				/**
+				 * @return The percent of the width of this card from the left edge at which the left edge of this face's frame begins.
+				 */
+				double left();
+
+				/**
+				 * @return The percent of the width of this card from the right edge at which the right edge fo this face's frame begins.
+				 */
+				double right();
+
+				/**
+				 * @return The percent of the height of this card from the top edge at which the top edge of this face's frame begins.
+				 */
+				double top();
+
+				/**
+				 * @return The percent of the height of this card from the bottom edge at which the bottom edge of this face's frame begins.
+				 */
+				double bottom();
+
+				/**
+				 * @return The rotation, in increments of 90 degrees clockwise, to make this face's text right-side up.
+				 */
+				int rotation();
+			}
+
 			/**
 			 * @return The printing associated with this face printing.
 			 */
@@ -237,10 +264,34 @@ public interface Card {
 			String flavor();
 
 			/**
+			 * @return Whether or not this face is printed on the back of the cardboard.
+			 */
+			boolean onBack();
+
+			/**
+			 * @return The geometric location/orientation of this face on the full card.
+			 */
+			Frame frame();
+
+			/**
 			 * @return The kind of face this is. This shouldn't differ from face().kind(), but does because of reversible cards.
 			 */
 			default Card.Face.Kind kind() {
 				return face().kind();
+			}
+
+			/**
+			 * Returns true if the other printed face is fully visible in the normal bounds of this printed face.
+			 * In practice, this means the other face is an Adventure in the bottom corner of this face.
+			 * @param other The other printed face to check bounds on.
+			 * @return True if the other printed face is fully visible in the normal bounds of this face, or false otherwise.
+			 */
+			default boolean contains(Printing.Face other) {
+				return other != null &&
+						other.printing().equals(this.printing()) &&
+						other.onBack() == this.onBack() &&
+						other.frame().left() >= frame().left() && other.frame().right() >= frame().right() &&
+						other.frame().top() >= frame().top() && other.frame().bottom() >= frame().bottom();
 			}
 		}
 
