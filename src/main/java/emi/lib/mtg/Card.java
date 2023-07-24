@@ -142,6 +142,11 @@ public interface Card {
 		String printedLoyalty();
 
 		/**
+		 * @return This card's starting defense. An empty string if it has no defense box.
+		 */
+		String printedDefense();
+
+		/**
 		 * @return This card's hand modifier. An empty string if it has no hand/life modifiers.
 		 */
 		String handModifier();
@@ -210,6 +215,16 @@ public interface Card {
 		 */
 		default double loyalty() {
 			return convertedValue(this.printedLoyalty());
+		}
+
+		/**
+		 * Derived characteristic. The nearest number representation of the card's defense.
+		 * For cards with no defense, this is NaN. Otherwise, this is the card's defense,
+		 * taking any characteristic-defining abilities to be 0.
+		 * @return Nearest number representation of the card's defense.
+		 */
+		default double defense() {
+			return convertedValue(this.printedDefense());
 		}
 	}
 
