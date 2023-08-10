@@ -30,7 +30,19 @@ public enum StandardFrame implements Card.Printing.Face.Frame {
 	/* Silly Stuff */
 	FirePenguinTop(0.0, 0.0, 0.0, 0.3269, 0),
 	FirePenguinBottom(0.0, 0.0, 0.6699, 0.0, 2),
-	/* No, I'm still not doing who/what/when/where/why. */
+
+	/* God, I can't believe I'm doing this. */
+	OldWho(0.0, 0.5, 0.2607, 0.5, 1),
+	OldWhat(0.0, 0.5, 0.0, 0.7393, 1),
+	OldWhen(0.5, 0.0, 0.0, 0.5, 0),
+	OldWhere(0.0, 0.5, 0.5, 0.0, 0),
+	OldWhy(0.5, 0.0, 0.5, 0.0, 0),
+
+	NewWho(0.0, 0.5, 0.2553, 0.5160, 1),
+	NewWhat(0.0, 0.5, 0.0, 0.7447, 1),
+	NewWhen(0.5, 0.0, 0.0, 0.5160, 0),
+	NewWhere(0.0, 0.5, 0.4840, 0.0, 0),
+	NewWhy(0.5, 0.0, 0.4840, 0.0, 0),
 	;
 
 	private final double left, right, top, bottom;
