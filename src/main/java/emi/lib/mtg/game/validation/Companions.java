@@ -41,7 +41,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 
 	public static boolean isCompanion(Card.Printing pr) {
 		if (pr.card().front() == null) return false;
-		return pr.card().front().abilities().only(Companion.class) != null;
+		return pr.card().front().abilities().ofType(Companion.class).findAny().isPresent();
 	}
 
 	private static boolean notCompanion(Card.Printing pr) {
@@ -324,8 +324,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 			Card.Face front = pr.card().face(Card.Face.Kind.Front);
 			if (front == null) continue;
 
-			Companion ability = front.abilities().only(Companion.class);
-			if (ability != null) ability.check(pr, deck, result);
+			front.abilities().ofType(Companion.class).forEach(a -> a.check(pr, deck, result));
 		}
 	}
 }

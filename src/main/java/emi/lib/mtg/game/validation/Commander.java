@@ -19,15 +19,13 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 	public static final Commander INSTANCE = new Commander();
 
 	public static boolean isCommander(Card card) {
-		Card.Face front = card.face(Card.Face.Kind.Front);
+		Card.Face front = card.front();
 		if (front == null) return false; // For now, at least, no split cards are commanders.
 
-		if (front.abilities().only(CommanderOverride.CanBeCommander.class) != null) return true;
+		if (front.abilities().ofType(CommanderOverride.CanBeCommander.class).findAny().isPresent()) return true;
 
 		TypeLine type = front.type();
-		if (type.supertypes().contains(Supertype.Legendary) && type.cardTypes().contains(CardType.Creature)) return true;
-
-		return false;
+		return type.is(Supertype.Legendary) && type.is(CardType.Creature);
 	}
 
 	@Override
@@ -43,14 +41,16 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 			Card.Face front = pr.card().front();
 
 			if (front != null) {
-				Companion companion = front.abilities().only(Companion.class);
-				if (companion != null && companion.check(pr, deck, result)) {
+				// N.B. This can't be .anyMatch or any other short-circuiting terminal operation.
+				if (front.abilities().ofType(Companion.class)
+						.filter(c -> c.check(pr, deck, result))
+						.count() > 0) {
 					satisfiedCompanions.add(pr);
 				} else {
 					commanders.add(pr);
 				}
 
-				PartnerCommander partner = front.abilities().only(PartnerCommander.class);
+				PartnerCommander partner = front.abilities().ofType(PartnerCommander.class).findAny().orElse(null);
 				if (partner != null) {
 					partners.put(pr, partner);
 					if (partner.legendary) legendaryPartner = true;

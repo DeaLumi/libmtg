@@ -1,18 +1,18 @@
 package emi.lib.mtg.game.ability;
 
 import emi.lib.mtg.Card;
-import emi.lib.mtg.Mana;
-import emi.lib.mtg.TypeLine;
-import emi.lib.mtg.enums.Color;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface Abilities {
 	Collection<Ability> allAbilities();
+
+	default Stream<Ability> stream() {
+		return allAbilities().stream();
+	}
 
 	default <T extends Ability> Stream<T> ofType(Class<T> type) {
 		return allAbilities().stream()
@@ -21,11 +21,7 @@ public interface Abilities {
 	}
 
 	default <T extends Ability> T only(Class<T> type) {
-		List<T> abilities = ofType(type).collect(Collectors.toList());
-
-		if (abilities.size() > 1) throw new IllegalStateException("A card shouldn't have more than one " + type.getSimpleName() + " ability!");
-		if (abilities.size() < 1) return null;
-		return abilities.get(0);
+		return ofType(type).reduce(null, (a, b) -> (a != null ^ b != null) ? (a != null ? a : b) : null);
 	}
 
 	class DefaultAbilities implements Abilities {
