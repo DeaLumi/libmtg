@@ -637,6 +637,10 @@ public interface Mana {
 			return (Multiset<Symbol>) symbols;
 		}
 
+		public boolean isEmpty() {
+			return symbols.isEmpty();
+		}
+
 		protected static class Venn {
 			public final Value aOnly, both, bOnly;
 
