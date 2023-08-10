@@ -184,6 +184,7 @@ public enum Color {
 		}
 
 		public static int mask(Iterable<Color> colors) {
+			if (colors instanceof Combination) return ((Combination) colors).mask;
 			int mask = 0;
 			for (Color color : colors) mask |= (1 << color.ordinal());
 			return mask;
