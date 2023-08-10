@@ -107,7 +107,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 	public static boolean kaheera(Deck deck, Format.ValidationResult result) {
 		boolean allCuties = true;
 		for (Card.Printing pr : startDeck(deck)) {
-			Card.Face front = pr.card().face(Card.Face.Kind.Front);
+			Card.Face front = pr.card().front();
 
 			if (front == null || !front.type().cardTypes().contains(CardType.Creature)) continue;
 
@@ -139,7 +139,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 				continue;
 			}
 
-			Card.Face front = pr.card().face(Card.Face.Kind.Front);
+			Card.Face front = pr.card().front();
 
 			if (front != null && front.type().is(CardType.Land)) {
 				continue;
@@ -155,7 +155,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 	public static boolean lurrus(Deck deck, Format.ValidationResult result) {
 		boolean allSmol = true;
 		for (Card.Printing pr : startDeck(deck)) {
-			Card.Face front = pr.card().face(Card.Face.Kind.Front);
+			Card.Face front = pr.card().front();
 
 			if (front == null) {
 				continue;
@@ -183,7 +183,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		Set<String> seen = new HashSet<>();
 
 		for (Card.Printing pr : startDeck(deck)) {
-			Card.Face front = pr.card().face(Card.Face.Kind.Front);
+			Card.Face front = pr.card().front();
 
 			if (front != null && front.type().cardTypes().contains(CardType.Land)) {
 				continue;
@@ -203,7 +203,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 	public static boolean obosh(Deck deck, Format.ValidationResult result) {
 		boolean allOdd = true;
 		for (Card.Printing pr : startDeck(deck)) {
-			Card.Face front = pr.card().face(Card.Face.Kind.Front);
+			Card.Face front = pr.card().front();
 
 			if (front != null && front.type().cardTypes().contains(CardType.Land)) {
 				continue;
@@ -226,7 +226,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		EnumSet<CardType> sharedType = EnumSet.noneOf(CardType.class);
 
 		for (Card.Printing pr : startDeck(deck)) {
-			Card.Face front = pr.card().face(Card.Face.Kind.Front);
+			Card.Face front = pr.card().front();
 
 			if (front != null && front.type().is(CardType.Land)) {
 				continue;
@@ -282,7 +282,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 	public static boolean zirda(Deck deck, Format.ValidationResult result) {
 		boolean allActive = true;
 		for (Card.Printing pr : startDeck(deck)) {
-			Card.Face front = pr.card().face(Card.Face.Kind.Front);
+			Card.Face front = pr.card().front();
 
 			if (front == null || !front.type().isPermanent()) {
 				continue;
@@ -321,7 +321,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		if (sideboard == null) sideboard = Collections.emptyList();
 
 		for (Card.Printing pr : sideboard) {
-			Card.Face front = pr.card().face(Card.Face.Kind.Front);
+			Card.Face front = pr.card().front();
 			if (front == null) continue;
 
 			front.abilities().ofType(Companion.class).forEach(a -> a.check(pr, deck, result));
