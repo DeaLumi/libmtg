@@ -725,8 +725,12 @@ public interface Mana {
 		}
 
 		public Value add(Value other) {
+			return add(other, true);
+		}
+
+		public Value add(Value other, boolean combineSymbols) {
 			symbolsInternal().addAll(other.symbolsInternal());
-			polishSymbols();
+			if (combineSymbols) polishSymbols();
 			return this;
 		}
 
@@ -772,6 +776,8 @@ public interface Mana {
 				.thenComparing(SYMBOL_COMPARATOR);
 
 		public static final Collector<Value, Value, Value> COLLECTOR = Collector.of(Value::of, Value::add, Value::add);
+
+		public static final Collector<Value, Value, Value> NONCOMBINING_COLLECTOR = Collector.of(Value::of, (a, b) -> a.add(b, false), (a, b) -> a.add(b, false));
 	}
 
 	static void listsEqual(List<Symbol> symbolsIn, List<Symbol> expected) {

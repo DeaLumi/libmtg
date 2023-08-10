@@ -472,7 +472,7 @@ public interface Card {
 	default Mana.Value fullManaCost() {
 		return this.faces().stream()
 				.map(Face::manaCost)
-				.collect(Mana.Value.COLLECTOR);
+				.collect(Mana.Value.NONCOMBINING_COLLECTOR);
 	}
 
 	/**
