@@ -51,49 +51,6 @@ public interface Card {
 		}
 
 		/**
-		 * Represents a kind of card face. Almost all cards have Front faces, and the vast majority of cards *only*
-		 * have Front faces. Split cards uniquely have only Left and Right faces.
-		 *
-		 * Only one card (Who // What // When // Where // Why) has more than two faces. Eff that card.
-		 */
-		enum Kind {
-			/**
-			 * The front face of this card. These characteristics are usually the correct ones.
-			 */
-			Front,
-
-			/**
-			 * The transformed face of this double-faced card (i.e. Innistrad Werewolves and Origins sparkers).
-			 */
-			Transformed,
-
-			/**
-			 * The flipped face of this Kamigawa-style flip-card.
-			 */
-			Flipped,
-
-			/**
-			 * The left face of this split card, including the 'top' face of Amonkhet splits.
-			 */
-			Left,
-
-			/**
-			 * The right face of this split card, including the 'aftermath' face of Amonkhet splits.
-			 */
-			Right,
-
-			/**
-			 * Other faces I don't know about.
-			 */
-			Other
-		}
-
-		/**
-		 * @return The kind of card face this is (i.e. when its characteristics overwrite the card's). Never null.
-		 */
-		Kind kind();
-
-		/**
 		 * @return The name of this card face. An empty string if the card has no name.
 		 */
 		String name();
@@ -289,13 +246,6 @@ public interface Card {
 			Frame frame();
 
 			/**
-			 * @return The kind of face this is. This shouldn't differ from face().kind(), but does because of reversible cards.
-			 */
-			default Card.Face.Kind kind() {
-				return face().kind();
-			}
-
-			/**
 			 * Returns true if the other printed face is fully visible in the normal bounds of this printed face.
 			 * In practice, this means the other face is an Adventure in the bottom corner of this face.
 			 * @param other The other printed face to check bounds on.
@@ -316,16 +266,41 @@ public interface Card {
 		Card card();
 
 		/**
-		 * @return The set of printed face for this card printing.
+		 * The set of all printed faces of this card. There should be one printed face for each face of
+		 * <code>card()</code>.
+		 *
+		 * @implSpec This should return printed faces in the same order as <code>card().faces()</code>.
+		 *
+		 * @return The set of this printing's printed faces.
 		 */
 		Set<? extends Face> faces();
 
 		/**
-		 * Retrieves a particular card face printing by face kind.
-		 * @param kind The kind of face of which to get the printed version.
-		 * @return The printed version of that face kind.
+		 * The set of printed faces of this card which contribute characteristics to the card's common state. There
+		 * should be one printed face for each face in <code>card().mainFaces()</code>
+		 *
+		 * For example, this would contain only the front side of an MDFC, or only the creature part of an Adventure
+		 * card, but would contain both halves of a split card.
+		 *
+		 * @implSpec This should return printed faces in the same order as <code>card().mainFaces()</code>.
+		 *
+		 * @return The set of this card's faces which contribute to the card's common state characteristics.
 		 */
-		Face face(Card.Face.Kind kind);
+		Set<? extends Face> mainFaces();
+
+		/**
+		 * Retrieves the face printing associated with the given card face. The given face must be an element of
+		 * <code>card().faces()</code>.
+		 * @param face The face to find the printing of.
+		 * @throws IllegalArgumentException if the given face is not a part of this card.
+		 * @return The printed version of that face.
+		 */
+		default Face face(Card.Face face) {
+			return faces().stream()
+					.filter(f -> face.equals(f.face()))
+					.findAny()
+					.orElseThrow(() -> new IllegalArgumentException(String.format("%s is not a face of %s", face.name(), card().fullName())));
+		}
 
 		/**
 		 * @return The set in which this printing was printed.
@@ -378,17 +353,42 @@ public interface Card {
 	}
 
 	/**
-	 * The set of faces of this card. There should be no more than one face per Face.Kind.
+	 * The set of faces of this card.
+	 *
+	 * @implSpec The iteration order of the set returned by this method should be consistent between executions, and
+	 * should be in full-card-name order.
+	 * - For double-faced cards (including MDFCs), this is front-back.
+	 * - For most split cards, this is left-right.
+	 * - For Aftermath cards and Kamigawa flip cards, this is top-bottom.
+	 * - For adventure cards, this is creature-adventure.
+	 * If you're reading this in 2025 and they've added six new multifaced card archetypes, you'll have to figure it
+	 * out for your application. Sorry.
+	 *
 	 * @return The set of this card's faces.
 	 */
 	Set<? extends Face> faces();
 
 	/**
-	 * Retrieves a particular face.
-	 * @param kind The Face to get.
-	 * @return The face of that kind, or null if this card has no such face.
+	 * The set of faces of this card which contribute characteristics to the card's common state. This must be a subset
+	 * of faces().
+	 *
+	 * For example, this would contain only the front side of an MDFC, or only the creature part of an Adventure card,
+	 * but would contain both halves of a split card.
+	 *
+	 * @implSpec The iteration order of the set returned by this method should be consistent between executions, and
+	 * should be in card-name order. See {@link #faces()} for details.
+	 *
+	 * @return The set of this card's faces which contribute to the card's common state characteristics.
 	 */
-	Face face(Face.Kind kind);
+	Set<? extends Face> mainFaces();
+
+	/**
+	 * The set of faces this card could transform into, if an effect would transform it. Why is this a set, and not
+	 * a single face? Because Arena decided Specialize was a cool mechanic. :sob:
+	 *
+	 * @return The set of possible faces this card could transform into.
+	 */
+	Set<? extends Face> transformedFaces();
 
 	/**
 	 * The set of this card's printings.
@@ -412,56 +412,68 @@ public interface Card {
 	Printing printing(String setCode, String collectorNumber);
 
 	/**
-	 * Returns the front face of this card. May be null.
-	 * @return The front face of this card. May be null.
+	 * Returns the front face of this card. For most Magic cards, this is the face you see when you open this card
+	 * in a pack and read the name at the top. Dual-faced cards (whether transforming, modal, or other) return the front
+	 * face. Adventure cards return the creature part. Split cards, which have two main faces, will return null.
+	 * @return The front face of this card. Null if the card has no one front face (e.g. split cards).
 	 */
 	default Face front() {
-		return face(Card.Face.Kind.Front);
+		Iterator<? extends Face> iter = mainFaces().iterator();
+		Face tmp = iter.hasNext() ? iter.next() : null;
+		return iter.hasNext() ? null : tmp;
 	}
 
 	/**
-	 * Tries to calculate the best name of this card. For most cards including transform and
-	 * Kamigawa flip cards, this is the name of the front/upright face. For split cards, this
-	 * is the name of the left and right halves concatenated with " // ".
-	 * @return The most presentable name of this card.
+	 * Returns the face of this card which would become active if an effect transformed this card, in the sense of
+	 * transforming dual-faced cards.
+	 * @return The face of this card which would become active if an effect transformed this card. Null if this card is
+	 * not a transforming dual-faced card, or if this card has more than one transformed face (e.g. specialize).
+	 */
+	default Face transformed() {
+		Iterator<? extends Face> iter = transformedFaces().iterator();
+		Face tmp = iter.hasNext() ? iter.next() : null;
+		return iter.hasNext() ? null : tmp;
+	}
+
+	/**
+	 * Returns the face of this card which would become active if an effect flipped this card, in the sense of Kamigawa
+	 * flip cards.
+	 * @return The face of this card that would become active if an effect flipped it. Null if this card has no flipped
+	 * face.
+	 */
+	Face flipped();
+
+	/**
+	 * Returns the ordinary name of this card, formed by concatenating the names of its main faces with " // " (e.g.
+	 * "Fire // Ice").
+	 * @return The common name of this card.
 	 */
 	default String name() {
-		if (this.faces().size() <= 2 && this.face(Face.Kind.Front) != null) {
-			return this.face(Face.Kind.Front).name();
-		} else if (this.faces().size() == 2 && this.face(Face.Kind.Left) != null && this.face(Face.Kind.Right) != null) {
-			return String.format("%s // %s", this.face(Face.Kind.Left).name(), this.face(Face.Kind.Right).name());
-		} else {
-			return this.fullName();
-		}
-	}
-
-	/**
-	 * Returns the unabridged name of this card, formed by concatenating the names of its
-	 * faces with " // " (i.e. Fire // Ice) in the order of face kinds.
-	 * @return The complete name of this card.
-	 */
-	default String fullName() {
-		return this.faces().stream()
-				.sorted(Comparator.comparingInt(f -> f.kind().ordinal()))
+		return this.mainFaces().stream()
 				.map(Face::name)
 				.collect(Collectors.joining(" // "));
 	}
 
 	/**
-	 * Tries to determine the best mana cost of this card. For most cards including transform and
-	 * Kamigawa flip cards, this is the mana cost of the front/upright face. For split cards, this
-	 * is the combined mana cost of the left and right halves (as though it were fused).
-	 * @return The most presentable mana cost of this card.
+	 * Returns the unabridged name of this card, formed by concatenating the names of its faces with " // " (e.g.
+	 * "Fire // Ice").
+	 * @return The complete name of this card.
+	 */
+	default String fullName() {
+		return this.faces().stream()
+				.map(Face::name)
+				.collect(Collectors.joining(" // "));
+	}
+
+	/**
+	 * Returns the ordinary mana cost of this card, formed by adding all mana symbols of the main face's mana costs
+	 * together. Note that this does not reduce generic mana symbols.
+	 * @return The usual mana cost of this card.
 	 */
 	default Mana.Value manaCost() {
-		if (this.faces().size() <= 2 && this.face(Face.Kind.Front) != null) {
-			return this.face(Face.Kind.Front).manaCost();
-		} else if (this.faces().size() == 2 && this.face(Face.Kind.Left) != null && this.face(Face.Kind.Right) != null) {
-			return this.face(Face.Kind.Left).manaCost().copy()
-					.add(this.face(Face.Kind.Right).manaCost());
-		} else {
-			return this.fullManaCost();
-		}
+		return this.mainFaces().stream()
+				.map(Card.Face::manaCost)
+				.collect(Mana.Value.NONCOMBINING_COLLECTOR);
 	}
 
 	/**

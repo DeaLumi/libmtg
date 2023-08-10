@@ -69,7 +69,7 @@ public interface ImageSource {
 		Iterator<? extends Card.Printing> printings = card.printings().iterator();
 
 		if (printings.hasNext()) {
-			return open(printings.next().face(face.kind()));
+			return open(printings.next().face(face));
 		} else {
 			return null;
 		}
