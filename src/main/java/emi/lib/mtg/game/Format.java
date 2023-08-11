@@ -21,6 +21,7 @@ public enum Format {
 	Vintage,
 	Brawl(1, 60, 60, ZoneInfo.BRAWL, emi.lib.mtg.game.validation.Commander.INSTANCE),
 	Historic,
+	HistoricBrawl(1, 60, 60, ZoneInfo.BRAWL, emi.lib.mtg.game.validation.Commander.INSTANCE),
 	Pauper,
 	Penny,
 	Commander(1, 100, 100, ZoneInfo.COMMANDER, emi.lib.mtg.game.validation.Commander.INSTANCE),
@@ -54,16 +55,18 @@ public enum Format {
 		private static final Map<Zone, ZoneInfo> BRAWL = brawlFormatZoneInfo();
 		private static Map<Zone, ZoneInfo> brawlFormatZoneInfo() {
 			Map<Zone, ZoneInfo> tmp = new EnumMap<>(Zone.class);
-			tmp.put(Zone.Library, new ZoneInfo(59,59));
-			tmp.put(Zone.Command, new ZoneInfo(1,1));
+			tmp.put(Zone.Library, new ZoneInfo(59, 59));
+			tmp.put(Zone.Command, new ZoneInfo(1, 1));
+			tmp.put(Zone.Sideboard, new ZoneInfo(0, -1));
 			return Collections.unmodifiableMap(tmp);
 		}
 
 		private static final Map<Zone, ZoneInfo> COMMANDER = commanderFormatZoneInfo();
 		private static Map<Zone, ZoneInfo> commanderFormatZoneInfo() {
 			Map<Zone, ZoneInfo> tmp = new EnumMap<>(Zone.class);
-			tmp.put(Zone.Library, new ZoneInfo(98,99));
-			tmp.put(Zone.Command, new ZoneInfo(1,2));
+			tmp.put(Zone.Library, new ZoneInfo(98, 99));
+			tmp.put(Zone.Command, new ZoneInfo(1, 2));
+			tmp.put(Zone.Sideboard, new ZoneInfo(0, -1));
 			return Collections.unmodifiableMap(tmp);
 		}
 	}

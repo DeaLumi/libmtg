@@ -314,9 +314,6 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 
 	@Override
 	public void accept(Deck deck, Format.ValidationResult result) {
-		Collection<? extends Card.Printing> startDeck = deck.cards(Zone.Library);
-		if (startDeck == null) startDeck = Collections.emptyList();
-
 		Collection<? extends Card.Printing> sideboard = deck.cards(Zone.Sideboard);
 		if (sideboard == null) sideboard = Collections.emptyList();
 

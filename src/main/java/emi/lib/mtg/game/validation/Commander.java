@@ -104,5 +104,7 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 		satisfiedCompanions.stream()
 				.filter(pr -> !fci.containsAll(pr.card().colorIdentity()))
 				.forEach(pr -> result.card(pr).errors.add(String.format("%s contains colors not in your commander's color identity.", pr.card().name())));
+
+		Companions.INSTANCE.accept(deck, result); // Also check companions in the sideboard.
 	}
 }
