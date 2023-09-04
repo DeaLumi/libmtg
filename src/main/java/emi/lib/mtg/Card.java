@@ -295,11 +295,14 @@ public interface Card {
 		 * @throws IllegalArgumentException if the given face is not a part of this card.
 		 * @return The printed version of that face.
 		 */
-		default Face face(Card.Face face) {
-			return faces().stream()
+		default Set<? extends Face> faces(Card.Face face) {
+			Set<Face> faces = faces().stream()
 					.filter(f -> face.equals(f.face()))
-					.findAny()
-					.orElseThrow(() -> new IllegalArgumentException(String.format("%s is not a face of %s", face.name(), card().fullName())));
+					.collect(Collectors.toSet());
+
+			// TODO: Is this strictly true?
+			if (faces.isEmpty()) throw new IllegalArgumentException(String.format("%s is not a face of %s", face.name(), card().name()));
+			return faces;
 		}
 
 		/**
@@ -383,12 +386,22 @@ public interface Card {
 	Set<? extends Face> mainFaces();
 
 	/**
-	 * The set of faces this card could transform into, if an effect would transform it. Why is this a set, and not
-	 * a single face? Because Arena decided Specialize was a cool mechanic. :sob:
+	 * For a given face,returns the set of all faces it can transform into. Why is this a set and not a single value?
+	 * Because the Arena devs decided Specialize was a cool mechanic. :sob:
 	 *
-	 * @return The set of possible faces this card could transform into.
+	 * @param source The source face for the transformation in question.
+	 * @return The set of all faces the source face could transform into. Empty if the face doesn't transform.
 	 */
-	Set<? extends Face> transformedFaces();
+	Set<? extends Face> transformed(Face source);
+
+	/**
+	 * For a given face, returns the face it flips into (rotate 180 degrees; this mechanic is as far as I know unique to
+	 * Kamigawa flip cards and one Unhinged aura). Null if the given face doesn't flip.
+	 *
+	 * @param source The source face for the flip.
+	 * @return The face the argument would flip into. May be null.
+	 */
+	Face flipped(Face source);
 
 	/**
 	 * The set of this card's printings.
@@ -424,6 +437,16 @@ public interface Card {
 	}
 
 	/**
+	 * The set of faces this card's front face could transform into.
+	 *
+	 * @return The set of possible faces this card could transform into.
+	 */
+	default Set<? extends Face> transformedFaces() {
+		Face front = front();
+		return front == null ? Collections.emptySet() : transformed(front);
+	}
+
+	/**
 	 * Returns the face of this card which would become active if an effect transformed this card, in the sense of
 	 * transforming dual-faced cards.
 	 * @return The face of this card which would become active if an effect transformed this card. Null if this card is
@@ -441,7 +464,10 @@ public interface Card {
 	 * @return The face of this card that would become active if an effect flipped it. Null if this card has no flipped
 	 * face.
 	 */
-	Face flipped();
+	default Face flipped() {
+		Face front = front();
+		return front == null ? null : flipped(front);
+	}
 
 	/**
 	 * Returns the ordinary name of this card, formed by concatenating the names of its main faces with " // " (e.g.
