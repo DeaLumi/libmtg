@@ -1,7 +1,8 @@
-package emi.lib.mtg.game.ability.pregame;
+package emi.lib.mtg.game.ability.pregame.commander;
 
 import emi.lib.mtg.Card;
 import emi.lib.mtg.game.ability.Ability;
+import emi.lib.mtg.game.ability.pregame.DeckConstructionAbility;
 
 import java.util.regex.Matcher;
 

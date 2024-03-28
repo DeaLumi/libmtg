@@ -8,9 +8,9 @@ import emi.lib.mtg.enums.Supertype;
 import emi.lib.mtg.game.Deck;
 import emi.lib.mtg.game.Format;
 import emi.lib.mtg.game.Zone;
-import emi.lib.mtg.game.ability.pregame.CommanderOverride;
+import emi.lib.mtg.game.ability.pregame.commander.CommanderOverride;
 import emi.lib.mtg.game.ability.pregame.Companion;
-import emi.lib.mtg.game.ability.pregame.PartnerCommander;
+import emi.lib.mtg.game.ability.pregame.commander.PartnerCommander;
 
 import java.util.*;
 import java.util.function.BiConsumer;

@@ -1,4 +1,4 @@
-package emi.lib.mtg.game.ability.pregame;
+package emi.lib.mtg.game.ability.pregame.commander;
 
 import emi.lib.mtg.Card;
 import emi.lib.mtg.game.Format;
@@ -17,7 +17,7 @@ public class PartnerCommander implements CommanderOverride {
 
 		@Override
 		public String pattern() {
-			return "(?<partnerLegendary>[Ll]egendary )?[Pp]artner(?: with (?<partnerWith>" + CARD_NAME + "))?(?: \\([^)]+\\))?";
+			return "Friends forever|(?<partnerLegendary>[Ll]egendary )?[Pp]artner(?: with (?<partnerWith>" + CARD_NAME + "))?(?: \\([^)]+\\))?";
 		}
 
 		@Override
