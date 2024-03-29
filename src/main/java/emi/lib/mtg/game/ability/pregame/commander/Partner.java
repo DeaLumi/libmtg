@@ -8,11 +8,11 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
-public class PartnerCommander implements CommanderOverride {
+public class Partner implements CommanderOverride {
 	public static class Parser implements Ability.Parser {
 		@Override
-		public Class<PartnerCommander> type() {
-			return PartnerCommander.class;
+		public Class<Partner> type() {
+			return Partner.class;
 		}
 
 		@Override
@@ -21,16 +21,16 @@ public class PartnerCommander implements CommanderOverride {
 		}
 
 		@Override
-		public PartnerCommander make(Card.Face face, Matcher match) {
+		public Partner make(Card.Face face, Matcher match) {
 			// TODO This should also return the PartnerWithEtb if appropriate.
-			return new PartnerCommander(match.group("partnerWith"), match.group("partnerLegendary") != null);
+			return new Partner(match.group("partnerWith"), match.group("partnerLegendary") != null);
 		}
 	}
 
 	public final String with;
 	public final boolean legendary;
 
-	public PartnerCommander(String with, boolean legendary) {
+	public Partner(String with, boolean legendary) {
 		this.with = with;
 		this.legendary = legendary;
 	}
@@ -45,7 +45,7 @@ public class PartnerCommander implements CommanderOverride {
 			partners = partners.filter(pr -> {
 				Card.Face front = pr.card().front();
 				if (front == null) return false;
-				PartnerCommander partner = front.abilities().only(PartnerCommander.class);
+				Partner partner = front.abilities().only(Partner.class);
 				return partner != null && partner.with == null;
 			});
 		}

@@ -10,7 +10,7 @@ import emi.lib.mtg.game.Format;
 import emi.lib.mtg.game.Zone;
 import emi.lib.mtg.game.ability.pregame.commander.CommanderOverride;
 import emi.lib.mtg.game.ability.pregame.Companion;
-import emi.lib.mtg.game.ability.pregame.commander.PartnerCommander;
+import emi.lib.mtg.game.ability.pregame.commander.Partner;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -34,7 +34,7 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 
 		Collection<Card.Printing> commanders = new ArrayList<>();
 		Collection<Card.Printing> satisfiedCompanions = new ArrayList<>();
-		Map<Card.Printing, PartnerCommander> partners = new HashMap<>();
+		Map<Card.Printing, Partner> partners = new HashMap<>();
 		boolean legendaryPartner = false;
 
 		for (Card.Printing pr : cmdZone) {
@@ -50,7 +50,7 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 					commanders.add(pr);
 				}
 
-				PartnerCommander partner = front.abilities().ofType(PartnerCommander.class).findAny().orElse(null);
+				Partner partner = front.abilities().ofType(Partner.class).findAny().orElse(null);
 				if (partner != null) {
 					partners.put(pr, partner);
 					if (partner.legendary) legendaryPartner = true;
@@ -72,7 +72,7 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 				result.zoneErrors(Zone.Command).add("A Commander deck shouldn't contain any more than one commander.");
 			}
 		} else {
-			for (Map.Entry<Card.Printing, PartnerCommander> pr : partners.entrySet()) {
+			for (Map.Entry<Card.Printing, Partner> pr : partners.entrySet()) {
 				pr.getValue().check(pr.getKey(), commanders, result);
 			}
 
