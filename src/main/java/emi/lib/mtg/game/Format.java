@@ -97,6 +97,14 @@ public enum Format {
 			public final Set<String> warnings = new HashSet<>();
 			public final Set<String> notices = new HashSet<>();
 
+			private CardResult() {
+
+			}
+
+			private CardResult(CardResult other) {
+				merge(other);
+			}
+
 			@Override
 			public String toString() {
 				StringBuilder sb = new StringBuilder();
@@ -117,16 +125,28 @@ public enum Format {
 				}
 				return sb.toString();
 			}
+
+			public boolean empty() {
+				return errors.isEmpty() && warnings.isEmpty() && notices.isEmpty();
+			}
+
+			public CardResult merge(CardResult other) {
+				this.errors.addAll(other.errors);
+				this.warnings.addAll(other.warnings);
+				this.notices.addAll(other.notices);
+				return this;
+			}
 		}
 
-		public final Set<String> deckErrors;
-		public final Map<Zone, Set<String>> zoneErrors;
-		public final Map<Card.Printing, CardResult> cards;
+		public final Set<String> deckErrors = new HashSet<>();
+		public final Map<Zone, Set<String>> zoneErrors = new HashMap<>();
+		public final Map<Card.Printing, CardResult> cards = new HashMap<>();
 
-		private ValidationResult() {
-			this.deckErrors = new HashSet<>();
-			this.zoneErrors = new HashMap<>();
-			this.cards = new HashMap<>();
+		public ValidationResult() {
+		}
+
+		public ValidationResult(ValidationResult other) {
+			merge(other);
 		}
 
 		public Format format() {
@@ -139,6 +159,22 @@ public enum Format {
 
 		public Set<String> zoneErrors(Zone zone) {
 			return zoneErrors.computeIfAbsent(zone, x -> new HashSet<>());
+		}
+
+		public boolean empty() {
+			return deckErrors.isEmpty() && zoneErrors.values().stream().allMatch(Set::isEmpty) && cards.values().stream().allMatch(CardResult::empty);
+		}
+
+		public ValidationResult merge(ValidationResult other) {
+			this.deckErrors.addAll(other.deckErrors);
+
+			for (Zone z : this.zoneErrors.keySet()) if (other.zoneErrors.containsKey(z)) this.zoneErrors.get(z).addAll(other.zoneErrors.get(z));
+			for (Zone z : other.zoneErrors.keySet()) if (!this.zoneErrors.containsKey(z)) this.zoneErrors.put(z, new HashSet<>(other.zoneErrors.get(z)));
+
+			for (Card.Printing pr : this.cards.keySet()) if (other.cards.containsKey(pr)) this.cards.get(pr).merge(other.cards.get(pr));
+			for (Card.Printing pr : other.cards.keySet()) if (!this.cards.containsKey(pr)) this.cards.put(pr, new CardResult(other.cards.get(pr)));
+
+			return this;
 		}
 	}
 
