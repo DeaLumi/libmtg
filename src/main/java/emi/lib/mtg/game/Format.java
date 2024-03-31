@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public enum Format {
@@ -91,8 +92,8 @@ public enum Format {
 		return zones.keySet();
 	}
 
-	public class ValidationResult {
-		public class CardResult {
+	public static class ValidationResult {
+		public static class CardResult {
 			public final Set<String> errors = new HashSet<>();
 			public final Set<String> warnings = new HashSet<>();
 			public final Set<String> notices = new HashSet<>();
@@ -138,19 +139,27 @@ public enum Format {
 			}
 		}
 
-		public final Set<String> deckErrors = new HashSet<>();
-		public final Map<Zone, Set<String>> zoneErrors = new HashMap<>();
-		public final Map<Card.Printing, CardResult> cards = new HashMap<>();
+		public static final ValidationResult EMPTY = new ValidationResult(Collections::emptySet, Collections::emptyMap, Collections::emptyMap);
+
+		public final Set<String> deckErrors;
+		public final Map<Zone, Set<String>> zoneErrors;
+		public final Map<Card.Printing, CardResult> cards;
 
 		public ValidationResult() {
+			this.deckErrors = new HashSet<>();
+			this.zoneErrors = new HashMap<>();
+			this.cards = new HashMap<>();
 		}
 
 		public ValidationResult(ValidationResult other) {
+			this();
 			merge(other);
 		}
 
-		public Format format() {
-			return Format.this;
+		public ValidationResult(Supplier<Set<String>> deckErrorsProvider, Supplier<Map<Zone, Set<String>>> zoneErrorsProvider, Supplier<Map<Card.Printing, CardResult>> cardsProvider) {
+			this.deckErrors = deckErrorsProvider.get();
+			this.zoneErrors = zoneErrorsProvider.get();
+			this.cards = cardsProvider.get();
 		}
 
 		public CardResult card(Card.Printing pr) {
