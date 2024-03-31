@@ -269,7 +269,7 @@ public interface Card {
 		 * The set of all printed faces of this card. There should be one printed face for each face of
 		 * <code>card()</code>.
 		 *
-		 * @implSpec This should return printed faces in the same order as <code>card().faces()</code>.
+		 * This should return printed faces in the same order as <code>card().faces()</code>.
 		 *
 		 * @return The set of this printing's printed faces.
 		 */
@@ -282,7 +282,7 @@ public interface Card {
 		 * For example, this would contain only the front side of an MDFC, or only the creature part of an Adventure
 		 * card, but would contain both halves of a split card.
 		 *
-		 * @implSpec This should return printed faces in the same order as <code>card().mainFaces()</code>.
+		 * This should return printed faces in the same order as <code>card().mainFaces()</code>.
 		 *
 		 * @return The set of this card's faces which contribute to the card's common state characteristics.
 		 */
@@ -358,7 +358,7 @@ public interface Card {
 	/**
 	 * The set of faces of this card.
 	 *
-	 * @implSpec The iteration order of the set returned by this method should be consistent between executions, and
+	 * The iteration order of the set returned by this method should be consistent between executions, and
 	 * should be in full-card-name order.
 	 * - For double-faced cards (including MDFCs), this is front-back.
 	 * - For most split cards, this is left-right.
@@ -378,7 +378,7 @@ public interface Card {
 	 * For example, this would contain only the front side of an MDFC, or only the creature part of an Adventure card,
 	 * but would contain both halves of a split card.
 	 *
-	 * @implSpec The iteration order of the set returned by this method should be consistent between executions, and
+	 * The iteration order of the set returned by this method should be consistent between executions, and
 	 * should be in card-name order. See {@link #faces()} for details.
 	 *
 	 * @return The set of this card's faces which contribute to the card's common state characteristics.
