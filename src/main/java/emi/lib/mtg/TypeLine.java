@@ -188,6 +188,7 @@ public interface TypeLine {
 				}
 			}
 
+			// TODO: Time Lord is now a single creature type. Thanks, WotC.
 			Set<String> subtypes = split >= 0 ? Arrays.stream(typeLine.substring(split + 2).split(" +")).map(String::trim).collect(Collectors.toSet()) : new HashSet<>();
 
 			return new Basic(supertypes, cardTypes, subtypes);
