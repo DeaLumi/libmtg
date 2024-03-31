@@ -269,7 +269,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 			size += deck.cards(Zone.Command).stream().filter(Companions::notCompanion).count();
 		}
 
-		if (size < result.format().minDeckSize + 20) {
+		if (size < deck.format().minDeckSize + 20) {
 			result.deckErrors.add("Your deck doesn't contain at least 20 cards more than the minimum deck size.");
 			return false;
 		}
