@@ -5,6 +5,7 @@ import emi.lib.mtg.Card;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 
 public interface Abilities {
@@ -44,8 +45,13 @@ public interface Abilities {
 				parserMap.put(parser.type().getSimpleName(), parser);
 			}
 			patternBuilder.append(")$");
-			METAPATTERN = Pattern.compile(patternBuilder.toString());
-			PARSER_MAP = Collections.unmodifiableMap(parserMap);
+			try {
+				METAPATTERN = Pattern.compile(patternBuilder.toString());
+				PARSER_MAP = Collections.unmodifiableMap(parserMap);
+			} catch (PatternSyntaxException pse) {
+				pse.printStackTrace();
+				throw new Error(pse);
+			}
 		}
 
 		private final Set<Ability> backing;
