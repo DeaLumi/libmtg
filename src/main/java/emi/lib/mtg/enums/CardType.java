@@ -11,7 +11,8 @@ public enum CardType {
 	Land (true),
 	Planeswalker (true),
 	Sorcery (false),
-	Tribal (false),
+	@Deprecated Tribal (false),
+	Kindred (false),
 	Battle (true),
 
 	/*
