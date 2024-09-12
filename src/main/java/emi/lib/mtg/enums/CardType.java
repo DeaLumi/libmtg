@@ -41,7 +41,9 @@ public enum CardType {
 	Autobot (false, true),
 	Character (false, true),
 	Stickers (false, false),
-	Universewalker (false, true);
+	Universewalker (false, true),
+	Poly (false, false),
+	;
 
 	public final boolean constructed;
 	public final boolean permanent;

@@ -125,6 +125,8 @@ public interface Mana {
 
 			Snow("S", 1.0, Color.Combination.Empty),
 			Phyrexian("P", 0.0, Color.Combination.Empty),
+			Legendary("L", 1.0, Color.Combination.Empty),
+			LandDrop("D", 0.0, Color.Combination.Empty),
 			;
 
 			private final String symbol;
