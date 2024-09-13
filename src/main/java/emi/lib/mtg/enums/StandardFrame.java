@@ -24,7 +24,7 @@ public enum StandardFrame implements Card.Printing.Face.Frame {
 	AftermathBottom(0.0, 0.0, 0.5416, 0.0, -1),
 
 	Adventure(0.0, 0.4985, 0.6239, 0.0, 0),
-	Battle(0.0, 0.0, 0.0, 0.0, 1),
+	SidewaysFullFace(0.0, 0.0, 0.0, 0.0, 1),
 	Meld(0.0, -1.0, 0.0, 0.0, -1),
 
 	/* Silly Stuff */
