@@ -90,7 +90,7 @@ public enum StandardFrame implements Card.Printing.Face.Frame {
 	 * - Else, the horizontally-skinnier frame on the reoriented card comes first (???).
 	 * - Else, the frames are identical.
 	 */
-	public static Comparator<Card.Printing.Face.Frame> FRAME_SORT = (a, b) -> {
+	public static final Comparator<Card.Printing.Face.Frame> FRAME_SORT = (a, b) -> {
 		if (a.rotation() != b.rotation()) return Math.abs(a.rotation()) - Math.abs(b.rotation());
 		double l1, t1, r1, b1, l2, t2, r2, b2;
 
