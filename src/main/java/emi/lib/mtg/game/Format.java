@@ -8,24 +8,23 @@ import emi.lib.mtg.game.validation.Companions;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public enum Format {
-	Freeform (-1, 0, -1, ZoneInfo.FREEFORM, null),
+	Freeform (-1, ZoneInfo.FREEFORM, null),
 	Standard,
 	Future,
 	Pioneer,
 	Modern,
 	Legacy,
 	Vintage,
-	Brawl(1, 60, 60, ZoneInfo.BRAWL, emi.lib.mtg.game.validation.Commander.INSTANCE),
+	Brawl(1, ZoneInfo.BRAWL, emi.lib.mtg.game.validation.Commander.AND_COMPANIONS),
 	Historic,
-	HistoricBrawl(1, 60, 60, ZoneInfo.BRAWL, emi.lib.mtg.game.validation.Commander.INSTANCE),
+	HistoricBrawl(1, ZoneInfo.BRAWL, emi.lib.mtg.game.validation.Commander.AND_COMPANIONS),
 	Pauper,
 	Penny,
-	Commander(1, 100, 100, ZoneInfo.COMMANDER, emi.lib.mtg.game.validation.Commander.INSTANCE),
+	Commander(1, ZoneInfo.COMMANDER, emi.lib.mtg.game.validation.Commander.AND_COMPANIONS),
 	Alchemy,
 	Explorer;
 
@@ -82,13 +81,13 @@ public enum Format {
 
 	public final int maxCopies;
 	public final Map<Zone, ZoneInfo> zones;
-	private final BiConsumer<Deck, ValidationResult> validator;
+	private final Validator validator;
 
 	Format() {
-		this(4, 60, -1, ZoneInfo.BASIC, Companions.INSTANCE);
+		this(4, ZoneInfo.BASIC, Companions.INSTANCE);
 	}
 
-	Format(int maxCopies, int minDeckSize, int maxDeckSize, Map<Zone, ZoneInfo> zones, BiConsumer<Deck, ValidationResult> validator) {
+	Format(int maxCopies, Map<Zone, ZoneInfo> zones, Validator validator) {
 		this.maxCopies = maxCopies;
 		this.zones = Collections.unmodifiableMap(zones);
 		this.validator = validator;
@@ -98,98 +97,108 @@ public enum Format {
 		return zones.keySet();
 	}
 
-	public static class ValidationResult {
-		public static class CardResult {
-			public final Set<String> errors = new HashSet<>();
-			public final Set<String> warnings = new HashSet<>();
-			public final Set<String> notices = new HashSet<>();
+	public interface Validator {
+		Result validate(Deck deck, Format format, Result result);
 
-			private CardResult() {
+		default Validator andThen(Format.Validator other) {
+			Objects.requireNonNull(other);
 
+			return (d, f, r) -> other.validate(d, f, validate(d, f, r));
+		}
+
+		class Result {
+			public static class CardResult {
+				public final Set<String> errors = new HashSet<>();
+				public final Set<String> warnings = new HashSet<>();
+				public final Set<String> notices = new HashSet<>();
+
+				private CardResult() {
+
+				}
+
+				private CardResult(CardResult other) {
+					merge(other);
+				}
+
+				@Override
+				public String toString() {
+					StringBuilder sb = new StringBuilder();
+					if (!errors.isEmpty()) {
+						sb.append("Errors:\n\u2022 ").append(String.join("\n\u2022 ", errors));
+					}
+					if (!errors.isEmpty() && !warnings.isEmpty()) {
+						sb.append('\n').append('\n');
+					}
+					if (!warnings.isEmpty()) {
+						sb.append("Warnings:\n\u2022 ").append(String.join("\n\u2022 ", warnings));
+					}
+					if ((!errors.isEmpty() || !warnings.isEmpty()) && !notices.isEmpty()) {
+						sb.append('\n').append('\n');
+					}
+					if (!notices.isEmpty()) {
+						sb.append("Notices:\n\u2022 ").append(String.join("\n\u2022 ", notices));
+					}
+					return sb.toString();
+				}
+
+				public boolean empty() {
+					return errors.isEmpty() && warnings.isEmpty() && notices.isEmpty();
+				}
+
+				public CardResult merge(CardResult other) {
+					this.errors.addAll(other.errors);
+					this.warnings.addAll(other.warnings);
+					this.notices.addAll(other.notices);
+					return this;
+				}
 			}
 
-			private CardResult(CardResult other) {
+			public static final Result EMPTY = new Result(Collections::emptySet, Collections::emptyMap, Collections::emptyMap);
+
+			public final Set<String> deckErrors;
+			public final Map<Zone, Set<String>> zoneErrors;
+			public final Map<Card.Printing, CardResult> cards;
+
+			public Result() {
+				this.deckErrors = new HashSet<>();
+				this.zoneErrors = new HashMap<>();
+				this.cards = new HashMap<>();
+			}
+
+			public Result(Result other) {
+				this();
 				merge(other);
 			}
 
-			@Override
-			public String toString() {
-				StringBuilder sb = new StringBuilder();
-				if (!errors.isEmpty()) {
-					sb.append("Errors:\n\u2022 ").append(String.join("\n\u2022 ", errors));
-				}
-				if (!errors.isEmpty() && !warnings.isEmpty()) {
-					sb.append('\n').append('\n');
-				}
-				if (!warnings.isEmpty()) {
-					sb.append("Warnings:\n\u2022 ").append(String.join("\n\u2022 ", warnings));
-				}
-				if ((!errors.isEmpty() || !warnings.isEmpty()) && !notices.isEmpty()) {
-					sb.append('\n').append('\n');
-				}
-				if (!notices.isEmpty()) {
-					sb.append("Notices:\n\u2022 ").append(String.join("\n\u2022 ", notices));
-				}
-				return sb.toString();
+			public Result(Supplier<Set<String>> deckErrorsProvider, Supplier<Map<Zone, Set<String>>> zoneErrorsProvider, Supplier<Map<Card.Printing, CardResult>> cardsProvider) {
+				this.deckErrors = deckErrorsProvider.get();
+				this.zoneErrors = zoneErrorsProvider.get();
+				this.cards = cardsProvider.get();
+			}
+
+			public CardResult card(Card.Printing pr) {
+				return cards.computeIfAbsent(pr, x -> new CardResult());
+			}
+
+			public Set<String> zoneErrors(Zone zone) {
+				return zoneErrors.computeIfAbsent(zone, x -> new HashSet<>());
 			}
 
 			public boolean empty() {
-				return errors.isEmpty() && warnings.isEmpty() && notices.isEmpty();
+				return deckErrors.isEmpty() && zoneErrors.values().stream().allMatch(Set::isEmpty) && cards.values().stream().allMatch(CardResult::empty);
 			}
 
-			public CardResult merge(CardResult other) {
-				this.errors.addAll(other.errors);
-				this.warnings.addAll(other.warnings);
-				this.notices.addAll(other.notices);
+			public Result merge(Result other) {
+				this.deckErrors.addAll(other.deckErrors);
+
+				for (Zone z : this.zoneErrors.keySet()) if (other.zoneErrors.containsKey(z)) this.zoneErrors.get(z).addAll(other.zoneErrors.get(z));
+				for (Zone z : other.zoneErrors.keySet()) if (!this.zoneErrors.containsKey(z)) this.zoneErrors.put(z, new HashSet<>(other.zoneErrors.get(z)));
+
+				for (Card.Printing pr : this.cards.keySet()) if (other.cards.containsKey(pr)) this.cards.get(pr).merge(other.cards.get(pr));
+				for (Card.Printing pr : other.cards.keySet()) if (!this.cards.containsKey(pr)) this.cards.put(pr, new CardResult(other.cards.get(pr)));
+
 				return this;
 			}
-		}
-
-		public static final ValidationResult EMPTY = new ValidationResult(Collections::emptySet, Collections::emptyMap, Collections::emptyMap);
-
-		public final Set<String> deckErrors;
-		public final Map<Zone, Set<String>> zoneErrors;
-		public final Map<Card.Printing, CardResult> cards;
-
-		public ValidationResult() {
-			this.deckErrors = new HashSet<>();
-			this.zoneErrors = new HashMap<>();
-			this.cards = new HashMap<>();
-		}
-
-		public ValidationResult(ValidationResult other) {
-			this();
-			merge(other);
-		}
-
-		public ValidationResult(Supplier<Set<String>> deckErrorsProvider, Supplier<Map<Zone, Set<String>>> zoneErrorsProvider, Supplier<Map<Card.Printing, CardResult>> cardsProvider) {
-			this.deckErrors = deckErrorsProvider.get();
-			this.zoneErrors = zoneErrorsProvider.get();
-			this.cards = cardsProvider.get();
-		}
-
-		public CardResult card(Card.Printing pr) {
-			return cards.computeIfAbsent(pr, x -> new CardResult());
-		}
-
-		public Set<String> zoneErrors(Zone zone) {
-			return zoneErrors.computeIfAbsent(zone, x -> new HashSet<>());
-		}
-
-		public boolean empty() {
-			return deckErrors.isEmpty() && zoneErrors.values().stream().allMatch(Set::isEmpty) && cards.values().stream().allMatch(CardResult::empty);
-		}
-
-		public ValidationResult merge(ValidationResult other) {
-			this.deckErrors.addAll(other.deckErrors);
-
-			for (Zone z : this.zoneErrors.keySet()) if (other.zoneErrors.containsKey(z)) this.zoneErrors.get(z).addAll(other.zoneErrors.get(z));
-			for (Zone z : other.zoneErrors.keySet()) if (!this.zoneErrors.containsKey(z)) this.zoneErrors.put(z, new HashSet<>(other.zoneErrors.get(z)));
-
-			for (Card.Printing pr : this.cards.keySet()) if (other.cards.containsKey(pr)) this.cards.get(pr).merge(other.cards.get(pr));
-			for (Card.Printing pr : other.cards.keySet()) if (!this.cards.containsKey(pr)) this.cards.put(pr, new CardResult(other.cards.get(pr)));
-
-			return this;
 		}
 	}
 
@@ -198,8 +207,8 @@ public enum Format {
 	 * @param deck The deck to validate.
 	 * @return A map containing any validation errors. Errors associated with the deck in general (
 	 */
-	public ValidationResult validate(Deck deck) {
-		ValidationResult result = new ValidationResult();
+	public Validator.Result validate(Deck deck) {
+		Validator.Result result = new Validator.Result();
 
 		Map<String, AtomicInteger> histogram = new HashMap<>();
 
@@ -276,7 +285,7 @@ public enum Format {
 			}
 		}
 
-		if (validator != null) validator.accept(deck, result);
+		if (validator != null) return validator.validate(deck, this, result);
 
 		return result;
 	}

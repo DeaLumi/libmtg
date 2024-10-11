@@ -11,13 +11,12 @@ import emi.lib.mtg.game.Zone;
 import emi.lib.mtg.game.ability.pregame.commander.CommandZoneOverride;
 import emi.lib.mtg.game.ability.pregame.commander.CommanderOverride;
 import emi.lib.mtg.game.ability.pregame.Companion;
-import emi.lib.mtg.game.ability.pregame.commander.Partner;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 
-public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
+public class Commander implements Format.Validator {
 	public static final Commander INSTANCE = new Commander();
+	public static final Format.Validator AND_COMPANIONS = INSTANCE.andThen(Companions.INSTANCE);
 
 	public static boolean isCommander(Card card) {
 		Card.Face front = card.front();
@@ -31,7 +30,7 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 		return type.is(Supertype.Legendary) && type.is(CardType.Creature);
 	}
 
-	public static boolean validateCommander(Card.Printing pr, Deck deck, Format.ValidationResult result) {
+	public static boolean validateCommander(Card.Printing pr, Deck deck, Result result) {
 		Card.Face front = pr.card().front();
 		if (front == null) return false; // TODO: Could a split card be allowed to be a commander?
 
@@ -70,7 +69,7 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 	}
 
 	@Override
-	public void accept(Deck deck, Format.ValidationResult result) {
+	public Result validate(Deck deck, Format format, Result result) {
 		/*
 		 * The rules as they stand:
 		 * 1. A command zone can have three cards if one is a satisfied companion and the other two satisfy at least one partner constraint.
@@ -114,7 +113,7 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 			if (front != null) {
 				// N.B. This can't be .anyMatch or any other short-circuiting terminal operation.
 				if (front.abilities().ofType(Companion.class)
-						.filter(c -> c.check(pr, deck, result))
+						.filter(c -> c.check(pr, deck, format, result))
 						.count() > 0) {
 					satisfiedCompanions.add(pr);
 				} else {
@@ -133,9 +132,9 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 			// TODO Validate overrides
 			for (Map.Entry<Card.Printing, Map<Class<? extends CommandZoneOverride>, Set<CommandZoneOverride>>> entry : overrides.entrySet()) {
 				family: for (Map.Entry<Class<? extends CommandZoneOverride>, Set<CommandZoneOverride>> family : entry.getValue().entrySet()) {
-					Format.ValidationResult squashed = new Format.ValidationResult();
+					Result squashed = new Result();
 					for (CommandZoneOverride override : family.getValue()) {
-						Format.ValidationResult overrideCheckResult = override.check(entry.getKey(), deck, commanders);
+						Result overrideCheckResult = override.check(entry.getKey(), deck, commanders);
 						if (overrideCheckResult.empty()) continue family;
 						squashed.merge(overrideCheckResult);
 					}
@@ -161,8 +160,15 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 		}
 		final Color.Combination fci = colorIdentity;
 
-		if (deck.cards(Zone.Library) == null || deck.cards(Zone.Library).size() + commanders.size() != 100) {
-			result.deckErrors.add("A Commander deck must contain exactly 100 cards, including its commander(s).");
+		Format.ZoneInfo lib = format.zones.get(Zone.Library);
+		Format.ZoneInfo cmd = format.zones.get(Zone.Command);
+
+		int minmax = lib.minCards + cmd.maxCards, maxmin = lib.maxCards + cmd.minCards;
+
+		if (minmax == maxmin) {
+			if (deck.cards(Zone.Library) == null || deck.cards(Zone.Library).size() + commanders.size() != minmax) {
+				result.deckErrors.add("A Commander deck must contain exactly " + minmax + " cards, including its commander(s).");
+			}
 		}
 
 		deck.cards(Zone.Library).stream()
@@ -173,6 +179,6 @@ public class Commander implements BiConsumer<Deck, Format.ValidationResult> {
 				.filter(pr -> !fci.containsAll(pr.card().colorIdentity()))
 				.forEach(pr -> result.card(pr).errors.add(String.format("%s contains colors not in your commander's color identity.", pr.card().name())));
 
-		Companions.INSTANCE.accept(deck, result); // Also check companions in the sideboard.
+		return result;
 	}
 }

@@ -68,7 +68,7 @@ public interface Partner extends CommandZoneOverride {
 		}
 
 		@Override
-		public Format.ValidationResult check(Card.Printing source, Deck deck, Collection<? extends Card.Printing> commanders) {
+		public Format.Validator.Result check(Card.Printing source, Deck deck, Collection<? extends Card.Printing> commanders) {
 			// CR702.124h: "Partner" means "You may designate two legendary creature cards as your commander rather than
 			//    one if each of them has partner.
 			// CR702.124j: "Friends forever" means "You may designate two legendary creature cards as your commander
@@ -80,7 +80,7 @@ public interface Partner extends CommandZoneOverride {
 			//       i. Is a valid commander, and
 			//       ii. Has Partner or Friends forever, whichever this card has.
 
-			Format.ValidationResult result = new Format.ValidationResult();
+			Format.Validator.Result result = new Format.Validator.Result();
 
 			// A card with Partner is legal if it is a valid commander and...
 			if (!Commander.validateCommander(source, deck, result)) return result;
@@ -106,7 +106,7 @@ public interface Partner extends CommandZoneOverride {
 				return result;
 			}
 
-			return Format.ValidationResult.EMPTY;
+			return Format.Validator.Result.EMPTY;
 		}
 	}
 
@@ -140,7 +140,7 @@ public interface Partner extends CommandZoneOverride {
 		}
 
 		@Override
-		public Format.ValidationResult check(Card.Printing source, Deck deck, Collection<? extends Card.Printing> commanders) {
+		public Format.Validator.Result check(Card.Printing source, Deck deck, Collection<? extends Card.Printing> commanders) {
 			// CR702.124i: "Partner with [name]" represents two abilities. It means "You may designate two legendary
 			//    creature cards as your commander rather than one if each has a 'partner with [name]' ability with the
 			//    other's name" and "When this permanent enters the battlefield, target player may search their library
@@ -153,7 +153,7 @@ public interface Partner extends CommandZoneOverride {
 			//       ii. Is named "[name]", and
 			//       iii. Has "Partner with [name]" referencing this card's name.
 
-			Format.ValidationResult result = new Format.ValidationResult();
+			Format.Validator.Result result = new Format.Validator.Result();
 
 			// A card with "Partner with [name]" is legal if it is a valid commander and...
 			if (!Commander.validateCommander(source, deck, result)) return result;
@@ -186,7 +186,7 @@ public interface Partner extends CommandZoneOverride {
 				return result;
 			}
 
-			return Format.ValidationResult.EMPTY;
+			return Format.Validator.Result.EMPTY;
 		}
 	}
 
@@ -214,7 +214,7 @@ public interface Partner extends CommandZoneOverride {
 		}
 
 		@Override
-		public Format.ValidationResult check(Card.Printing source, Deck deck, Collection<? extends Card.Printing> commanders) {
+		public Format.Validator.Result check(Card.Printing source, Deck deck, Collection<? extends Card.Printing> commanders) {
 			// There is no comprehensive rules reference for Legendary partner. It is only found on the Heroes of the
 			// Realm card Sol, Advocate Eternal. Its reminder text is as follows:
 			//    "You can have two commanders if this is one of them. The other one is promoted to legendary."
@@ -224,7 +224,7 @@ public interface Partner extends CommandZoneOverride {
 			//    b. It is paired with exactly one other card which:
 			//       i. Is a creature card.
 
-			Format.ValidationResult result = new Format.ValidationResult();
+			Format.Validator.Result result = new Format.Validator.Result();
 
 			// A card with Legendary partner is legal if it is a valid commander and...
 			if (!Commander.validateCommander(source, deck, result)) return result;
@@ -241,7 +241,7 @@ public interface Partner extends CommandZoneOverride {
 				return result;
 			}
 
-			return Format.ValidationResult.EMPTY;
+			return Format.Validator.Result.EMPTY;
 		}
 	}
 
@@ -269,7 +269,7 @@ public interface Partner extends CommandZoneOverride {
 		}
 
 		@Override
-		public Format.ValidationResult check(Card.Printing source, Deck deck, Collection<? extends Card.Printing> commanders) {
+		public Format.Validator.Result check(Card.Printing source, Deck deck, Collection<? extends Card.Printing> commanders) {
 			// CR702.124k: "Choose a Background" means "You may designate two cards as your commander rather than one if
 			//    one of them is this card and the other is a legendary Background enchantment card." You can't
 			//    designate two cards as your commander if one has a "choose a Background" ability and the other is not
@@ -283,7 +283,7 @@ public interface Partner extends CommandZoneOverride {
 			// (Note that the comp rules technically forbid a card with both Partner and Choose a background from having
 			// a partner. I think that's likely a mistaken restriction, so I've relaxed it.)
 
-			Format.ValidationResult result = new Format.ValidationResult();
+			Format.Validator.Result result = new Format.Validator.Result();
 
 			// A card with Choose a Background is legal if it is a valid commander and...
 			if (!Commander.validateCommander(source, deck, result)) return result;
@@ -301,7 +301,7 @@ public interface Partner extends CommandZoneOverride {
 				return result;
 			}
 
-			return Format.ValidationResult.EMPTY;
+			return Format.Validator.Result.EMPTY;
 		}
 	}
 
@@ -329,7 +329,7 @@ public interface Partner extends CommandZoneOverride {
 		}
 
 		@Override
-		public Format.ValidationResult check(Card.Printing source, Deck deck, Collection<? extends Card.Printing> commanders) {
+		public Format.Validator.Result check(Card.Printing source, Deck deck, Collection<? extends Card.Printing> commanders) {
 			// CR702.124m. "Doctor's companion" means "You may designate two legendary creature cards as your commander
 			//    rather than one if one of them is this card and the other is a legendary Time Lord Doctor creature
 			//    card that has no other creature types."
@@ -340,7 +340,7 @@ public interface Partner extends CommandZoneOverride {
 			//       i. Is a legendary creature, and
 			//       ii. has exactly the subtypes Time Lord and Doctor.
 
-			Format.ValidationResult result = new Format.ValidationResult();
+			Format.Validator.Result result = new Format.Validator.Result();
 
 			// A card with Doctor's companion is legal if it is a valid commander and...
 			if (!Commander.validateCommander(source, deck, result)) return result;
@@ -362,7 +362,7 @@ public interface Partner extends CommandZoneOverride {
 				return result;
 			}
 
-			return Format.ValidationResult.EMPTY;
+			return Format.Validator.Result.EMPTY;
 		}
 	}
 
@@ -390,7 +390,7 @@ public interface Partner extends CommandZoneOverride {
 		}
 
 		@Override
-		public Format.ValidationResult check(Card.Printing source, Deck deck, Collection<? extends Card.Printing> commanders) {
+		public Format.Validator.Result check(Card.Printing source, Deck deck, Collection<? extends Card.Printing> commanders) {
 			// There is no comprehensive rules reference for Create a Character. It is only found on the Heroes of the
 			// Realm card Wizard from Beyond. Its reminder text is as follows:
 			//    "Any nonlegendary creature can choose this as its Background. It becomes legendary and can be your
@@ -401,7 +401,7 @@ public interface Partner extends CommandZoneOverride {
 			//    b. It is paired with exactly one other card which:
 			//       i. Is a nonlegendary creature card.
 
-			Format.ValidationResult result = new Format.ValidationResult();
+			Format.Validator.Result result = new Format.Validator.Result();
 
 			// A card with Create a Character is legal if it is a legendary Enchantment background and...
 			TypeLine sourceType = source.card().front() != null ? source.card().front().type() : null;
@@ -420,7 +420,7 @@ public interface Partner extends CommandZoneOverride {
 				return result;
 			}
 
-			return Format.ValidationResult.EMPTY;
+			return Format.Validator.Result.EMPTY;
 		}
 	}
 

@@ -15,7 +15,7 @@ public interface Deck {
 
 	Collection<? extends Card.Printing> cards(Zone zone);
 
-	default Format.ValidationResult validate() {
+	default Format.Validator.Result validate() {
 		return format().validate(this);
 	}
 }

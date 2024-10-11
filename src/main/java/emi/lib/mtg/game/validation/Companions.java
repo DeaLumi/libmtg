@@ -10,20 +10,18 @@ import emi.lib.mtg.game.Zone;
 import emi.lib.mtg.game.ability.pregame.Companion;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
+public class Companions implements Format.Validator {
 	public static final Companions INSTANCE = new Companions();
 
-	public static final Map<String, BiFunction<Deck, Format.ValidationResult, Boolean>> COMPANIONS = companions();
+	public static final Map<String, Companion.Validator> COMPANIONS = companions();
 
-	private static Map<String, BiFunction<Deck, Format.ValidationResult, Boolean>> companions() {
-		Map<String, BiFunction<Deck, Format.ValidationResult, Boolean>> map = new HashMap<>();
+	private static Map<String, Companion.Validator> companions() {
+		Map<String, Companion.Validator> map = new HashMap<>();
 
 		map.put("Gyruda, Doom of Depths", Companions::gyruda);
 		map.put("Jegantha, the Wellspring", Companions::jegantha);
@@ -59,7 +57,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return startDeckStream(deck)::iterator;
 	}
 
-	public static boolean gyruda(Deck deck, Format.ValidationResult result) {
+	public static boolean gyruda(Deck deck, Format format, Result result) {
 		boolean allEven = true;
 		for (Card.Printing pr : startDeck(deck)) {
 			double cmc = pr.card().manaCost().value();
@@ -75,7 +73,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allEven;
 	}
 
-	public static boolean jegantha(Deck deck, Format.ValidationResult result) {
+	public static boolean jegantha(Deck deck, Format format, Result result) {
 		boolean allUnique = true;
 		for (Card.Printing pr : startDeck(deck)) {
 			Set<Mana.Symbol> seen = new HashSet<>();
@@ -104,7 +102,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return Collections.unmodifiableSet(tmp);
 	}
 
-	public static boolean kaheera(Deck deck, Format.ValidationResult result) {
+	public static boolean kaheera(Deck deck, Format format, Result result) {
 		boolean allCuties = true;
 		for (Card.Printing pr : startDeck(deck)) {
 			Card.Face front = pr.card().front();
@@ -130,7 +128,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allCuties;
 	}
 
-	public static boolean keruga(Deck deck, Format.ValidationResult result) {
+	public static boolean keruga(Deck deck, Format format, Result result) {
 		boolean allBig = true;
 		for (Card.Printing pr : startDeck(deck)) {
 			double cmc = pr.card().manaCost().value();
@@ -152,7 +150,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allBig;
 	}
 
-	public static boolean lurrus(Deck deck, Format.ValidationResult result) {
+	public static boolean lurrus(Deck deck, Format format, Result result) {
 		boolean allSmol = true;
 		for (Card.Printing pr : startDeck(deck)) {
 			Card.Face front = pr.card().front();
@@ -178,7 +176,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allSmol;
 	}
 
-	public static boolean lutri(Deck deck, Format.ValidationResult result) {
+	public static boolean lutri(Deck deck, Format format, Result result) {
 		boolean allUnique = true;
 		Set<String> seen = new HashSet<>();
 
@@ -200,7 +198,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allUnique;
 	}
 
-	public static boolean obosh(Deck deck, Format.ValidationResult result) {
+	public static boolean obosh(Deck deck, Format format, Result result) {
 		boolean allOdd = true;
 		for (Card.Printing pr : startDeck(deck)) {
 			Card.Face front = pr.card().front();
@@ -221,7 +219,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allOdd;
 	}
 
-	public static boolean umori(Deck deck, Format.ValidationResult result) {
+	public static boolean umori(Deck deck, Format format, Result result) {
 		boolean allSameish = true;
 		EnumSet<CardType> sharedType = EnumSet.noneOf(CardType.class);
 
@@ -260,8 +258,8 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 		return allSameish;
 	}
 
-	public static boolean yorion(Deck deck, Format.ValidationResult result) {
-		if (deck.cards(Zone.Library) == null || deck.cards(Zone.Library).size() < deck.format().zones.get(Zone.Library).minCards + 20) {
+	public static boolean yorion(Deck deck, Format format, Result result) {
+		if (deck.cards(Zone.Library) == null || deck.cards(Zone.Library).size() < format.zones.get(Zone.Library).minCards + 20) {
 			result.zoneErrors(Zone.Library).add("Your starting deck doesn't contain at least 20 cards more than the minimum deck size.");
 			return false;
 		}
@@ -271,7 +269,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 
 	private static final Pattern ACTIVATED_ABILITY_PATTERN = Pattern.compile("(?m)^(?:(?:(?:Equip|Cycling)[— ])|[^\"]+: .+$)");
 
-	public static boolean zirda(Deck deck, Format.ValidationResult result) {
+	public static boolean zirda(Deck deck, Format format, Result result) {
 		boolean allActive = true;
 		for (Card.Printing pr : startDeck(deck)) {
 			Card.Face front = pr.card().front();
@@ -305,7 +303,7 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 	}
 
 	@Override
-	public void accept(Deck deck, Format.ValidationResult result) {
+	public Result validate(Deck deck, Format format, Result result) {
 		Collection<? extends Card.Printing> sideboard = deck.cards(Zone.Sideboard);
 		if (sideboard == null) sideboard = Collections.emptyList();
 
@@ -313,7 +311,9 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 			Card.Face front = pr.card().front();
 			if (front == null) continue;
 
-			front.abilities().ofType(Companion.class).forEach(a -> a.check(pr, deck, result));
+			front.abilities().ofType(Companion.class).forEach(a -> a.check(pr, deck, format, result));
 		}
+
+		return result;
 	}
 }

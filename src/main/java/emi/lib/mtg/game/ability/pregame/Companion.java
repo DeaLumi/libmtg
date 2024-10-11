@@ -10,7 +10,6 @@ import emi.lib.mtg.game.validation.Companions;
 
 import java.util.EnumSet;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 
 public class Companion implements DeckConstructionAbility, StaticAbility {
@@ -31,11 +30,15 @@ public class Companion implements DeckConstructionAbility, StaticAbility {
 		}
 	}
 
+	public interface Validator {
+		boolean check(Deck deck, Format format, Format.Validator.Result result);
+	}
+
 	public final String name;
 	public final String requirement;
-	public final BiFunction<Deck, Format.ValidationResult, Boolean> validator;
+	public final Validator validator;
 
-	public Companion(String name, String requirement, BiFunction<Deck, Format.ValidationResult, Boolean> validator) {
+	public Companion(String name, String requirement, Validator validator) {
 		this.name = name;
 		this.requirement = requirement;
 		this.validator = validator;
@@ -46,8 +49,8 @@ public class Companion implements DeckConstructionAbility, StaticAbility {
 		return "If this card is your chosen companion, you may put it into your hand from outside the game for {3} any time you could cast a sorcery.";
 	}
 
-	public boolean check(Card.Printing source, Deck deck, Format.ValidationResult result) {
-		if (validator.apply(deck, result)) {
+	public boolean check(Card.Printing source, Deck deck, Format format, Format.Validator.Result result) {
+		if (validator.check(deck, format, result)) {
 			result.card(source).notices.add(source.card().name() + " is a satisfied companion!");
 			return true;
 		}
