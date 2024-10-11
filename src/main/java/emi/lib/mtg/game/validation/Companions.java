@@ -261,16 +261,8 @@ public class Companions implements BiConsumer<Deck, Format.ValidationResult> {
 	}
 
 	public static boolean yorion(Deck deck, Format.ValidationResult result) {
-		int size = 0;
-
-		if (deck.cards(Zone.Library) != null) size += deck.cards(Zone.Library).size();
-
-		if (deck.cards(Zone.Command) != null) {
-			size += deck.cards(Zone.Command).stream().filter(Companions::notCompanion).count();
-		}
-
-		if (size < deck.format().minDeckSize + 20) {
-			result.deckErrors.add("Your deck doesn't contain at least 20 cards more than the minimum deck size.");
+		if (deck.cards(Zone.Library) == null || deck.cards(Zone.Library).size() < deck.format().zones.get(Zone.Library).minCards + 20) {
+			result.zoneErrors(Zone.Library).add("Your starting deck doesn't contain at least 20 cards more than the minimum deck size.");
 			return false;
 		}
 

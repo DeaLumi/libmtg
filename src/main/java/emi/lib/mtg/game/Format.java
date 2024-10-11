@@ -29,8 +29,16 @@ public enum Format {
 	Alchemy,
 	Explorer;
 
-	private static class ZoneInfo {
-		public ZoneInfo(int minCards, int maxCards) {
+	public enum ZoneInfo {
+		Unlimited (0, -1),
+		ConstructedLibrary(60, -1),
+		ConstructedSideboard(0, 15),
+		BrawlLibrary(58, 59),
+		CommanderLibrary(98, 99),
+		CommandZone(1, 2),
+		;
+
+		ZoneInfo(int minCards, int maxCards) {
 			this.minCards = minCards;
 			this.maxCards = maxCards;
 		}
@@ -40,40 +48,40 @@ public enum Format {
 		private static final Map<Zone, ZoneInfo> FREEFORM = freeformFormatZoneInfo();
 		private static Map<Zone, ZoneInfo> freeformFormatZoneInfo() {
 			Map<Zone, ZoneInfo> tmp = new EnumMap<>(Zone.class);
-			tmp.put(Zone.Library, new ZoneInfo(0, -1));
-			tmp.put(Zone.Sideboard, new ZoneInfo(0, -1));
+			tmp.put(Zone.Library, ZoneInfo.Unlimited);
+			tmp.put(Zone.Sideboard, ZoneInfo.Unlimited);
 			return Collections.unmodifiableMap(tmp);
 		}
 
 		private static final Map<Zone, ZoneInfo> BASIC = basicFormatZoneInfo();
 		private static Map<Zone, ZoneInfo> basicFormatZoneInfo() {
 			Map<Zone, ZoneInfo> tmp = new EnumMap<>(Zone.class);
-			tmp.put(Zone.Library, new ZoneInfo(60, -1));
-			tmp.put(Zone.Sideboard, new ZoneInfo(0, 15));
+			tmp.put(Zone.Library, ZoneInfo.ConstructedLibrary);
+			tmp.put(Zone.Sideboard, ZoneInfo.ConstructedSideboard);
 			return Collections.unmodifiableMap(tmp);
 		}
 
 		private static final Map<Zone, ZoneInfo> BRAWL = brawlFormatZoneInfo();
 		private static Map<Zone, ZoneInfo> brawlFormatZoneInfo() {
 			Map<Zone, ZoneInfo> tmp = new EnumMap<>(Zone.class);
-			tmp.put(Zone.Library, new ZoneInfo(59, 59));
-			tmp.put(Zone.Command, new ZoneInfo(1, 1));
-			tmp.put(Zone.Sideboard, new ZoneInfo(0, -1));
+			tmp.put(Zone.Library, ZoneInfo.BrawlLibrary);
+			tmp.put(Zone.Command, ZoneInfo.CommandZone);
+			tmp.put(Zone.Sideboard, ZoneInfo.Unlimited);
 			return Collections.unmodifiableMap(tmp);
 		}
 
 		private static final Map<Zone, ZoneInfo> COMMANDER = commanderFormatZoneInfo();
 		private static Map<Zone, ZoneInfo> commanderFormatZoneInfo() {
 			Map<Zone, ZoneInfo> tmp = new EnumMap<>(Zone.class);
-			tmp.put(Zone.Library, new ZoneInfo(98, 99));
-			tmp.put(Zone.Command, new ZoneInfo(1, 2));
-			tmp.put(Zone.Sideboard, new ZoneInfo(0, -1));
+			tmp.put(Zone.Library, ZoneInfo.CommanderLibrary);
+			tmp.put(Zone.Command, ZoneInfo.CommandZone);
+			tmp.put(Zone.Sideboard, ZoneInfo.Unlimited);
 			return Collections.unmodifiableMap(tmp);
 		}
 	}
 
-	public final int maxCopies, minDeckSize, maxDeckSize;
-	private final Map<Zone, ZoneInfo> zones;
+	public final int maxCopies;
+	public final Map<Zone, ZoneInfo> zones;
 	private final BiConsumer<Deck, ValidationResult> validator;
 
 	Format() {
@@ -82,8 +90,6 @@ public enum Format {
 
 	Format(int maxCopies, int minDeckSize, int maxDeckSize, Map<Zone, ZoneInfo> zones, BiConsumer<Deck, ValidationResult> validator) {
 		this.maxCopies = maxCopies;
-		this.minDeckSize = minDeckSize;
-		this.maxDeckSize = maxDeckSize;
 		this.zones = Collections.unmodifiableMap(zones);
 		this.validator = validator;
 	}
