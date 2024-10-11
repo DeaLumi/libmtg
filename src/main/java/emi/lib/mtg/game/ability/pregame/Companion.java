@@ -50,7 +50,10 @@ public class Companion implements DeckConstructionAbility, StaticAbility {
 	}
 
 	public boolean check(Card.Printing source, Deck deck, Format format, Format.Validator.Result result) {
-		if (validator.check(deck, format, result)) {
+		if (validator == null) {
+			result.card(source).warnings.add(source.card().name() + "'s companion requirement is unknown and can't be validated.");
+			return false;
+		} else if (validator.check(deck, format, result)) {
 			result.card(source).notices.add(source.card().name() + " is a satisfied companion!");
 			return true;
 		}
