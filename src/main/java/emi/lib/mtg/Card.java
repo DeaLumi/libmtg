@@ -7,6 +7,8 @@ import emi.lib.mtg.game.ability.Abilities;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -261,6 +263,126 @@ public interface Card {
 		}
 
 		/**
+		 * A reference to a particular printing of a card, consisting of a card name, set code, and collector number.
+		 * Technically, this is overspecified: set code and collector number should be sufficient to uniquely identify
+		 * a printing of a card. But inclusion of a card name makes it easy to format the card in a user-friendly way.
+		 * As an additional caveat, foil printings are theoretically different from standard printings. I'll address
+		 * that down the line somehow.
+		 *
+		 * @apiNote It's highly recommended that implementations of this interface override {@link Object#toString} to
+		 * return <code>format()</code>.
+		 */
+		interface Reference {
+			Pattern PATTERN = Pattern.compile("^(?<cardName>[^(]+) \\((?<setCode>[^)]+)\\) (?<collectorNumber>.+)$");
+
+			/**
+			 * Parses a reference string of the format `Card Name (SET) CN`, the standard card name format used by Arena
+			 * among others.
+			 * @param string A card name, set code, and collector number in the format `Card Name (SET) CN`.
+			 * @return A printing reference consisting of the parsed elements.
+			 * @throws IllegalArgumentException If the provided value doesn't represent a printing reference.
+			 */
+			static Reference valueOf(String string) {
+				Matcher matcher = PATTERN.matcher(string);
+				if (!matcher.find()) throw new IllegalArgumentException(String.format("String does not appear to be a printing reference: \"%s\".", string));
+				return to(matcher.group("cardName"), matcher.group("setCode"), matcher.group("collectorNumber"));
+			}
+
+			/**
+			 * Creates a reference to the passed printing.
+			 * @param printing The printing to which the returned reference refers.
+			 * @return A reference to the passed printing.
+			 */
+			static Reference to(Card.Printing printing) {
+				return to(printing.card().name(), printing.set().code(), printing.collectorNumber());
+			}
+
+			/**
+			 * Creates a reference consisting of the provided name, set code, and collector number.
+			 * @param name The name of the card to which the returned value should refer.
+			 * @param setCode The set code of the set containing the printing to which the returned value should refer.
+			 * @param collectorNumber The collector number of the printing to which the returned value should refer.
+			 * @return A reference to the printing with the given name, set code, and collector number.
+			 */
+			static Reference to(String name, String setCode, String collectorNumber) {
+				return new Reference() {
+					@Override
+					public String name() {
+						return name;
+					}
+
+					@Override
+					public String setCode() {
+						return setCode;
+					}
+
+					@Override
+					public String collectorNumber() {
+						return collectorNumber;
+					}
+
+					@Override
+					public String toString() {
+						return format();
+					}
+
+					@Override
+					public int hashCode() {
+						return name.hashCode() ;
+					}
+				};
+			}
+
+			/**
+			 * Returns a string representing a reference to the given printing.
+			 * @param printing The printing to format into a string.
+			 * @return A string representing a reference to the given printing.
+			 */
+			static String format(Card.Printing printing) {
+				return format(printing.card().name(), printing.set().code(), printing.collectorNumber());
+			}
+
+			/**
+			 * Returns a string representing a reference to the given name, set code, and collector number.
+			 * @param name The name of the card.
+			 * @param setCode The set code of the printing.
+			 * @param collectorNumber The collector number of the printing in the given set.
+			 * @return A string representing a reference to the given name, set code, and collector number.
+			 */
+			static String format(String name, String setCode, String collectorNumber) {
+				return String.format("%s (%s) %s", name, setCode, collectorNumber);
+			}
+
+			/**
+			 * The name of the referent printing's card.
+			 * @return The name of the referent printing's card.
+			 */
+			String name();
+
+			/**
+			 * The set code of the set containing the referent printing.
+			 * @return The set code of the set containing the referent printing.
+			 */
+			String setCode();
+
+			/**
+			 * The collector number of the referent printing.
+			 * @return The collector number of the referent printing.
+			 */
+			String collectorNumber();
+
+			/**
+			 * Formats this reference into a string in the format `Card Name (SET) CN`, appropriate to be used as an
+			 * argument to {@link Reference#valueOf}. It is highly recommended to return this value from
+			 * {@link Object#toString}.
+			 * @return A string in the format `Card Name (SET) CN` representing this printing.
+			 */
+			default String format() {
+				return format(name(), setCode(), collectorNumber());
+			}
+		}
+
+		/**
 		 * @return The card of which this printing is a printing.
 		 */
 		Card card();
@@ -344,6 +466,10 @@ public interface Card {
 		 * @return The day this printing was first released. This can differ from the printing's set's releaseDate in some cases.
 		 */
 		LocalDate releaseDate();
+
+		default Reference reference() {
+			return Reference.to(this);
+		}
 
 		/**
 		 * N.B. for implementors: This ID must be unique across all printings of all cards, and ideally unique across

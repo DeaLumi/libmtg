@@ -30,6 +30,22 @@ public interface DataSource {
 	java.util.Set<? extends Card.Printing> printings();
 
 	/**
+	 * Finds a card printing by unique reference (combination of set code, card name, and collector number).
+	 * @param reference The printing reference to look up.
+	 * @return Card referred to by <code>reference</code>, or null if no such printing is known.
+	 */
+	default Card.Printing printing(Card.Printing.Reference reference) {
+		Set set = set(reference.setCode());
+		if (set == null) return null;
+
+		Card.Printing printing = set.printing(reference.collectorNumber());
+		if (printing == null) return null;
+		if (!reference.name().equals(printing.card().name())) return null;
+
+		return printing;
+	}
+
+	/**
 	 * Finds a card printing by UUID.
 	 * @param id ID of the card printing to find.
 	 * @return Card printing with that ID, or null if no such printing is known.
