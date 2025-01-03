@@ -16,7 +16,6 @@ import java.util.*;
 
 public class Commander implements Format.Validator {
 	public static final Commander INSTANCE = new Commander();
-	public static final Format.Validator AND_COMPANIONS = INSTANCE.andThen(Companions.INSTANCE);
 
 	public static boolean isCommander(Card card) {
 		Card.Face front = card.front();
@@ -160,8 +159,8 @@ public class Commander implements Format.Validator {
 		}
 		final Color.Combination fci = colorIdentity;
 
-		Format.ZoneInfo lib = format.zones.get(Zone.Library);
-		Format.ZoneInfo cmd = format.zones.get(Zone.Command);
+		CardCount.ZoneInfo lib = format.cardCount.zones.get(Zone.Library);
+		CardCount.ZoneInfo cmd = format.cardCount.zones.get(Zone.Command);
 
 		int minmax = lib.minCards + cmd.maxCards, maxmin = lib.maxCards + cmd.minCards;
 

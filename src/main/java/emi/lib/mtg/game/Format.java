@@ -1,100 +1,54 @@
 package emi.lib.mtg.game;
 
 import emi.lib.mtg.Card;
-import emi.lib.mtg.enums.Supertype;
-import emi.lib.mtg.game.ability.pregame.CopyLimit;
+import emi.lib.mtg.game.validation.CardCount;
+import emi.lib.mtg.game.validation.CardLegality;
 import emi.lib.mtg.game.validation.Companions;
 
-import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public enum Format {
-	Freeform (-1, ZoneInfo.FREEFORM, null),
+	Freeform (CardCount.Freeform, Companions.INSTANCE),
 	Standard,
 	Future,
 	Pioneer,
 	Modern,
 	Legacy,
 	Vintage,
-	Brawl(1, ZoneInfo.BRAWL, emi.lib.mtg.game.validation.Commander.AND_COMPANIONS),
+	Brawl(CardCount.Brawl, CardLegality.INSTANCE, emi.lib.mtg.game.validation.Commander.INSTANCE, Companions.INSTANCE),
 	Historic,
-	HistoricBrawl(1, ZoneInfo.BRAWL, emi.lib.mtg.game.validation.Commander.AND_COMPANIONS),
+	HistoricBrawl(CardCount.Brawl, CardLegality.INSTANCE, emi.lib.mtg.game.validation.Commander.INSTANCE, Companions.INSTANCE),
 	Pauper,
 	Penny,
-	Commander(1, ZoneInfo.COMMANDER, emi.lib.mtg.game.validation.Commander.AND_COMPANIONS),
+	Commander(CardCount.Commander, CardLegality.INSTANCE, emi.lib.mtg.game.validation.Commander.INSTANCE, Companions.INSTANCE),
 	Alchemy,
 	Explorer;
 
-	public enum ZoneInfo {
-		Unlimited (0, -1),
-		ConstructedLibrary(60, -1),
-		ConstructedSideboard(0, 15),
-		BrawlLibrary(58, 59),
-		CommanderLibrary(98, 99),
-		CommandZone(1, 2),
-		;
-
-		ZoneInfo(int minCards, int maxCards) {
-			this.minCards = minCards;
-			this.maxCards = maxCards;
-		}
-
-		public final int minCards, maxCards;
-
-		private static final Map<Zone, ZoneInfo> FREEFORM = freeformFormatZoneInfo();
-		private static Map<Zone, ZoneInfo> freeformFormatZoneInfo() {
-			Map<Zone, ZoneInfo> tmp = new EnumMap<>(Zone.class);
-			tmp.put(Zone.Library, ZoneInfo.Unlimited);
-			tmp.put(Zone.Sideboard, ZoneInfo.Unlimited);
-			return Collections.unmodifiableMap(tmp);
-		}
-
-		private static final Map<Zone, ZoneInfo> BASIC = basicFormatZoneInfo();
-		private static Map<Zone, ZoneInfo> basicFormatZoneInfo() {
-			Map<Zone, ZoneInfo> tmp = new EnumMap<>(Zone.class);
-			tmp.put(Zone.Library, ZoneInfo.ConstructedLibrary);
-			tmp.put(Zone.Sideboard, ZoneInfo.ConstructedSideboard);
-			return Collections.unmodifiableMap(tmp);
-		}
-
-		private static final Map<Zone, ZoneInfo> BRAWL = brawlFormatZoneInfo();
-		private static Map<Zone, ZoneInfo> brawlFormatZoneInfo() {
-			Map<Zone, ZoneInfo> tmp = new EnumMap<>(Zone.class);
-			tmp.put(Zone.Library, ZoneInfo.BrawlLibrary);
-			tmp.put(Zone.Command, ZoneInfo.CommandZone);
-			tmp.put(Zone.Sideboard, ZoneInfo.Unlimited);
-			return Collections.unmodifiableMap(tmp);
-		}
-
-		private static final Map<Zone, ZoneInfo> COMMANDER = commanderFormatZoneInfo();
-		private static Map<Zone, ZoneInfo> commanderFormatZoneInfo() {
-			Map<Zone, ZoneInfo> tmp = new EnumMap<>(Zone.class);
-			tmp.put(Zone.Library, ZoneInfo.CommanderLibrary);
-			tmp.put(Zone.Command, ZoneInfo.CommandZone);
-			tmp.put(Zone.Sideboard, ZoneInfo.Unlimited);
-			return Collections.unmodifiableMap(tmp);
-		}
-	}
-
-	public final int maxCopies;
-	public final Map<Zone, ZoneInfo> zones;
+	public final CardCount cardCount;
 	private final Validator validator;
 
 	Format() {
-		this(4, ZoneInfo.BASIC, Companions.INSTANCE);
+		this(CardCount.ConstructedSixtyCard, CardLegality.INSTANCE, Companions.INSTANCE);
 	}
 
-	Format(int maxCopies, Map<Zone, ZoneInfo> zones, Validator validator) {
-		this.maxCopies = maxCopies;
-		this.zones = Collections.unmodifiableMap(zones);
-		this.validator = validator;
+	Format(CardCount cardCount, Validator... validators) {
+		this.cardCount = cardCount;
+
+		if (validators.length == 0) {
+			validator = null;
+		} else {
+			Validator tmp = validators[0];
+
+			for (int i = 1; i < validators.length; ++i) tmp = tmp.andThen(validators[i]);
+
+			validator = tmp;
+		}
 	}
 
 	public Set<Zone> deckZones() {
-		return zones.keySet();
+		return cardCount.deckZones();
 	}
 
 	public interface Validator {
@@ -209,84 +163,8 @@ public enum Format {
 	 */
 	public Validator.Result validate(Deck deck) {
 		Validator.Result result = new Validator.Result();
-
-		Map<String, AtomicInteger> histogram = new HashMap<>();
-
-		for (Zone zone : deckZones()) {
-			ZoneInfo fzi = zones.get(zone);
-			Collection<? extends Card.Printing> ciz = deck.cards(zone) == null ? Collections.emptyList() : deck.cards(zone);
-
-			ciz.stream()
-					.peek(pr -> histogram.computeIfAbsent(pr.card().name(), n -> new AtomicInteger(0)).incrementAndGet())
-					.forEach(pr -> {
-						switch (pr.card().legality(Format.this)) {
-							case Banned:
-								result.card(pr).errors.add(String.format("%s is banned in %s!", pr.card().name(), Format.this.name()));
-								break;
-							case NotLegal:
-								if (pr.releaseDate().isAfter(LocalDate.now())) {
-									result.card(pr).warnings.add(String.format("%s has not released yet.", pr.card().name()));
-								} else {
-									result.card(pr).errors.add(String.format("%s is not legal in %s.", pr.card().name(), Format.this.name()));
-								}
-								break;
-							case Restricted:
-								if (histogram.get(pr.card().name()).get() > 1) {
-									result.card(pr).errors.add(String.format("%s is restricted to one copy per deck in %s.", pr.card().name(), Format.this.name()));
-								}
-								break;
-							case Legal:
-								break;
-							case Unknown:
-								result.card(pr).warnings.add(String.format("Couldn't verify legality of %s in %s.", pr.card().name(), Format.this.name()));
-								break;
-						}
-					});
-
-			ciz.forEach(pr -> {
-				if (!pr.card().faces().stream().allMatch(f -> f.type().supertypes().contains(Supertype.Basic))) {
-					int min = 0, max = maxCopies;
-					if (pr.card().front() != null) {
-						CopyLimit override = pr.card().front().abilities().only(CopyLimit.class);
-						if (override != null) {
-							min = override.min;
-							max = override.max;
-						}
-					}
-
-					if (min > 0 && histogram.get(pr.card().name()).get() < min) {
-						result.card(pr).errors.add(String.format("In %s, a deck must contain no fewer than %d cop%s of %s.",
-								Format.this.name(),
-								min,
-								min == 1 ? "y" : "ies",
-								pr.card().name()));
-					}
-
-					if (max > 0 && histogram.get(pr.card().name()).get() > max) {
-						result.card(pr).errors.add(String.format("In %s, a deck can contain no more than %d cop%s of %s.",
-								Format.this.name(),
-								max,
-								max == 1 ? "y" : "ies",
-								pr.card().name()));
-					}
-				}
-			});
-
-			if (fzi.minCards > 0 && ciz.size() < fzi.minCards) {
-				result.zoneErrors(zone).add(String.format("In %s, the %s zone must contain at least %d cards.",
-						Format.this.name(),
-						zone.name(),
-						fzi.minCards));
-			} else if (fzi.maxCards > 0 && ciz.size() > fzi.maxCards) {
-				result.zoneErrors(zone).add(String.format("In %s, the %s zone may contain no more than %d cards.",
-						Format.this.name(),
-						zone.name(),
-						fzi.maxCards));
-			}
-		}
-
-		if (validator != null) return validator.validate(deck, this, result);
-
+		result = cardCount.validate(deck, this, result);
+		if (validator != null) result = validator.validate(deck, this, result);
 		return result;
 	}
 }

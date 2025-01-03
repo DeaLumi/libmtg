@@ -259,7 +259,7 @@ public class Companions implements Format.Validator {
 	}
 
 	public static boolean yorion(Deck deck, Format format, Result result) {
-		if (deck.cards(Zone.Library) == null || deck.cards(Zone.Library).size() < format.zones.get(Zone.Library).minCards + 20) {
+		if (deck.cards(Zone.Library) == null || deck.cards(Zone.Library).size() < format.cardCount.zones.get(Zone.Library).minCards + 20) {
 			result.zoneErrors(Zone.Library).add("Your starting deck doesn't contain at least 20 cards more than the minimum deck size.");
 			return false;
 		}
