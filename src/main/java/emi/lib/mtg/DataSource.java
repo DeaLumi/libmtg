@@ -25,6 +25,41 @@ public interface DataSource {
 	java.util.Set<? extends Card> cards();
 
 	/**
+	 * Finds a card by English card name. The returned card is such that <code>name.equals({@link Card#name})</code>.
+	 * Note that a very small number of cards are not uniquely named despite having varied rules texts. See
+	 * {@link DataSource#card(String, char)}.
+	 *
+	 * @param name The English card name to look up.
+	 * @return A card with the given English card name.
+	 */
+	default Card card(String name) {
+		return card(name, 'a');
+	}
+
+	/**
+	 * Finds a card by English card name and variation letter. The returned card is such that
+	 * <code>name.equals({@link Card#name})</code>. The variation letter applies in an extremely narrow set of cards,
+	 * but is required to completely and uniquely identify all cards. If the given card name does not have variations,
+	 * the value of variation should be ignored.
+	 *
+	 * To wit, the following cards require a variation letter ('a' - 'f'):
+	 * <ul>
+	 *     <li>Knight of the Kitchen Sink (UST) 12a-f</li>
+	 *     <li>Very Cryptic Command (UST) 49a-f</li>
+	 *     <li>Sly Spy (UST) 67a-f</li>
+	 *     <li>Garbage Elemental (UST) 82a-f</li>
+	 *     <li>Ineffable Blessing (UST) 113a-f</li>
+	 *     <li>Everythingamajig (UST) 147a-f</li>
+	 * </ul>
+	 *
+	 *
+	 * @param name The English card name to look up.
+	 * @param variation The variation letter for a few specific cards. Ignored if the card name is unique on its own.
+	 * @return The unique card with the given English card name and, possibly, variation letter.
+	 */
+	Card card(String name, char variation);
+
+	/**
 	 * @return Set of all card printings known to this data source.
 	 */
 	java.util.Set<? extends Card.Printing> printings();
