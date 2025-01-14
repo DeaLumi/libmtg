@@ -185,6 +185,22 @@ public interface Card {
 		default double defense() {
 			return convertedValue(this.printedDefense());
 		}
+
+		/**
+		 *
+		 * @return
+		 */
+		default String ptldBox() {
+			if (!this.printedPower().isEmpty() && !this.printedToughness().isEmpty()) {
+				return String.format("%s/%s", this.printedPower(), this.printedToughness());
+			} else if (!this.printedLoyalty().isEmpty()) {
+				return this.printedLoyalty();
+			} else if (!this.printedDefense().isEmpty()) {
+				return this.printedDefense();
+			} else {
+				return "";
+			}
+		}
 	}
 
 	/**
