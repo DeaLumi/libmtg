@@ -483,6 +483,16 @@ public interface Card {
 		 */
 		LocalDate releaseDate();
 
+		enum Treatment {
+			None,
+			Foil,
+		}
+
+		/**
+		 * @return This printing's treatment/foiling.
+		 */
+		Treatment treatment();
+
 		default Reference reference() {
 			return Reference.to(this);
 		}
