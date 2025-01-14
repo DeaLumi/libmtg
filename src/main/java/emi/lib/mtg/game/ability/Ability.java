@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 
 public interface Ability {
 	interface Parser {
-		String CARD_NAME = "[- ,A-Za-z0-9]+";
+		String CARD_NAME = "[- ,A-Za-z0-9']+";
 
 		Class<? extends Ability> type();
 		String pattern();
