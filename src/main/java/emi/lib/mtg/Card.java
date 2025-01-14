@@ -289,7 +289,7 @@ public interface Card {
 		 * return <code>format()</code>.
 		 */
 		interface Reference {
-			Pattern PATTERN = Pattern.compile("^(?<cardName>[^(]+) \\((?<setCode>[^)]+)\\) (?<collectorNumber>.+)$");
+			Pattern PATTERN = Pattern.compile("^(?<cardName>.+) \\((?<setCode>[^)]+)\\) (?<collectorNumber>.+)$");
 
 			/**
 			 * Parses a reference string of the format `Card Name (SET) CN`, the standard card name format used by Arena
