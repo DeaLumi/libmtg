@@ -63,19 +63,4 @@ public interface DataSource {
 	 * @return Set with that set-code, or null if no such set exists.
 	 */
 	Set set(String code);
-
-	/**
-	 * Update this data source to reflect the most recent Magic universe.
-	 * @param dataDir The path where the data is/is to be stored.
-	 * @param progress Optional target for progress updates (0-1).
-	 * @return True if the update completed successfully and caused a change in data.
-	 * @throws IOException If an IO exception causes the update to fail.
-	 */
-	boolean update(Path dataDir, DoubleConsumer progress) throws IOException;
-
-	/**
-	 * @return True if the data source seems to be stale.
-	 * @param dataDir The path where the data is/is to be stored.
-	 */
-	boolean needsUpdate(Path dataDir);
 }
