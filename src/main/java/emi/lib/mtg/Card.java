@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 /**
  * A Magic: the Gathering card. Collects all of a card's playable and fluff characteristics with each unique
- * printing of a card known to the providing data source.
+ * print of a card known to the providing data source.
  */
 @SuppressWarnings("unused")
 public interface Card {
@@ -204,11 +204,11 @@ public interface Card {
 	}
 
 	/**
-	 * A unique printing of a card.
+	 * A unique print of a card.
 	 */
-	interface Printing {
+	interface Print {
 		/**
-		 * The printed (i.e. not-gameplay-relevant) characteristics of this face. These vary with printing.
+		 * The printed (i.e. not-gameplay-relevant) characteristics of this face. These vary with print.
 		 */
 		interface Face {
 			interface Frame {
@@ -239,12 +239,12 @@ public interface Card {
 			}
 
 			/**
-			 * @return The printing associated with this face printing.
+			 * @return The print associated with this printed face.
 			 */
-			Printing printing();
+			Print print();
 
 			/**
-			 * @return The face associated with this face printing.
+			 * @return The face associated with this printed face.
 			 */
 			Card.Face face();
 
@@ -269,9 +269,9 @@ public interface Card {
 			 * @param other The other printed face to check bounds on.
 			 * @return True if the other printed face is fully visible in the normal bounds of this face, or false otherwise.
 			 */
-			default boolean contains(Printing.Face other) {
+			default boolean contains(Print.Face other) {
 				return other != null &&
-						other.printing().equals(this.printing()) &&
+						other.print().equals(this.print()) &&
 						other.onBack() == this.onBack() &&
 						other.frame().left() >= frame().left() && other.frame().right() >= frame().right() &&
 						other.frame().top() >= frame().top() && other.frame().bottom() >= frame().bottom();
@@ -279,11 +279,11 @@ public interface Card {
 		}
 
 		/**
-		 * A reference to a particular printing of a card, consisting of a card name, set code, and collector number.
+		 * A reference to a particular print of a card, consisting of a card name, set code, and collector number.
 		 * Technically, this is overspecified: set code and collector number should be sufficient to uniquely identify
-		 * a printing of a card. But inclusion of a card name makes it easy to format the card in a user-friendly way.
-		 * As an additional caveat, foil printings are theoretically different from standard printings. I'll address
-		 * that down the line somehow.
+		 * a print of a card. But inclusion of a card name makes it easy to format the card in a user-friendly way.
+		 * As an additional caveat, foil prints are theoretically different from standard prints. I'll address that down
+		 * the line somehow.
 		 *
 		 * @apiNote It's highly recommended that implementations of this interface override {@link Object#toString} to
 		 * return <code>format()</code>.
@@ -295,30 +295,30 @@ public interface Card {
 			 * Parses a reference string of the format `Card Name (SET) CN`, the standard card name format used by Arena
 			 * among others.
 			 * @param string A card name, set code, and collector number in the format `Card Name (SET) CN`.
-			 * @return A printing reference consisting of the parsed elements.
-			 * @throws IllegalArgumentException If the provided value doesn't represent a printing reference.
+			 * @return A print reference consisting of the parsed elements.
+			 * @throws IllegalArgumentException If the provided value doesn't represent a print reference.
 			 */
 			static Reference valueOf(String string) {
 				Matcher matcher = PATTERN.matcher(string);
-				if (!matcher.find()) throw new IllegalArgumentException(String.format("String does not appear to be a printing reference: \"%s\".", string));
+				if (!matcher.find()) throw new IllegalArgumentException(String.format("String does not appear to be a print reference: \"%s\".", string));
 				return to(matcher.group("cardName"), matcher.group("setCode"), matcher.group("collectorNumber"));
 			}
 
 			/**
-			 * Creates a reference to the passed printing.
-			 * @param printing The printing to which the returned reference refers.
-			 * @return A reference to the passed printing.
+			 * Creates a reference to the passed print.
+			 * @param print The print to which the returned reference refers.
+			 * @return A reference to the passed print.
 			 */
-			static Reference to(Card.Printing printing) {
-				return to(printing.card().name(), printing.set().code(), printing.collectorNumber());
+			static Reference to(Print print) {
+				return to(print.card().name(), print.set().code(), print.collectorNumber());
 			}
 
 			/**
 			 * Creates a reference consisting of the provided name, set code, and collector number.
 			 * @param name The name of the card to which the returned value should refer.
-			 * @param setCode The set code of the set containing the printing to which the returned value should refer.
-			 * @param collectorNumber The collector number of the printing to which the returned value should refer.
-			 * @return A reference to the printing with the given name, set code, and collector number.
+			 * @param setCode The set code of the set containing the print to which the returned value should refer.
+			 * @param collectorNumber The collector number of the print to which the returned value should refer.
+			 * @return A reference to the print with the given name, set code, and collector number.
 			 */
 			static Reference to(String name, String setCode, String collectorNumber) {
 				return new Reference() {
@@ -350,19 +350,19 @@ public interface Card {
 			}
 
 			/**
-			 * Returns a string representing a reference to the given printing.
-			 * @param printing The printing to format into a string.
-			 * @return A string representing a reference to the given printing.
+			 * Returns a string representing a reference to the given print.
+			 * @param print The print to format into a string.
+			 * @return A string representing a reference to the given print.
 			 */
-			static String format(Card.Printing printing) {
-				return format(printing.card().name(), printing.set().code(), printing.collectorNumber());
+			static String format(Print print) {
+				return format(print.card().name(), print.set().code(), print.collectorNumber());
 			}
 
 			/**
 			 * Returns a string representing a reference to the given name, set code, and collector number.
 			 * @param name The name of the card.
-			 * @param setCode The set code of the printing.
-			 * @param collectorNumber The collector number of the printing in the given set.
+			 * @param setCode The set code of the print.
+			 * @param collectorNumber The collector number of the print in the given set.
 			 * @return A string representing a reference to the given name, set code, and collector number.
 			 */
 			static String format(String name, String setCode, String collectorNumber) {
@@ -370,20 +370,20 @@ public interface Card {
 			}
 
 			/**
-			 * The name of the referent printing's card.
-			 * @return The name of the referent printing's card.
+			 * The name of the referent print's card.
+			 * @return The name of the referent print's card.
 			 */
 			String name();
 
 			/**
-			 * The set code of the set containing the referent printing.
-			 * @return The set code of the set containing the referent printing.
+			 * The set code of the set containing the referent print.
+			 * @return The set code of the set containing the referent print.
 			 */
 			String setCode();
 
 			/**
-			 * The collector number of the referent printing.
-			 * @return The collector number of the referent printing.
+			 * The collector number of the referent print.
+			 * @return The collector number of the referent print.
 			 */
 			String collectorNumber();
 
@@ -391,7 +391,7 @@ public interface Card {
 			 * Formats this reference into a string in the format `Card Name (SET) CN`, appropriate to be used as an
 			 * argument to {@link Reference#valueOf}. It is highly recommended to return this value from
 			 * {@link Object#toString}.
-			 * @return A string in the format `Card Name (SET) CN` representing this printing.
+			 * @return A string in the format `Card Name (SET) CN` representing this print.
 			 */
 			default String format() {
 				return format(name(), setCode(), collectorNumber());
@@ -399,7 +399,7 @@ public interface Card {
 		}
 
 		/**
-		 * @return The card of which this printing is a printing.
+		 * @return The card of which this print is a print.
 		 */
 		Card card();
 
@@ -409,7 +409,7 @@ public interface Card {
 		 *
 		 * This should return printed faces in the same order as <code>card().faces()</code>.
 		 *
-		 * @return The set of this printing's printed faces.
+		 * @return The set of this print's printed faces.
 		 */
 		Set<? extends Face> faces();
 
@@ -427,9 +427,9 @@ public interface Card {
 		Set<? extends Face> mainFaces();
 
 		/**
-		 * Retrieves the face printing associated with the given card face. The given face must be an element of
+		 * Retrieves the printed face associated with the given card face. The given face must be an element of
 		 * <code>card().faces()</code>.
-		 * @param face The face to find the printing of.
+		 * @param face The face to find the print of.
 		 * @throws IllegalArgumentException if the given face is not a part of this card.
 		 * @return The printed version of that face.
 		 */
@@ -444,42 +444,42 @@ public interface Card {
 		}
 
 		/**
-		 * @return The set in which this printing was printed.
+		 * @return The set in which this print was printed.
 		 */
 		emi.lib.mtg.Set set();
 
 		/**
-		 * @return The rarity of this printing.
+		 * @return The rarity of this print.
 		 */
 		Rarity rarity();
 
 		/**
-		 * @return The multiverseId of this printing. Null if the card has no multiverseid.
+		 * @return The multiverseId of this print. Null if the card has no multiverseid.
 		 */
 		Integer multiverseId();
 
 		/**
-		 * @return The variation index of this printing (i.e. the 1-indexed number of cards with this name in this set).
+		 * @return The variation index of this print (i.e. the 1-indexed number of cards with this name in this set).
 		 */
 		int variation();
 
 		/**
-		 * @return The collector number of this card printing. Null if there is no collector number.
+		 * @return The collector number of this card print. Null if there is no collector number.
 		 */
 		String collectorNumber();
 
 		/**
-		 * @return The MTGO catalog ID of this printing. Null if the card isn't on MTGO, or if the data source doesn't know.
+		 * @return The MTGO catalog ID of this print. Null if the card isn't on MTGO, or if the data source doesn't know.
 		 */
-		Integer mtgoCatalogId();
+		Integer mtgoCatalogId(); // TODO I don't know if I like this being a part of the API. Should MTGO be its own data source?
 
 		/**
-		 * @return True if this is a promo card. These cards include datestamped prerelease promos, promo pack printings, and so on.
+		 * @return True if this is a promo card. These cards include datestamped prerelease promos, promo pack prints, and so on.
 		 */
 		boolean promo();
 
 		/**
-		 * @return The day this printing was first released. This can differ from the printing's set's releaseDate in some cases.
+		 * @return The day this print was first released. This can differ from the print's set's releaseDate in some cases.
 		 */
 		LocalDate releaseDate();
 
@@ -489,7 +489,7 @@ public interface Card {
 		}
 
 		/**
-		 * @return This printing's treatment/foiling.
+		 * @return This print's treatment/foiling.
 		 */
 		Treatment treatment();
 
@@ -498,11 +498,11 @@ public interface Card {
 		}
 
 		/**
-		 * N.B. for implementors: This ID must be unique across all printings of all cards, and ideally unique across
+		 * N.B. for implementors: This ID must be unique across all prints of all cards, and ideally unique across
 		 * all data sources.
 		 *
-		 * @return A unique ID that can be used to refer to this printing. Must not be null. This is used to reliably
-		 * refer to *this* printing of *this* card.
+		 * @return A unique ID that can be used to refer to this print. Must not be null. This is used to reliably
+		 * refer to *this* print of *this* card.
 		 */
 		UUID id();
 	}
@@ -556,25 +556,25 @@ public interface Card {
 	Face flipped(Face source);
 
 	/**
-	 * The set of this card's printings.
-	 * @return The set of this card's printings.
+	 * The set of this card's prints.
+	 * @return The set of this card's prints.
 	 */
-	Set<? extends Printing> printings();
+	Set<? extends Print> prints();
 
 	/**
-	 * Retrieves a particular printing.
-	 * @param id The ID of the printing to get.
-	 * @return The printing with that ID, or null if this card has no such printing.
+	 * Retrieves a particular print.
+	 * @param id The ID of the print to get.
+	 * @return The print with that ID, or null if this card has no such print.
 	 */
-	Printing printing(UUID id);
+	Print print(UUID id);
 
 	/**
-	 * Retrieves a printing by set code and collector number.
-	 * @param setCode The set code of the printing to get.
-	 * @param collectorNumber The collector number of the printing to get.
-	 * @return The printing with that set code and collector number, or null if this card has no such printing.
+	 * Retrieves a print by set code and collector number.
+	 * @param setCode The set code of the print to get.
+	 * @param collectorNumber The collector number of the print to get.
+	 * @return The print with that set code and collector number, or null if this card has no such print.
 	 */
-	Printing printing(String setCode, String collectorNumber);
+	Print print(String setCode, String collectorNumber);
 
 	/**
 	 * Returns the front face of this card. For most Magic cards, this is the face you see when you open this card

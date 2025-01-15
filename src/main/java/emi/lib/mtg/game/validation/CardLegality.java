@@ -19,11 +19,11 @@ public class CardLegality implements Format.Validator {
 
 		Set<String> cardNames = new HashSet<>();
 		for (Zone zone : format.deckZones()) {
-			Collection<? extends Card.Printing> ciz = deck.cards(zone);
+			Collection<? extends Card.Print> ciz = deck.cards(zone);
 
 			if (ciz == null || ciz.isEmpty()) continue;
 
-			for (Card.Printing pr : ciz) {
+			for (Card.Print pr : ciz) {
 				boolean firstSeen = cardNames.add(pr.card().name());
 
 				switch (pr.card().legality(format)) {

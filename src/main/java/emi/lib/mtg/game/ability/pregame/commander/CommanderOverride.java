@@ -27,7 +27,7 @@ public interface CommanderOverride extends DeckConstructionAbility {
 	 * 		      commander; another check's result will be used, or the default if no other checks occur.
 	 * 		      Note that Invalid &gt; Valid &gt; default validity.
 	 */
-	CheckResult check(Card.Printing source, Deck deck, Format.Validator.Result validation);
+	CheckResult check(Card.Print source, Deck deck, Format.Validator.Result validation);
 
 	class CanBeCommander implements CommanderOverride {
 		public static class Parser implements Ability.Parser {
@@ -57,7 +57,7 @@ public interface CommanderOverride extends DeckConstructionAbility {
 		}
 
 		@Override
-		public CheckResult check(Card.Printing source, Deck deck, Format.Validator.Result result) {
+		public CheckResult check(Card.Print source, Deck deck, Format.Validator.Result result) {
 			// Basically a no-op; if source has this ability, it is a valid commander. Nothing to flag.
 			return CheckResult.Valid;
 		}

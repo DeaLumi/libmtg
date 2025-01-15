@@ -60,32 +60,32 @@ public interface DataSource {
 	Card card(String name, char variation);
 
 	/**
-	 * @return Set of all card printings known to this data source.
+	 * @return Set of all card prints known to this data source.
 	 */
-	java.util.Set<? extends Card.Printing> printings();
+	java.util.Set<? extends Card.Print> prints();
 
 	/**
-	 * Finds a card printing by unique reference (combination of set code, card name, and collector number).
-	 * @param reference The printing reference to look up.
-	 * @return Card referred to by <code>reference</code>, or null if no such printing is known.
+	 * Finds a card print by unique reference (combination of set code, card name, and collector number).
+	 * @param reference The print reference to look up.
+	 * @return Card referred to by <code>reference</code>, or null if no such print is known.
 	 */
-	default Card.Printing printing(Card.Printing.Reference reference) {
+	default Card.Print print(Card.Print.Reference reference) {
 		Set set = set(reference.setCode());
 		if (set == null) return null;
 
-		Card.Printing printing = set.printing(reference.collectorNumber());
-		if (printing == null) return null;
-		if (!reference.name().equals(printing.card().name())) return null;
+		Card.Print print = set.print(reference.collectorNumber());
+		if (print == null) return null;
+		if (!reference.name().equals(print.card().name())) return null;
 
-		return printing;
+		return print;
 	}
 
 	/**
-	 * Finds a card printing by UUID.
-	 * @param id ID of the card printing to find.
-	 * @return Card printing with that ID, or null if no such printing is known.
+	 * Finds a card print by UUID.
+	 * @param id ID of the card print to find.
+	 * @return Card print with that ID, or null if no such print is known.
 	 */
-	Card.Printing printing(UUID id);
+	Card.Print print(UUID id);
 
 	/**
 	 * @return Set of all card sets known to this data source.

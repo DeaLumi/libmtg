@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * A set of card printings. This is meant to map cleanly onto i.e. "Unhinged".
+ * A set of card prints. This is meant to map cleanly onto i.e. "Unhinged".
  */
 public interface Set {
 	enum Type {
@@ -19,7 +19,7 @@ public interface Set {
 		Remaster,
 
 		/**
-		 * A set containing only promotional prints of cards. May come out at the same time as the first printings of those cards.
+		 * A set containing only promotional prints of cards. May come out at the same time as the first prints of those cards.
 		 */
 		Promo,
 
@@ -62,19 +62,19 @@ public interface Set {
 	/**
 	 * @return The set of cards printed in this set.
 	 */
-	java.util.Set<? extends Card.Printing> printings();
+	java.util.Set<? extends Card.Print> prints();
 
 	/**
-	 * Finds a card printing in this set by ID.
-	 * @param id Unique ID of the card printing.
-	 * @return The printing with that ID, or null if this set contains no such printing.
+	 * Finds a card print in this set by ID.
+	 * @param id Unique ID of the card print.
+	 * @return The print with that ID, or null if this set contains no such print.
 	 */
-	Card.Printing printing(UUID id);
+	Card.Print print(UUID id);
 
 	/**
-	 * Finds a card printing in this set by collector number.
-	 * @param collectorNumber Collector number of the card printing.
-	 * @return The printing with that collector number, or null if this set contains no such printing.
+	 * Finds a card print in this set by collector number.
+	 * @param collectorNumber Collector number of the card print.
+	 * @return The print with that collector number, or null if this set contains no such print.
 	 */
-	Card.Printing printing(String collectorNumber);
+	Card.Print print(String collectorNumber);
 }

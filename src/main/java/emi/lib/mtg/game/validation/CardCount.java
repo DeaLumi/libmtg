@@ -58,21 +58,21 @@ public enum CardCount implements Format.Validator {
 		Map<String, AtomicInteger> histogram = new HashMap<>();
 
 		for (Zone zone : format.deckZones()) {
-			Collection<? extends Card.Printing> ciz = deck.cards(zone);
+			Collection<? extends Card.Print> ciz = deck.cards(zone);
 			if (ciz == null || ciz.isEmpty()) continue;
 
-			for (Card.Printing pr : ciz) {
+			for (Card.Print pr : ciz) {
 				histogram.computeIfAbsent(pr.card().name(), n -> new AtomicInteger(0)).incrementAndGet();
 			}
 		}
 
 		for (Zone zone : format.deckZones()) {
-			Collection<? extends Card.Printing> ciz = deck.cards(zone);
+			Collection<? extends Card.Print> ciz = deck.cards(zone);
 			if (ciz == null || ciz.isEmpty()) continue;
 
 			ZoneInfo fzi = zones.get(zone);
 
-			for (Card.Printing pr : ciz) {
+			for (Card.Print pr : ciz) {
 				if (!pr.card().faces().stream().allMatch(f -> f.type().supertypes().contains(Supertype.Basic))) {
 					int min = 0, max = maxCopies;
 					if (pr.card().front() != null) {

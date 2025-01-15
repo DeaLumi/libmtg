@@ -49,7 +49,7 @@ public class Companion implements DeckConstructionAbility, StaticAbility {
 		return "If this card is your chosen companion, you may put it into your hand from outside the game for {3} any time you could cast a sorcery.";
 	}
 
-	public boolean check(Card.Printing source, Deck deck, Format format, Format.Validator.Result result) {
+	public boolean check(Card.Print source, Deck deck, Format format, Format.Validator.Result result) {
 		if (validator == null) {
 			result.card(source).warnings.add(source.card().name() + "'s companion requirement is unknown and can't be validated.");
 			return false;

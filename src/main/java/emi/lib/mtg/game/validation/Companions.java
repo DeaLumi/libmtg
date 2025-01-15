@@ -37,29 +37,29 @@ public class Companions implements Format.Validator {
 		return Collections.unmodifiableMap(map);
 	}
 
-	public static boolean isCompanion(Card.Printing pr) {
+	public static boolean isCompanion(Card.Print pr) {
 		if (pr.card().front() == null) return false;
 		return pr.card().front().abilities().ofType(Companion.class).findAny().isPresent();
 	}
 
-	private static boolean notCompanion(Card.Printing pr) {
+	private static boolean notCompanion(Card.Print pr) {
 		return !isCompanion(pr);
 	}
 
-	private static Stream<Card.Printing> startDeckStream(Deck deck) {
+	private static Stream<Card.Print> startDeckStream(Deck deck) {
 		if (deck.cards(Zone.Library) == null && deck.cards(Zone.Command) == null) return Stream.empty();
-		if (deck.cards(Zone.Command) == null) return deck.cards(Zone.Library).stream().map(x -> (Card.Printing) x);
-		if (deck.cards(Zone.Library) == null) return deck.cards(Zone.Command).stream().filter(Companions::notCompanion).map(x -> (Card.Printing) x);
+		if (deck.cards(Zone.Command) == null) return deck.cards(Zone.Library).stream().map(x -> (Card.Print) x);
+		if (deck.cards(Zone.Library) == null) return deck.cards(Zone.Command).stream().filter(Companions::notCompanion).map(x -> (Card.Print) x);
 		return Stream.concat(deck.cards(Zone.Library).stream(), deck.cards(Zone.Command).stream().filter(Companions::notCompanion));
 	}
 
-	private static Iterable<? extends Card.Printing> startDeck(Deck deck) {
+	private static Iterable<? extends Card.Print> startDeck(Deck deck) {
 		return startDeckStream(deck)::iterator;
 	}
 
 	public static boolean gyruda(Deck deck, Format format, Result result) {
 		boolean allEven = true;
-		for (Card.Printing pr : startDeck(deck)) {
+		for (Card.Print pr : startDeck(deck)) {
 			double cmc = pr.card().manaCost().value();
 
 			if (Double.isFinite(cmc) && Math.floor(cmc) == cmc && ((int) cmc % 2) == 0) {
@@ -75,7 +75,7 @@ public class Companions implements Format.Validator {
 
 	public static boolean jegantha(Deck deck, Format format, Result result) {
 		boolean allUnique = true;
-		for (Card.Printing pr : startDeck(deck)) {
+		for (Card.Print pr : startDeck(deck)) {
 			Set<Mana.Symbol> seen = new HashSet<>();
 
 			for (Mana.Symbol sym : pr.card().manaCost().symbols()) {
@@ -104,7 +104,7 @@ public class Companions implements Format.Validator {
 
 	public static boolean kaheera(Deck deck, Format format, Result result) {
 		boolean allCuties = true;
-		for (Card.Printing pr : startDeck(deck)) {
+		for (Card.Print pr : startDeck(deck)) {
 			Card.Face front = pr.card().front();
 
 			if (front == null || !front.type().cardTypes().contains(CardType.Creature)) continue;
@@ -130,7 +130,7 @@ public class Companions implements Format.Validator {
 
 	public static boolean keruga(Deck deck, Format format, Result result) {
 		boolean allBig = true;
-		for (Card.Printing pr : startDeck(deck)) {
+		for (Card.Print pr : startDeck(deck)) {
 			double cmc = pr.card().manaCost().value();
 
 			if (cmc >= 3) {
@@ -152,7 +152,7 @@ public class Companions implements Format.Validator {
 
 	public static boolean lurrus(Deck deck, Format format, Result result) {
 		boolean allSmol = true;
-		for (Card.Printing pr : startDeck(deck)) {
+		for (Card.Print pr : startDeck(deck)) {
 			Card.Face front = pr.card().front();
 
 			if (front == null) {
@@ -180,7 +180,7 @@ public class Companions implements Format.Validator {
 		boolean allUnique = true;
 		Set<String> seen = new HashSet<>();
 
-		for (Card.Printing pr : startDeck(deck)) {
+		for (Card.Print pr : startDeck(deck)) {
 			Card.Face front = pr.card().front();
 
 			if (front != null && front.type().cardTypes().contains(CardType.Land)) {
@@ -200,7 +200,7 @@ public class Companions implements Format.Validator {
 
 	public static boolean obosh(Deck deck, Format format, Result result) {
 		boolean allOdd = true;
-		for (Card.Printing pr : startDeck(deck)) {
+		for (Card.Print pr : startDeck(deck)) {
 			Card.Face front = pr.card().front();
 
 			if (front != null && front.type().cardTypes().contains(CardType.Land)) {
@@ -223,7 +223,7 @@ public class Companions implements Format.Validator {
 		boolean allSameish = true;
 		EnumSet<CardType> sharedType = EnumSet.noneOf(CardType.class);
 
-		for (Card.Printing pr : startDeck(deck)) {
+		for (Card.Print pr : startDeck(deck)) {
 			Card.Face front = pr.card().front();
 
 			if (front != null && front.type().is(CardType.Land)) {
@@ -271,7 +271,7 @@ public class Companions implements Format.Validator {
 
 	public static boolean zirda(Deck deck, Format format, Result result) {
 		boolean allActive = true;
-		for (Card.Printing pr : startDeck(deck)) {
+		for (Card.Print pr : startDeck(deck)) {
 			Card.Face front = pr.card().front();
 
 			if (front == null || !front.type().isPermanent()) {
@@ -304,10 +304,10 @@ public class Companions implements Format.Validator {
 
 	@Override
 	public Result validate(Deck deck, Format format, Result result) {
-		Collection<? extends Card.Printing> sideboard = deck.cards(Zone.Sideboard);
+		Collection<? extends Card.Print> sideboard = deck.cards(Zone.Sideboard);
 		if (sideboard == null) sideboard = Collections.emptyList();
 
-		for (Card.Printing pr : sideboard) {
+		for (Card.Print pr : sideboard) {
 			Card.Face front = pr.card().front();
 			if (front == null) continue;
 

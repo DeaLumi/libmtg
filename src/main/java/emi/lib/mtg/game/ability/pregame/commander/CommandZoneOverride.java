@@ -15,7 +15,7 @@ public interface CommandZoneOverride extends DeckConstructionAbility {
 	 * @param commanders The list of commanders, provided for convenience. May or may not be equivalent to the collection of cards in the deck's command zone.
 	 * @return A {@link Format.Validator.Result} containing any errors resulting from the validation. Should be null or {@link Format.Validator.Result#empty} if the commanders list is valid according to this ability.
 	 */
-	Format.Validator.Result check(Card.Printing source, Deck deck, Collection<? extends Card.Printing> commanders);
+	Format.Validator.Result check(Card.Print source, Deck deck, Collection<? extends Card.Print> commanders);
 
 	/**
 	 * Returns a parent class for a family of override abilities. If a card has multiple abilities inheriting from the

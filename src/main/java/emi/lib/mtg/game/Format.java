@@ -111,7 +111,7 @@ public enum Format {
 
 			public final Set<String> deckErrors;
 			public final Map<Zone, Set<String>> zoneErrors;
-			public final Map<Card.Printing, CardResult> cards;
+			public final Map<Card.Print, CardResult> cards;
 
 			public Result() {
 				this.deckErrors = new HashSet<>();
@@ -124,13 +124,13 @@ public enum Format {
 				merge(other);
 			}
 
-			public Result(Supplier<Set<String>> deckErrorsProvider, Supplier<Map<Zone, Set<String>>> zoneErrorsProvider, Supplier<Map<Card.Printing, CardResult>> cardsProvider) {
+			public Result(Supplier<Set<String>> deckErrorsProvider, Supplier<Map<Zone, Set<String>>> zoneErrorsProvider, Supplier<Map<Card.Print, CardResult>> cardsProvider) {
 				this.deckErrors = deckErrorsProvider.get();
 				this.zoneErrors = zoneErrorsProvider.get();
 				this.cards = cardsProvider.get();
 			}
 
-			public CardResult card(Card.Printing pr) {
+			public CardResult card(Card.Print pr) {
 				return cards.computeIfAbsent(pr, x -> new CardResult());
 			}
 
@@ -148,8 +148,8 @@ public enum Format {
 				for (Zone z : this.zoneErrors.keySet()) if (other.zoneErrors.containsKey(z)) this.zoneErrors.get(z).addAll(other.zoneErrors.get(z));
 				for (Zone z : other.zoneErrors.keySet()) if (!this.zoneErrors.containsKey(z)) this.zoneErrors.put(z, new HashSet<>(other.zoneErrors.get(z)));
 
-				for (Card.Printing pr : this.cards.keySet()) if (other.cards.containsKey(pr)) this.cards.get(pr).merge(other.cards.get(pr));
-				for (Card.Printing pr : other.cards.keySet()) if (!this.cards.containsKey(pr)) this.cards.put(pr, new CardResult(other.cards.get(pr)));
+				for (Card.Print pr : this.cards.keySet()) if (other.cards.containsKey(pr)) this.cards.get(pr).merge(other.cards.get(pr));
+				for (Card.Print pr : other.cards.keySet()) if (!this.cards.containsKey(pr)) this.cards.put(pr, new CardResult(other.cards.get(pr)));
 
 				return this;
 			}

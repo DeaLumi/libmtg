@@ -1,7 +1,6 @@
 package emi.lib.mtg.img;
 
 import emi.lib.mtg.Card;
-import emi.lib.mtg.enums.CardType;
 import emi.lib.mtg.enums.StandardFrame;
 
 import java.awt.*;
@@ -341,10 +340,10 @@ public class MtgAwtImageUtils {
 		return (top + bottom) / 2;
 	}
 
-	public static BufferedImage faceFromFull(Card.Printing.Face printedFace, BufferedImage full) {
+	public static BufferedImage faceFromFull(Card.Print.Face printedFace, BufferedImage full) {
 		BufferedImage tmp = full;
 
-		Card.Printing.Face.Frame frame = printedFace.frame();
+		Card.Print.Face.Frame frame = printedFace.frame();
 		if (frame.left() > 0 || frame.right() > 0 || frame.top() > 0 || frame.bottom() > 0)
 			tmp = subsection(tmp, (int) (frame.left() * full.getWidth()), (int) (frame.top() * full.getHeight()),
 					(int) ((1.0 - frame.right()) * full.getWidth()), (int) ((1.0 - frame.bottom()) * full.getHeight()));
@@ -355,7 +354,7 @@ public class MtgAwtImageUtils {
 		return clearCorners(tmp);
 	}
 
-	public static BufferedImage meldedFace(Card.Printing.Face printedFace, BufferedImage top, BufferedImage bottom) {
+	public static BufferedImage meldedFace(Card.Print.Face printedFace, BufferedImage top, BufferedImage bottom) {
 		return clearCorners(rotated(combined(bottom, 0, 0, bottom.getWidth(), bottom.getHeight(),
 				top, bottom.getWidth(), 0, bottom.getWidth() + top.getWidth(), top.getHeight()), -90.0 * StandardFrame.Meld.rotation()));
 	}

@@ -29,7 +29,7 @@ public class Commander implements Format.Validator {
 		return type.is(Supertype.Legendary) && type.is(CardType.Creature);
 	}
 
-	public static boolean validateCommander(Card.Printing pr, Deck deck, Result result) {
+	public static boolean validateCommander(Card.Print pr, Deck deck, Result result) {
 		Card.Face front = pr.card().front();
 		if (front == null) return false; // TODO: Could a split card be allowed to be a commander?
 
@@ -100,13 +100,13 @@ public class Commander implements Format.Validator {
 		 * 2. If an ability expresses alternatives, try all of them; drop failures if any succeeds.
 		 */
 
-		Collection<? extends Card.Printing> cmdZone = deck.cards(Zone.Command) == null ? Collections.emptyList() : deck.cards(Zone.Command);
+		Collection<? extends Card.Print> cmdZone = deck.cards(Zone.Command) == null ? Collections.emptyList() : deck.cards(Zone.Command);
 
-		Collection<Card.Printing> commanders = new ArrayList<>();
-		Collection<Card.Printing> satisfiedCompanions = new ArrayList<>();
-		Map<Card.Printing, Map<Class<? extends CommandZoneOverride>, Set<CommandZoneOverride>>> overrides = new HashMap<>();
+		Collection<Card.Print> commanders = new ArrayList<>();
+		Collection<Card.Print> satisfiedCompanions = new ArrayList<>();
+		Map<Card.Print, Map<Class<? extends CommandZoneOverride>, Set<CommandZoneOverride>>> overrides = new HashMap<>();
 
-		for (Card.Printing pr : cmdZone) {
+		for (Card.Print pr : cmdZone) {
 			Card.Face front = pr.card().front();
 
 			if (front != null) {
@@ -119,7 +119,7 @@ public class Commander implements Format.Validator {
 					commanders.add(pr);
 				}
 
-				final Card.Printing fpr = pr;
+				final Card.Print fpr = pr;
 				front.abilities().ofType(CommandZoneOverride.class)
 						.forEach(override -> overrides.computeIfAbsent(fpr, k -> new HashMap<>()).computeIfAbsent(override.constraintFamily(), k -> new HashSet<>()).add(override));
 			}
@@ -129,7 +129,7 @@ public class Commander implements Format.Validator {
 
 		if (!overrides.isEmpty()) {
 			// TODO Validate overrides
-			for (Map.Entry<Card.Printing, Map<Class<? extends CommandZoneOverride>, Set<CommandZoneOverride>>> entry : overrides.entrySet()) {
+			for (Map.Entry<Card.Print, Map<Class<? extends CommandZoneOverride>, Set<CommandZoneOverride>>> entry : overrides.entrySet()) {
 				family: for (Map.Entry<Class<? extends CommandZoneOverride>, Set<CommandZoneOverride>> family : entry.getValue().entrySet()) {
 					Result squashed = new Result();
 					for (CommandZoneOverride override : family.getValue()) {
@@ -149,12 +149,12 @@ public class Commander implements Format.Validator {
 			}
 
 			// In the absence of an override, all commanders are subject to standard validity checking.
-			for (Card.Printing pr : commanders) {
+			for (Card.Print pr : commanders) {
 				validateCommander(pr, deck, result);
 			}
 		}
 
-		for (Card.Printing pr : commanders) {
+		for (Card.Print pr : commanders) {
 			colorIdentity = colorIdentity.plus(pr.card().colorIdentity());
 		}
 		final Color.Combination fci = colorIdentity;

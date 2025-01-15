@@ -13,7 +13,7 @@ public interface Deck {
 
 	String description();
 
-	Collection<? extends Card.Printing> cards(Zone zone);
+	Collection<? extends Card.Print> cards(Zone zone);
 
 	default Format.Validator.Result validate() {
 		return format().validate(this);
