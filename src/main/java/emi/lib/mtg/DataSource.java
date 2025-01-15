@@ -84,7 +84,9 @@ public interface DataSource {
 	 * Finds a card print by UUID.
 	 * @param id ID of the card print to find.
 	 * @return Card print with that ID, or null if no such print is known.
+	 * @deprecated Avoid using UUIDs to refer to prints, if possible.
 	 */
+	@Deprecated
 	Card.Print print(UUID id);
 
 	/**

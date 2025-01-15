@@ -68,7 +68,9 @@ public interface Set {
 	 * Finds a card print in this set by ID.
 	 * @param id Unique ID of the card print.
 	 * @return The print with that ID, or null if this set contains no such print.
+	 * @deprecated Avoid using UUIDs to refer to prints, if possible.
 	 */
+	@Deprecated
 	Card.Print print(UUID id);
 
 	/**

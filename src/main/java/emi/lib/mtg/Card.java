@@ -503,7 +503,9 @@ public interface Card {
 		 *
 		 * @return A unique ID that can be used to refer to this print. Must not be null. This is used to reliably
 		 * refer to *this* print of *this* card.
+		 * @deprecated Avoid using UUIDs to refer to prints of cards if possible.
 		 */
+		@Deprecated
 		UUID id();
 	}
 
@@ -565,7 +567,9 @@ public interface Card {
 	 * Retrieves a particular print.
 	 * @param id The ID of the print to get.
 	 * @return The print with that ID, or null if this card has no such print.
+	 * @deprecated Avoid using opaque UUIDs to refer to prints where possible. Data sources may disagree.
 	 */
+	@Deprecated
 	Print print(UUID id);
 
 	/**
