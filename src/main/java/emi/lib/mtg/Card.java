@@ -344,7 +344,17 @@ public interface Card {
 
 					@Override
 					public int hashCode() {
-						return name.hashCode() ;
+						return Objects.hash(name, setCode, collectorNumber);
+					}
+
+					@Override
+					public boolean equals(Object obj) {
+						if (!(obj instanceof Reference)) return false;
+						Reference other = (Reference) obj;
+						if (!name.equals(other.name())) return false;
+						if (!setCode.equals(other.setCode())) return false;
+						if (!collectorNumber.equals(other.collectorNumber())) return false;
+						return true;
 					}
 				};
 			}
@@ -579,6 +589,16 @@ public interface Card {
 	 * @return The print with that set code and collector number, or null if this card has no such print.
 	 */
 	Print print(String setCode, String collectorNumber);
+
+	/**
+	 * Retrieves a print by reference. The card name must match!
+	 * @param reference A reference to the printing of this card to obtain.
+	 * @return The print with that reference's set code and collector number, as long as the reference's card name matches this one. Null otherwise.
+	 */
+	default Print print(Print.Reference reference) {
+		if (!reference.name().equals(name())) return null;
+		return print(reference.setCode(), reference.collectorNumber());
+	}
 
 	/**
 	 * Returns the front face of this card. For most Magic cards, this is the face you see when you open this card
