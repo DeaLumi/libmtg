@@ -449,17 +449,20 @@ public interface Mana {
 
 			@Override
 			public Value add(Value other) {
+				clearMemo();
 				if (other instanceof Pure) return add((Pure) other);
 				return new Value(this.symbols, other.symbols); // We can't guarantee other contains only pure symbols.
 			}
 
 			public Pure add(Pure other) {
+				clearMemo();
 				this.pureSymbols().addAll(other.pureSymbols());
 				polishSymbols();
 				return this;
 			}
 
 			public Pure reduce(Pure other, boolean colorPaysGeneric, boolean failOnExcess) {
+				clearMemo();
 				double ourGeneric = 0, theirGeneric = 0;
 				Multiset<Symbol.Pure>.UniqueIterator iter;
 
@@ -559,16 +562,31 @@ public interface Mana {
 		}
 
 		protected final Multiset<? extends Symbol> symbols;
+		protected final transient int[] memoizedDevotion;
+		protected transient Color.Combination memoizedColor, memoizedMinColor;
+		protected transient Boolean memoizedVaries;
+		protected transient double memoizedValue;
 
 		protected <T extends Symbol> Value(Collection<T> symbols) {
 			this(symbols, null);
 		}
 
 		protected <T extends Symbol> Value(Collection<? extends T> symbolsA, Collection<? extends T> symbolsB) {
+			this.memoizedDevotion = new int[Color.values().length];
+			clearMemo();
+
 			this.symbols = new Multiset<T>();
 			if (symbolsA != null) symbolsInternal().addAll(symbolsA);
 			if (symbolsB != null) symbolsInternal().addAll(symbolsB);
 			polishSymbols();
+		}
+
+		protected void clearMemo() {
+			Arrays.fill(memoizedDevotion, -1);
+			memoizedColor = null;
+			memoizedMinColor = null;
+			memoizedVaries = null;
+			memoizedValue = Double.NaN;
 		}
 
 		protected void polishSymbols() {
@@ -603,16 +621,19 @@ public interface Mana {
 
 		@Override
 		public double value() {
-			return symbols.stream().mapToDouble(Symbol::value).sum();
+			if (!Double.isNaN(memoizedValue)) return memoizedValue;
+			return memoizedValue = symbols.stream().mapToDouble(Symbol::value).sum();
 		}
 
 		@Override
 		public Color.Combination color() {
-			return symbols.stream().map(Symbol::color).collect(Color.Combination.COMBO_COLLECTOR);
+			if (memoizedColor != null) return memoizedColor;
+			return memoizedColor = symbols.stream().map(Symbol::color).collect(Color.Combination.COMBO_COLLECTOR);
 		}
 
 		protected Color.Combination minimalColor() {
-			return symbols.stream().map(s -> s instanceof Symbol.Hybrid ? ((Symbol.Hybrid) s).firstColor() : s.color()).collect(Color.Combination.COMBO_COLLECTOR);
+			if (memoizedMinColor != null) return memoizedMinColor;
+			return memoizedMinColor = symbols.stream().map(s -> s instanceof Symbol.Hybrid ? ((Symbol.Hybrid) s).firstColor() : s.color()).collect(Color.Combination.COMBO_COLLECTOR);
 		}
 
 		@Override
@@ -635,6 +656,7 @@ public interface Mana {
 		}
 
 		protected Multiset<Symbol> symbolsInternal() {
+			clearMemo();
 			// I'm like 90% sure this cast is always safe. Multiset<? extends Symbol> should always be a subclass of Multiset<Symbol> for our purposes.
 			return (Multiset<Symbol>) symbols;
 		}
@@ -715,7 +737,8 @@ public interface Mana {
 		}
 
 		public int devotion(Color color) {
-			return (int) symbolsInternal().stream().filter(s -> s.color().contains(color)).count();
+			if (memoizedDevotion[color.ordinal()] >= 0) return memoizedDevotion[color.ordinal()];
+			return memoizedDevotion[color.ordinal()] = (int) symbolsInternal().stream().filter(s -> s.color().contains(color)).count();
 		}
 
 		public boolean pure() {
@@ -723,7 +746,8 @@ public interface Mana {
 		}
 
 		public boolean varies() {
-			return symbolsInternal().stream().anyMatch(s -> s instanceof Symbol.Variable);
+			if (memoizedVaries != null) return memoizedVaries;
+			return memoizedVaries = symbolsInternal().stream().anyMatch(s -> s instanceof Symbol.Variable);
 		}
 
 		public Value copy() {
@@ -735,12 +759,14 @@ public interface Mana {
 		}
 
 		public Value add(Value other, boolean combineSymbols) {
+			clearMemo();
 			symbolsInternal().addAll(other.symbolsInternal());
 			if (combineSymbols) polishSymbols();
 			return this;
 		}
 
 		public Value substitute(Symbol.Variable variable, Value.Pure substitution) {
+			clearMemo();
 			int limit = symbolsInternal().count(variable);
 			for (int i = 0; i < limit; ++i) {
 				symbolsInternal().addAll(substitution.symbolsInternal());
